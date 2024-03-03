@@ -6,12 +6,11 @@ public class PlayerBulletController : MonoBehaviour
 {
     public float speed, zLimit; //speed of the bullet, and the limit of the bullet in the z axis
     [SerializeField] protected float hp;
-    private Collider collider;
 
     // Start is called before the first frame update
     void Start()
     {
-        collider = GetComponent<Collider>();
+        
     }
 
     // Update is called once per frame
