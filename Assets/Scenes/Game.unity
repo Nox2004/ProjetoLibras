@@ -241,7 +241,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d05a616241be004da531488b53de11c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  debug: 0
+  smoothMoveRatio: 0.15
   xStart: 0
   xRange: 5
   bulletPrefab: {fileID: 7252992186801787625, guid: 6092e4d17cbc5224ea913eec600d59bc, type: 3}
@@ -353,6 +354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b7b0024495f5144a8424c3cc4c8c7d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debug: 1
   signManager: {fileID: 899165712}
   floorWidth: 6
   zLimit: -5
@@ -363,7 +365,8 @@ MonoBehaviour:
   enemySpeedMultiplier: 0
   upgradeCooldown: 10
   upgradeQuestionObject: {fileID: 372130843}
-  signObjectsSpeed: 0
+  signObjectsSpeed: 5
+  numberOfOptionsPerUpgrade: 3
 --- !u!4 &440361106
 Transform:
   m_ObjectHideFlags: 0

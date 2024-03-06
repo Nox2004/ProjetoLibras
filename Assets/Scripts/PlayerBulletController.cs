@@ -7,13 +7,11 @@ public class PlayerBulletController : MonoBehaviour
     public float speed, zLimit; //speed of the bullet, and the limit of the bullet in the z axis
     [SerializeField] protected float hp;
 
-    // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
         transform.Translate(Vector3.forward * speed * Time.deltaTime);    

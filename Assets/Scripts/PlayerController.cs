@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+[SelectionBase]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private float xStart, xRange; //starting X in game world, and range of horizontal movement in game world
-    private float xTarget; //target X position of the player
+    [SerializeField] private bool debug; private string debugTag = "PlayerController: ";
 
+    [Header("Horizontal Movement")]
+    [SerializeField] [Range(0, 1)] [Tooltip("Ratio of smooth moving: Player will move [Distance to touch / This] every second")] 
+    private float smoothMoveRatio;
+    [SerializeField] private float xStart, xRange; //Starting X in game world, and range of horizontal movement in game world
+    private float xTarget; //Target X position of the player
+
+    [Header("Shooting")]
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Vector3 bulletSpawnOffset;
     [SerializeField] private float shootCooldown, bulletSpeed, bulletZLimit;
 
-
-    //shooting coroutine
+    //Shooting coroutine
     IEnumerator Shoot()
     {
         while (true)
@@ -29,32 +34,31 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
+        //Starts the shooting coroutine
         StartCoroutine(Shoot());
     }
 
-    // Update is called once per frame
     void Update()
     {
-        #region //moves horizontally based on mouse position on the screen
+        #region //Moves horizontally based on touch position on the screen
 
         if (Input.touchCount > 0)
         {
+            //Gets the last touch
             Touch touch = Input.GetTouch(Input.touchCount-1);
-            Debug.Log("Touch Position: " + touch.position);
-            //Horizontally moves the player to the touch position
-
+            
             //Gets touch X position and converts it to a relative position (0 - left, 1 - right)
             float relative_touch_x = touch.position.x / Screen.width;
             relative_touch_x = relative_touch_x - 0.5f; //shifts the relative position to be centered at 0
 
-            //desired X position of the object in world
+            //Calculates desired X position of the object in world using xRange property
             xTarget = xStart + xRange * relative_touch_x;
 
-            //Moves the player to the target X position
-            float step = speed * Time.deltaTime;
+            //Smoothly moves the player to the target X position
+            float step = Mathf.Abs(transform.position.x - xTarget) / (smoothMoveRatio / Time.deltaTime);
+
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(xTarget, transform.position.y, transform.position.z), step);
         }
 
