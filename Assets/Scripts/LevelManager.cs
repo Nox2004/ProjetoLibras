@@ -52,6 +52,7 @@ public class LevelManager : MonoBehaviour
         
         //Populate upgrade event manager pro
         uem.debug = debug;
+        uem.floorWidth = floorWidth;
         uem.spawnPosition = spawnPosition;
         uem.speed = signObjectsSpeed;
         uem.correctAnswerIndex = correct_answer;

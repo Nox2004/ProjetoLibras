@@ -20,6 +20,7 @@ public class UpgradeEventManager : MonoBehaviour
     public float speed; 
 
     public Vector3 spawnPosition;
+    public float roomWidth;
     public GameObject questionObject;
     private Image questionImage;
     public Sprite questionSprite;
