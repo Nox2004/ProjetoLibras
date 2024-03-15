@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SignSet
   signs:
   - sign: 0
-    signObjectPrefab: {fileID: 7057646982525544457, guid: 8f022aa4ed7a7cf409e13862a9eca006, type: 3}
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 0a8114511bd12ec429312578f74834dc, type: 3}
     signSprite: {fileID: 21300000, guid: 2e80e109058791a47a0c0ee922fa2a95, type: 3}
   - sign: 1
-    signObjectPrefab: {fileID: 7057646982525544457, guid: 7365acf2aa1d775408186b20d471e4fb, type: 3}
+    signObjectPrefab: {fileID: 7461692341840947896, guid: dd0869b93c12fbd4e92640e2b1a621c2, type: 3}
     signSprite: {fileID: 21300000, guid: d7d32bdff5f12cd47a83b137d05e1563, type: 3}
   - sign: 2
-    signObjectPrefab: {fileID: 7057646982525544457, guid: e4431888c0cbfea4ab0aad79fa0e500a, type: 3}
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 0e36289ff9221cb4b8b72b6960b69667, type: 3}
     signSprite: {fileID: 21300000, guid: 241f07911bc94d64bb3ff75c52faee8a, type: 3}
   - sign: 3
-    signObjectPrefab: {fileID: 7057646982525544457, guid: f8b3b47ea8cf4c44a8b154c53ef47cf0, type: 3}
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 9a6d6ae635979cb45848b74ef948a2a6, type: 3}
     signSprite: {fileID: 21300000, guid: 18ad2297cce17da49b02b8a54dd6a3fd, type: 3}
   - sign: 4
-    signObjectPrefab: {fileID: 7057646982525544457, guid: bcabc12e75bb7bd42bf9d2e22d46f914, type: 3}
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
     signSprite: {fileID: 21300000, guid: 4101a44c0ec1a044a97df87b23eec2fb, type: 3}

@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 1445274771430149805}
   - component: {fileID: 2772743368963634129}
   - component: {fileID: 92541342323610627}
+  - component: {fileID: 1940776519188797798}
   m_Layer: 0
   m_Name: PlayerBullet
   m_TagString: Untagged
@@ -152,7 +153,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 20
-  z_limit: 5
+  zLimit: 0
+  particleManager: {fileID: 0}
+  hitParticlePrefab: {fileID: 4596488624402658906, guid: c5d51355e84c49541b2f4e3ca9ae3500, type: 3}
+  emissionParticlePrefab: {fileID: 4596488624402658906, guid: eccc74626b545654db705584c9105fdf, type: 3}
+  min_part_cooldown: 0.02
+  max_part_cooldown: 0.08
 --- !u!136 &92541342323610627
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -176,3 +182,21 @@ CapsuleCollider:
   m_Height: 0.3
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1940776519188797798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7252992186801787625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ca5b405d96f3774bb732bd4e7f33230, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 0, g: 0, b: 0, a: 1}
+  outlineWidth: 7
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
