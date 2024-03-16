@@ -4,6 +4,13 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
+public struct UpgradeEventCurrentInfo
+{
+    public int numOfUpgrades;
+    public float startAnswerX;
+    public float spaceBetweenAnswers;
+}
+
 public class UpgradeEventManager : MonoBehaviour
 {
     private enum Stage 
@@ -18,6 +25,9 @@ public class UpgradeEventManager : MonoBehaviour
     public bool debug;
     private string debugTag = "UpgradeEventManager: ";
 
+    //All info that is external to the logic of other classes
+    public UpgradeEventCurrentInfo currentInfo;
+
     //Stage
     private Stage stage = Stage.Question;
     
@@ -29,8 +39,6 @@ public class UpgradeEventManager : MonoBehaviour
 
     //Spawn position and border
     public Vector3 spawnPosition;
-    public float spawnBorder;
-    public float floorWidth;
     public float zLimit;
 
     //Question object
@@ -74,7 +82,6 @@ public class UpgradeEventManager : MonoBehaviour
         questionXAngleInterpolator = new WaveValueInterpolator(-2f, 2f, 2f);
         questionYAngleInterpolator = new WaveValueInterpolator(-3f, 3f, 1.7f);
         questionZAngleInterpolator = new WaveValueInterpolator(-4f, 4f, 3f);
-
     }
 
     void Update()
@@ -106,17 +113,16 @@ public class UpgradeEventManager : MonoBehaviour
                     if (debug) Debug.Log(debugTag + "Answer Stage");
                     
                     //Makes player stop shooting
-                    playerController.SetShooting(false);
+                    playerController.SetState(playerController.upgradeState);
 
                     #region //Spawn the answer objects
 
-                    //Sets the x space between the answer objects
-                    float space = (floorWidth-(spawnBorder*2f)) / (answerPrefabs.Length-1);
-                    float xx = spawnPosition.x - floorWidth/2 + spawnBorder;
+                    float xx = currentInfo.startAnswerX;
 
                     //Instantiate the objects
-                    answerObjects = new GameObject[answerPrefabs.Length];
-                    for (int i = 0; i < answerPrefabs.Length; i++)
+                    answerObjects = new GameObject[currentInfo.numOfUpgrades];
+
+                    for (int i = 0; i < currentInfo.numOfUpgrades; i++)
                     {
                         GameObject obj = Instantiate(answerPrefabs[i], new Vector3(xx, spawnPosition.y, spawnPosition.z), Quaternion.identity);
                         
@@ -124,7 +130,7 @@ public class UpgradeEventManager : MonoBehaviour
                         obj.GetComponent<SignObjectController>().zLimit = zLimit;
                         answerObjects[i] = obj;
 
-                        xx += space;
+                        xx += currentInfo.spaceBetweenAnswers;
                     }
 
                     #endregion
@@ -148,7 +154,7 @@ public class UpgradeEventManager : MonoBehaviour
                     selectedAnswerIndex = -1;
                     float minDistance = float.MaxValue;
 
-                    for (int i = 0; i < answerObjects.Length; i++)
+                    for (int i = 0; i < currentInfo.numOfUpgrades; i++)
                     {
                         float distance = Mathf.Abs(answerObjects[i].transform.position.x - playerX);
                         if (distance < minDistance)
@@ -163,6 +169,8 @@ public class UpgradeEventManager : MonoBehaviour
 
                     if (debug) Debug.Log(debugTag + "Feedback Stage");
                     stage = Stage.Feedback;
+
+                    playerController.SetState(playerController.shootingState); //Allows player to shoot again
                 }
 
                 // if (Input.touches.Length > 0)
@@ -227,9 +235,6 @@ public class UpgradeEventManager : MonoBehaviour
 
     void OnDestroy()
     {
-        //check if is editor mode
-        if (!Application.isPlaying) return;
-
         //May run in editor mode when game is stopped (???)
         if (debug) Debug.Log(debugTag + "OnDestroy - Resetting the question object position and rotation and interpolators");
 

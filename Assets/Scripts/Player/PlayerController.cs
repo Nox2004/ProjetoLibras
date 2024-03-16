@@ -18,7 +18,6 @@ public class PlayerController : MonoBehaviour
     private float smoothMoveRatio;
     [SerializeField] private float xStart, xRange; //Starting X in game world, and range of horizontal movement in game world
     [SerializeField] [Range(0, 0.5f)] private float touchXTreshold; //Treshold for touch position to be considered as a movement
-    private float xTarget; //Target X position of the player
 
     [Header("Shooting")]
     private IEnumerator shootingCoroutine; private bool isShooting;
@@ -27,8 +26,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float shootCooldown, bulletSpeed, bulletZLimit;
 
     //State machine properties
-    private IPlayerState currentState;
-    private ShootingState shootingState; private AnsweringState answeringState;
+    public IPlayerState currentState;
+    public ShootingState shootingState; public UpgradeState upgradeState;
 
     //State machine methods
     public void SetState(IPlayerState state)
@@ -56,10 +55,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void SmoothHorizontalMovement(float x_target)
+    {
+        float step = Mathf.Abs(transform.position.x - x_target) / (smoothMoveRatio / Time.deltaTime);
+
+        Vector3 target_pos = transform.position;
+        target_pos.x = x_target;
+        transform.position = Vector3.MoveTowards(transform.position, target_pos, step);
+    }
+
     void Start()
     {
         shootingState = new ShootingState(xStart, xRange, touchXTreshold, smoothMoveRatio);
-        answeringState = new AnsweringState();
+        upgradeState = new UpgradeState(levelManager, touchXTreshold);
 
         //Sets the initial state
         shootingCoroutine = ShootCoroutine();
@@ -103,20 +111,3 @@ public class PlayerController : MonoBehaviour
 
 
 
-public class AnsweringState : IPlayerState
-{
-    public void EnterState(PlayerController me)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void UpdateState(PlayerController me)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void ExitState(PlayerController me)
-    {
-        throw new System.NotImplementedException();
-    }
-}

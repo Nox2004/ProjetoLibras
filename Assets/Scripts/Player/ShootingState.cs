@@ -46,12 +46,7 @@ public class ShootingState : IPlayerState
             //Calculates desired X position of the object in world using xRange property
             xTarget = xStart + xRange * relative_touch_x;
 
-            //Smoothly moves the player to the target X position
-            float step = Mathf.Abs(me.transform.position.x - xTarget) / (smoothMoveRatio / Time.deltaTime);
-
-            Vector3 target_pos = me.transform.position;
-            target_pos.x = xTarget;
-            me.transform.position = Vector3.MoveTowards(me.transform.position, target_pos, step);
+            me.SmoothHorizontalMovement(xTarget);
         }
 
         #endregion

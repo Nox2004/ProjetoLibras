@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -29,10 +27,16 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject upgradeQuestionObject;
     [SerializeField] private float signObjectsSpeed;
     [SerializeField] private int numberOfOptionsPerUpgrade;
-    [SerializeField] private float upgradeQuestionSpawnBorder;
+    [SerializeField] private float upgradeAnswerSpawnBorder;
     [SerializeField] private CurveValueInterpolator upgradeQuestionEnterAnimInterpolator;
     [SerializeField] private CurveValueInterpolator upgradeQuestionExitAnimInterpolator;
 
+    [SerializeField] private GameObject upgradePlayerTargetPrefab;
+    private GameObject[] upgradePlayerTargets;
+    [SerializeField] private float playerTargetHideY, playerTargetShowY, playerTargetSmoothMoveRatio;
+    [SerializeField] private Material playerTargetMaterial, playerTargetHighlitedMaterial;
+
+    //Available signs and upgrade event handling
     private List<SignCode> availableSigns; 
     private float upgradeTimer = 0f;
 
@@ -57,15 +61,15 @@ public class LevelManager : MonoBehaviour
         UpgradeEventManager uem = this.AddComponent<UpgradeEventManager>();
         
         //Populate upgrade event manager pro
+        uem.currentInfo = GetUpgradeEventCurrentInfo();
+
         uem.playerController = playerController;
         uem.debug = debug;
-        uem.floorWidth = floorWidth;
         uem.zLimit = zLimit;
         uem.questionEnterInterpolator = upgradeQuestionEnterAnimInterpolator;
         uem.questionExitInterpolator = upgradeQuestionExitAnimInterpolator;
 
         uem.spawnPosition = spawnPosition;
-        uem.spawnBorder = upgradeQuestionSpawnBorder;
         uem.speed = signObjectsSpeed;
         
         uem.correctAnswerIndex = correct_answer;
@@ -102,6 +106,50 @@ public class LevelManager : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(enemySpawnCooldownMin, enemySpawnCooldownMax));
         }
     }
+
+    public UpgradeEventCurrentInfo GetUpgradeEventCurrentInfo()
+    {
+        UpgradeEventCurrentInfo info;
+        info.numOfUpgrades = numberOfOptionsPerUpgrade;
+        info.startAnswerX = spawnPosition.x - floorWidth/2 + upgradeAnswerSpawnBorder;
+        info.spaceBetweenAnswers = (floorWidth-(upgradeAnswerSpawnBorder*2f)) / (numberOfOptionsPerUpgrade-1);
+
+        return info;
+    }
+
+    private void InstantiateUpgradePlayerTargets()
+    {
+        if (upgradePlayerTargets != null) 
+        {
+            //destroy all
+            foreach (GameObject target in upgradePlayerTargets) Destroy(target);
+        }
+        
+        //Gets the current upgrade event info
+        UpgradeEventCurrentInfo upgrade_info = GetUpgradeEventCurrentInfo();
+
+        //Instantiate new targets
+        upgradePlayerTargets = new GameObject[upgrade_info.numOfUpgrades];
+
+        float xx = upgrade_info.startAnswerX;
+        for (int i = 0; i < upgrade_info.numOfUpgrades; i++)
+        {
+            GameObject target = Instantiate(upgradePlayerTargetPrefab, new Vector3(xx, playerTargetHideY, 0), Quaternion.identity);
+            
+            upgradePlayerTargets[i] = target;
+
+            xx += upgrade_info.spaceBetweenAnswers;
+        }
+    }
+
+    public void SetHighlitedPlayerTarget(int index)
+    {
+        for (int i = 0; i < upgradePlayerTargets.Length; i++)
+        {
+            Material mat = (i == index) ? playerTargetHighlitedMaterial : playerTargetMaterial;
+            upgradePlayerTargets[i].GetComponent<MeshRenderer>().material = mat;
+        }
+    }
     
     void Start()
     {
@@ -120,6 +168,8 @@ public class LevelManager : MonoBehaviour
 
             Debug.Log(debug_str);
         }
+
+        InstantiateUpgradePlayerTargets();
     }
 
     void Update()
@@ -187,6 +237,19 @@ public class LevelManager : MonoBehaviour
                     }
                 }
             }
+        }
+
+        //Handles player targets
+        float current_y = upgradePlayerTargets[0].transform.position.y;
+        float target_y = (playerController.currentState == playerController.upgradeState) ? playerTargetShowY : playerTargetHideY;
+
+        current_y += (target_y - current_y) / (playerTargetSmoothMoveRatio / Time.deltaTime);
+
+        foreach (GameObject target in upgradePlayerTargets)
+        {
+            Vector3 target_pos = target.transform.position;
+            target_pos.y = current_y;
+            target.transform.position = target_pos;
         }
     }
 }

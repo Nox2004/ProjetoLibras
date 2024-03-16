@@ -245,7 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 0
-  levelManager: {fileID: 0}
+  levelManager: {fileID: 440361105}
   particleManager: {fileID: 899165714}
   smoothMoveRatio: 0.15
   xStart: 0
@@ -17216,16 +17216,16 @@ MonoBehaviour:
   playerController: {fileID: 173439564}
   floorWidth: 6
   zLimit: -5
-  spawnPosition: {x: 0, y: -1, z: 16}
+  spawnPosition: {x: 0, y: -1, z: 25}
   enemyPrefab: {fileID: 3573865540879984003, guid: 8f9c5cd37880345469b72244c29a1b85, type: 3}
-  enemySpawnCooldownMin: 0.5
-  enemySpawnCooldownMax: 1
+  enemySpawnCooldownMin: 0.8
+  enemySpawnCooldownMax: 1.5
   enemySpeedMultiplier: 0
   upgradeCooldown: 15
   upgradeQuestionObject: {fileID: 845984806}
-  signObjectsSpeed: 3
+  signObjectsSpeed: 4
   numberOfOptionsPerUpgrade: 3
-  upgradeQuestionSpawnBorder: 1
+  upgradeAnswerSpawnBorder: 1
   upgradeQuestionEnterAnimInterpolator:
     curve:
       serializedVersion: 2
@@ -17282,6 +17282,12 @@ MonoBehaviour:
     startVal: 0
     endVal: 150
     duration: 0.8
+  upgradePlayerTargetPrefab: {fileID: 2594530986015775802, guid: 939ba6994eb76d04597ef437d970df5c, type: 3}
+  playerTargetHideY: -1.5
+  playerTargetShowY: -1
+  playerTargetSmoothMoveRatio: 0.5
+  playerTargetMaterial: {fileID: 2100000, guid: 2de978eeeeda4b540adaacfdc172a2e8, type: 2}
+  playerTargetHighlitedMaterial: {fileID: 2100000, guid: 637dee0da487d8c47a10f105d7e48c88, type: 2}
 --- !u!4 &440361106
 Transform:
   m_ObjectHideFlags: 0
@@ -17383,35 +17389,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.12057984
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.57
+      value: -0.53037083
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.000000018626451
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.6660416
+      value: 0.64429075
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.23746277
+      value: -0.2913579
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.6660416
+      value: 0.64429075
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.23746277
+      value: 0.2913579
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -39.245
+      value: -48.666
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fa008ea8e71b4e4439f026c96af93d93, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -17756,7 +17762,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0.49015224, y: -0, z: -0, w: 0.87163687}
-  m_LocalPosition: {x: 0, y: 7.57, z: -1.36}
+  m_LocalPosition: {x: 0, y: 11.94, z: -2.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
