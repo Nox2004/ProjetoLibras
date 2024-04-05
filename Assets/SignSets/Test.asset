@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c55ace828fd63e43a395413679ffced, type: 3}
+  m_Name: Test
+  m_EditorClassIdentifier: 
+  signs:
+  - sign: 0
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 0a8114511bd12ec429312578f74834dc, type: 3}
+    signTexture: {fileID: 2800000, guid: 14074673593c86b4dbea3ff72b904dc6, type: 3}
+  - sign: 1
+    signObjectPrefab: {fileID: 7461692341840947896, guid: dd0869b93c12fbd4e92640e2b1a621c2, type: 3}
+    signTexture: {fileID: 2800000, guid: 14074673593c86b4dbea3ff72b904dc6, type: 3}
+  - sign: 2
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 0e36289ff9221cb4b8b72b6960b69667, type: 3}
+    signTexture: {fileID: 2800000, guid: 14074673593c86b4dbea3ff72b904dc6, type: 3}
+  - sign: 3
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 9a6d6ae635979cb45848b74ef948a2a6, type: 3}
+    signTexture: {fileID: 2800000, guid: 14074673593c86b4dbea3ff72b904dc6, type: 3}
+  - sign: 4
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 14074673593c86b4dbea3ff72b904dc6, type: 3}

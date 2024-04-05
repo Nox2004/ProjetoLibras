@@ -1,87 +1,165 @@
-using System.Collections;
+//using System.Collections;
+//using System.Collections.Generic;
+//using Unity.VisualScripting;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 public struct UpgradeEventCurrentInfo
 {
-    public int numOfUpgrades;
+    public int numOfOptions;
     public float startAnswerX;
     public float spaceBetweenAnswers;
+
+    public UpgradeEventCurrentInfo(int numOfOptions, float startAnswerX, float spaceBetweenAnswers)
+    {
+        this.numOfOptions = numOfOptions;
+        this.startAnswerX = startAnswerX;
+        this.spaceBetweenAnswers = spaceBetweenAnswers;
+    }
+}
+
+public struct UpgradeEventInstanceData
+{ 
+    public SignCode selectedSign;
+    public SignCode correctSign;
+    public SignCode[] options;
+
+    public UpgradeEventInstanceData(SignCode[] options, SignCode selectedSign, SignCode correctSign)
+    {
+        this.selectedSign = selectedSign;
+        this.correctSign = correctSign;
+        this.options = options;
+    }
+
+    public bool isCorrect() => selectedSign == correctSign;
 }
 
 public class UpgradeEventManager : MonoBehaviour
 {
     private enum Stage 
     {
+        Waiting,
         Question, //Shows the source sign
         Answer, //presents three target signs (where one is equivalent to the source sign presented earlier)
-        Feedback, // Shows the correct answer and upgrades the player
-        Destroy
+        Feedback // Shows the correct answer and upgrades the player
     }
 
     //Debugging
-    public bool debug;
+    [SerializeField] private bool debug;
     private string debugTag = "UpgradeEventManager: ";
 
-    //All info that is external to the logic of other classes
-    public UpgradeEventCurrentInfo currentInfo;
-
     //Stage
-    private Stage stage = Stage.Question;
-    
-    //References
-    public PlayerController playerController;
+    private Stage stage = Stage.Waiting;
+    //History
+    private List<UpgradeEventInstanceData> upgradeEventHistory;
+
+    [Header("References")]
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private UpgradeQuestionSignController questionController;
+
+    #region //Info used to instantiate stuff
+
+    [Header("Instantiate parameters")]
+    [SerializeField] private int numOfOptions;
+    [SerializeField] private float upgradeAnswerSpawnBorder;
+
+    //Filled by Initialize
+    private Vector3 spawnPosition;
+    private float zLimit;
+    private float floorWidth;
+    //Calculated on Initialize
+    private float startAnswerX;
+    private float spaceBetweenAnswers;
+
+    #endregion
 
     //Speed of the sign objects
-    public float speed; 
+    private float speed; //Filled by Initialize
 
-    //Spawn position and border
-    public Vector3 spawnPosition;
-    public float zLimit;
-
-    //Question object
-    public GameObject questionObject;
-    private Image questionImage;
-    public Sprite questionSprite;
-    private Transform questionTransform;
-
-    private Vector3 questionInitialPosition;
-    private Quaternion questionInitialRotation;
-
-    //Question object procedural animation
-    public CurveValueInterpolator questionEnterInterpolator;
-    private float questionXAngle = 0f;
-    public CurveValueInterpolator questionExitInterpolator;
-    private float questionYPosition = 0f;
-    private WaveValueInterpolator questionYAngleInterpolator, questionXAngleInterpolator, questionZAngleInterpolator;
-    
     //Answer objects
     private GameObject[] answerObjects;
-    public GameObject[] answerPrefabs;
+    private GameObject[] answerPrefabs;
     
     //Correct answer index
-    public int correctAnswerIndex;
+    private SignCode[] currentSigns;
+    private int correctAnswerIndex;
     private int selectedAnswerIndex;
-    
+
+    //Player targets
+    [Header("Player Targets")]
+    [SerializeField] private GameObject playerTargetPrefab;
+    private GameObject[] playerTargets;
+    [SerializeField] private float playerTargetHideY, playerTargetShowY, playerTargetSmoothMoveRatio;
+    [SerializeField] private Material playerTargetMaterial, playerTargetHighlitedMaterial;
+
+    public UpgradeEventCurrentInfo GetCurrentInfo()
+    {
+        return new UpgradeEventCurrentInfo(numOfOptions, startAnswerX, spaceBetweenAnswers);
+    }
+
+    public void Initialize(float speed, Vector3 spawn_position, float z_limit, float floor_width)
+    {
+        this.speed = speed;
+        this.spawnPosition = spawn_position;
+        this.zLimit = z_limit;
+        this.floorWidth = floor_width;
+
+        startAnswerX = spawnPosition.x - floorWidth/2 + upgradeAnswerSpawnBorder;
+        spaceBetweenAnswers = (floorWidth-(upgradeAnswerSpawnBorder*2f)) / (numOfOptions-1);
+
+        InstantiateUpgradePlayerTargets();
+    }
+
+    public void StartUpgradeEvent(SignCode[] currentSigns, Texture question_texture, Texture answer_texture, GameObject[] answer_prefabs, int correct_answer_index, float speed)
+    {
+        this.speed = speed;
+        this.answerPrefabs = answer_prefabs;
+        this.correctAnswerIndex = correct_answer_index;
+        this.currentSigns = currentSigns;
+
+        questionController.SetTextures(question_texture, answer_texture);
+        questionController.SetAnimation(UpgradeQuestionSignController.Animation.Entering);
+
+        if (debug) Debug.Log(debugTag + "Question Stage");
+        stage = Stage.Question;
+    }
+
+    private void InstantiateUpgradePlayerTargets()
+    {
+        if (playerTargets != null) 
+        {
+            //Destroy all
+            foreach (GameObject target in playerTargets) Destroy(target);
+        }
+
+        //Instantiate new targets
+        playerTargets = new GameObject[numOfOptions];
+
+        float xx = startAnswerX;
+        for (int i = 0; i < numOfOptions; i++)
+        {
+            GameObject target = Instantiate(playerTargetPrefab, new Vector3(xx, playerTargetHideY, 0), Quaternion.identity);
+            
+            playerTargets[i] = target;
+
+            xx += spaceBetweenAnswers;
+        }
+    }
+
+    public void SetHighlitedPlayerTarget(int index)
+    {
+        for (int i = 0; i < playerTargets.Length; i++)
+        {
+            Material mat = (i == index) ? playerTargetHighlitedMaterial : playerTargetMaterial;
+            playerTargets[i].GetComponent<MeshRenderer>().material = mat;
+        }
+    }
+
     void Start()
     {
-        if (debug)  { Debug.Log(debugTag + "Start"); Debug.Log(debugTag + "Question Stage"); }
-
-        //Change the question object sprite to the sign matching the correct answer
-        questionTransform = questionObject.GetComponent<Transform>();
-        questionImage = questionObject.GetComponentInChildren<Image>();
-        questionImage.sprite = questionSprite;
-
-        //Set the initial position and rotation of the question object
-        questionInitialPosition = questionTransform.localPosition;
-        questionInitialRotation = questionTransform.rotation;
-
-        //Set the wavey interpolators
-        questionXAngleInterpolator = new WaveValueInterpolator(-2f, 2f, 2f);
-        questionYAngleInterpolator = new WaveValueInterpolator(-3f, 3f, 1.7f);
-        questionZAngleInterpolator = new WaveValueInterpolator(-4f, 4f, 3f);
+        if (debug)  { Debug.Log(debugTag + "Start"); }
+        
+        upgradeEventHistory = new List<UpgradeEventInstanceData>();
     }
 
     void Update()
@@ -90,11 +168,6 @@ public class UpgradeEventManager : MonoBehaviour
         {
             case Stage.Question:
             {
-                //Rotates the question object to show the sign to the player
-                questionEnterInterpolator.Update(Time.deltaTime);
-
-                questionXAngle = questionEnterInterpolator.GetValue();
-                
                 //Count enemies in scene
                 GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
@@ -107,8 +180,8 @@ public class UpgradeEventManager : MonoBehaviour
                     }
                 }
 
-                //When the question enter animation finished, spawn the answer objects
-                if (questionEnterInterpolator.Finished() && (enemy_count <= 0))
+                //When there are no enemies left alive, spawn the answer objects
+                if (enemy_count <= 0)
                 {
                     if (debug) Debug.Log(debugTag + "Answer Stage");
                     
@@ -117,12 +190,12 @@ public class UpgradeEventManager : MonoBehaviour
 
                     #region //Spawn the answer objects
 
-                    float xx = currentInfo.startAnswerX;
+                    float xx = startAnswerX;
 
                     //Instantiate the objects
-                    answerObjects = new GameObject[currentInfo.numOfUpgrades];
+                    answerObjects = new GameObject[numOfOptions];
 
-                    for (int i = 0; i < currentInfo.numOfUpgrades; i++)
+                    for (int i = 0; i < numOfOptions; i++)
                     {
                         GameObject obj = Instantiate(answerPrefabs[i], new Vector3(xx, spawnPosition.y, spawnPosition.z), Quaternion.identity);
                         
@@ -130,7 +203,7 @@ public class UpgradeEventManager : MonoBehaviour
                         obj.GetComponent<SignObjectController>().zLimit = zLimit;
                         answerObjects[i] = obj;
 
-                        xx += currentInfo.spaceBetweenAnswers;
+                        xx += spaceBetweenAnswers;
                     }
 
                     #endregion
@@ -141,115 +214,80 @@ public class UpgradeEventManager : MonoBehaviour
             break;
             case Stage.Answer:
             {
-                //!!Select condition - change later
-                
-                float answerZ = answerObjects[0].transform.position.z;
-                float playerZ = playerController.transform.position.z;
-
-                if (answerZ <= playerZ)
+                for (int i = 0; i < numOfOptions; i++)
                 {
-                    float playerX = playerController.transform.position.x;
-                    
-                    //Selects the answer closest to the player
-                    selectedAnswerIndex = -1;
-                    float minDistance = float.MaxValue;
-
-                    for (int i = 0; i < currentInfo.numOfUpgrades; i++)
+                    if (answerObjects[i].GetComponent<SignObjectController>().chosen)
                     {
-                        float distance = Mathf.Abs(answerObjects[i].transform.position.x - playerX);
-                        if (distance < minDistance)
+                        selectedAnswerIndex = i;
+                        
+                        if (debug) { Debug.Log(debugTag + "Answer selected - index [" + selectedAnswerIndex + "]"); Debug.Log(debugTag + "Object [" + answerObjects[selectedAnswerIndex].name + "] destroyed"); }
+                        Destroy(answerObjects[selectedAnswerIndex]); //Destroy selected answer object
+                        
+                        for (int j = 0; j < numOfOptions; j++)
                         {
-                            minDistance = distance;
-                            selectedAnswerIndex = i;
+                            if (j != i)
+                            {
+                                if (debug) { Debug.Log(debugTag + "Starting destruction animation of object [" + answerObjects[j].name + "]"); }
+                                answerObjects[j].GetComponent<SignObjectController>().StartDestruction();
+                            }
                         }
+
+                        playerController.SetState(playerController.shootingState); //Allows player to shoot again
+                        questionController.SetAnimation(UpgradeQuestionSignController.Animation.ShowAnswer); //Hides the question object
+
+                        if (debug) Debug.Log(debugTag + "Feedback Stage");
+                        stage = Stage.Feedback;
+
+                        break;
                     }
-
-                    if (debug) { Debug.Log(debugTag + "Answer selected - index [" + selectedAnswerIndex + "]"); Debug.Log(debugTag + "Object [" + answerObjects[selectedAnswerIndex].name + "] destroyed"); }
-                    answerObjects[selectedAnswerIndex].GetComponent<SignObjectController>().StartDestruction(); //Destroy selected answer object
-
-                    if (debug) Debug.Log(debugTag + "Feedback Stage");
-                    stage = Stage.Feedback;
-
-                    playerController.SetState(playerController.shootingState); //Allows player to shoot again
                 }
-
-                // if (Input.touches.Length > 0)
-                // {
-                //     Touch t = Input.touches[Input.touches.Length-1];
-                //     if (t.phase == TouchPhase.Began)
-                //     {
-                //         selectedAnswerIndex = (int) Mathf.Floor((t.position.x / Screen.width) * answerObjects.Length);
-                //         int i = selectedAnswerIndex;
-
-                //         if (debug) { Debug.Log(debugTag + "Answer selected - index [" + i + "]"); Debug.Log(debugTag + "Object [" + answerObjects[i].name + "] destroyed"); }
-                //         Destroy(answerObjects[i]);
-
-                //         if (debug) Debug.Log(debugTag + "Feedback Stage");
-                //         stage = Stage.Feedback;
-                //     }
-                // }
             }
             break;
             case Stage.Feedback:
             {
-                //Question exit animation
-                questionExitInterpolator.Update(Time.deltaTime);
-                questionYPosition = questionExitInterpolator.GetValue();
-
-                if (questionExitInterpolator.Finished())
-                {
-                    if (debug) Debug.Log(debugTag + "Allows player to shoot again");
-
-                    //Allows player to shoot again
-                    playerController.SetShooting(true);
-
-                    if (debug) Debug.Log(debugTag + "Destroy stage");
-
-                    stage = Stage.Destroy;
-                }
+                //Adds this event instance to the history
+                upgradeEventHistory.Add(new UpgradeEventInstanceData(   currentSigns, 
+                                                                        currentSigns[selectedAnswerIndex], 
+                                                                        currentSigns[correctAnswerIndex]));
 
                 if (selectedAnswerIndex == correctAnswerIndex)
                 {
                     //positive feedback
+                    playerController.Upgrade(); //!Change later
                 }
                 else 
                 {
                     //negative feedback
                 }
+
+                if (debug) Debug.Log(debugTag + "Allows player to shoot again");
+
+                //Allows player to shoot again
+                playerController.SetShooting(true);
+
+                if (debug) Debug.Log(debugTag + "Waiting stage");
+
+                stage = Stage.Waiting;
             }
             break;
         }
-        
-        //Updates sign rotation
-        Vector3 tmp = questionInitialRotation.eulerAngles;
-        tmp += new Vector3(questionXAngle + questionXAngleInterpolator.Update(Time.deltaTime),
-        questionYAngleInterpolator.Update(Time.deltaTime),
-        questionZAngleInterpolator.Update(Time.deltaTime));
-        
-        questionTransform.rotation = Quaternion.Euler(tmp);
-        
-        //Updates sign position
-        tmp = questionInitialPosition; tmp.y += questionYPosition;
-        questionTransform.localPosition = tmp;
+
+        //Handles player targets
+        float current_y = playerTargets[0].transform.position.y;
+        float target_y = (playerController.GetState() is UpgradeState) ? playerTargetShowY : playerTargetHideY;
+
+        current_y += (target_y - current_y) / (playerTargetSmoothMoveRatio / Time.deltaTime);
+
+        foreach (GameObject target in playerTargets)
+        {
+            Vector3 target_pos = target.transform.position;
+            target_pos.y = current_y;
+            target.transform.position = target_pos;
+        }
     }
-
-    void OnDestroy()
-    {
-        //May run in editor mode when game is stopped (???)
-        if (debug) Debug.Log(debugTag + "OnDestroy - Resetting the question object position and rotation and interpolators");
-
-        //Resets the question object position and rotation
-        questionTransform.localPosition = questionInitialPosition;
-        questionTransform.rotation = questionInitialRotation;
-
-        //Reset the interpolators so next time the question object is shown, the animation starts from the beginning
-        questionEnterInterpolator.Reset();
-        questionExitInterpolator.Reset();
-    }
-    
 
     public bool Finished()
     {
-        return stage == Stage.Destroy;
+        return stage == Stage.Waiting;
     }
 }

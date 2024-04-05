@@ -4,6 +4,8 @@ Shader "Custom/ToonShader"
     {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
+		_SecondTex ("Second Texture", 2D) = "white" {} //a texture that will be drawn above normal texture (for stickers and stuff) (white with 0 alpha by default)
+		//_DrawSecondTex ("Draw Second Texture", Integer) = 0
         _ToonLut ("Toon LUT", 2D) = "white" {}
         _RimColor ("Rim Color", Color) = (1,1,1,1)
 		_RimPower ("Rim Power", Range(0, 10)) = 1
@@ -40,6 +42,7 @@ Shader "Custom/ToonShader"
 			};
 
 			sampler2D _MainTex;
+			sampler2D _SecondTex;
 			sampler2D _ToonLut;
 
 			half3 _RimColor;
@@ -48,6 +51,7 @@ Shader "Custom/ToonShader"
 			fixed4 _Color;
 
 			float _WhiteEffectStrength;
+			int _DrawSecondTex;
 
 			v2f vert (appdata v)
 			{
@@ -74,6 +78,14 @@ Shader "Custom/ToonShader"
 				float3 indirectDiffuse = unity_AmbientSky;
 
 				fixed4 col = tex2D(_MainTex, i.uv) * _Color;
+				
+				//if second texture is not white, draw it above the main texture
+				if (_DrawSecondTex)
+				{
+					fixed4 tex2 = tex2D(_SecondTex, i.uv) * _Color;
+					col = lerp(col, tex2, tex2.a);
+				}
+
 				col.rgb *= directDiffuse + indirectDiffuse;
 				col.rgb += rim;
 				col.a = 1.0;

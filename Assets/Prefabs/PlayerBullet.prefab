@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 2772743368963634129}
   - component: {fileID: 92541342323610627}
   - component: {fileID: 1940776519188797798}
+  - component: {fileID: -8642052467119071346}
   m_Layer: 0
   m_Name: PlayerBullet
   m_TagString: Untagged
@@ -156,9 +157,12 @@ MonoBehaviour:
   zLimit: 0
   particleManager: {fileID: 0}
   hitParticlePrefab: {fileID: 4596488624402658906, guid: c5d51355e84c49541b2f4e3ca9ae3500, type: 3}
-  emissionParticlePrefab: {fileID: 4596488624402658906, guid: eccc74626b545654db705584c9105fdf, type: 3}
-  min_part_cooldown: 0.02
-  max_part_cooldown: 0.08
+  range: 12
+  damage: 1
+  knockback: 0
+  pierce: 0
+  shootSound: {fileID: 8300000, guid: cb99a306581487b4580668566a539e6a, type: 3}
+  collideSound: {fileID: 8300000, guid: 501d18940bb0ef549acdca46399d5a83, type: 3}
 --- !u!136 &92541342323610627
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -200,3 +204,30 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!54 &-8642052467119071346
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7252992186801787625}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 0
+  m_ImplicitTensor: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

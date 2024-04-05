@@ -10,7 +10,7 @@ public class CurveValueInterpolator
 {
     //Animation curve and value 
     [SerializeField] private AnimationCurve curve;
-    [SerializeField] private float startVal, endVal;
+    [SerializeField] public float startVal, endVal;
 
     //Duration of the animation
     [SerializeField] private float duration = 1f;

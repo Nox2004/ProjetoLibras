@@ -14,7 +14,7 @@ public class WaveValueInterpolator
     //Duration of the animation
     [SerializeField] private float duration = 1f;
 
-    private bool isPlaying = true;
+    [SerializeField] private bool isPlaying = true;
     private float timer = 0f;
     private float rawValue = 0f;
     private float lerpedValue = 0f;
@@ -24,6 +24,8 @@ public class WaveValueInterpolator
         this.val1 = val1;
         this.val2 = val2;
         this.duration = duration;
+
+        isPlaying = true;
     }
 
     public WaveValueInterpolator Clone()
@@ -67,7 +69,7 @@ public class WaveValueInterpolator
     public float Update(float t = -1f)
     {
         if (t == -1f) t = Time.deltaTime;
-
+        
         //In animation
         if (isPlaying)
         {

@@ -43,17 +43,21 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage
             _health = Mathf.Clamp(value, 0f, maxHealth); // Enforce health bounds
         }
     }
+    
+    //Rendereres in which effects are applied
+    [SerializeField] private Renderer[] effectRenderers;
 
     //Z limit for the enemy to be destroyed
     public float zLimit;
 
     //Combat properties
+    [HideInInspector] public float speed;
     public float damage;
     [Range(0,1)] public float KnockbackResistance;
     [HideInInspector] public Vector3 KnockbackForce;
     private float whiteEffectStrength;
     public float whiteEffectDuration;
-    
+
     virtual protected void Start()
     {
         debugTag = "EnemyController - [" + gameObject.name + "]: ";
@@ -78,9 +82,14 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage
         //Apply white effect strength
         if (whiteEffectStrength > 0) whiteEffectStrength -= Time.deltaTime / whiteEffectDuration;
         else whiteEffectStrength = 0;
-
-        Material material = GetComponentInChildren<Renderer>().material;
-        material.SetFloat("_WhiteEffectStrength", whiteEffectStrength);
+        
+        for (int i = 0; i < effectRenderers.Length; i++)
+        {
+            Renderer rend = effectRenderers[i];
+            
+            //Sets the white effect in the first material of that renderer
+            rend.material.SetFloat("_WhiteEffectStrength", whiteEffectStrength);
+        }
 
         //if the enemy is out of the screen, destroy it
         if (transform.position.z < zLimit)
@@ -93,8 +102,7 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage
     virtual public void TakeDamage(float damage)
     {
         if (debug) Debug.Log(debugTag + "Took " + damage + " damage");
-
-        KnockbackForce = Vector3.forward * 9; //!!! Change this later (knockback should be applied by bullets script)
+        
         whiteEffectStrength = 1;
     }
 

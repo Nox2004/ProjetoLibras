@@ -3,11 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [SelectionBase]
-public class SignObjectController : MonoBehaviour
+public class SignObjectController : MonoBehaviour, ITakesDamage
 {
+    #region ITakesDamage implementation
+
+    public bool alive { get => !destroy; set {  } }
+
+    private float _maxHealth = 1f; // Private backing field for max health
+    public float maxHealth { get => _maxHealth ; set { _maxHealth = value; } }
+
+    private float _health; // Private backing field for current health
+    public float currentHealth
+    {
+        get => _health;
+        set
+        {
+            Die();
+        }
+    }
+
+    virtual public void TakeDamage(float damage) { }
+
+    virtual public void Die() {}
+    
+    #endregion
+
     private Vector3 velocity = new Vector3(0, 0, -1);
     public float speed;
 
+    public bool chosen = false;
     public bool destroy = false;
     private float fallSpeed = 0f;
     [SerializeField] private float fallAcceleration = 250f;
@@ -48,5 +72,10 @@ public class SignObjectController : MonoBehaviour
     public void StartDestruction()
     {
         destroy = true;
+    }
+
+    public void ChooseMe()
+    {
+        chosen = true;
     }
 }

@@ -5,15 +5,22 @@ using UnityEngine;
 
 public class PlaceHolderEnemyController : EnemyController
 {
-    [SerializeField] private float speed;
+    [SerializeField] private float speedMultiplier;
     
     //Falling when dead animation
     private float fallSpeed = 0f;
     [SerializeField] private float fallAcceleration = 0.1f;
 
+    AudioSource audioSource;
+    [SerializeField] AudioClip deathSound;
+
     override protected void Start()
     {
         base.Start();
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+
+        speed *= speedMultiplier;
     }
     
     override protected void Update()
@@ -25,11 +32,11 @@ public class PlaceHolderEnemyController : EnemyController
         if (state == EnemyState.Dead)
         {
             fallSpeed += fallAcceleration * Time.deltaTime;
-            if (transform.rotation.eulerAngles.x < 90)
+            if (transform.rotation.eulerAngles.x < 60)
             {
                 var tmp = transform.rotation.eulerAngles;
                 tmp.x += fallSpeed * Time.deltaTime;
-                tmp.x = Mathf.Min(tmp.x, 90);
+                tmp.x = Mathf.Min(tmp.x, 60);
                 
                 transform.rotation = Quaternion.Euler(tmp);
             }
@@ -40,7 +47,9 @@ public class PlaceHolderEnemyController : EnemyController
     {
         base.Die();
 
-        //destroy collider
+        audioSource.PlayOneShot(deathSound);
+
+        //destroy collider for performance
         Destroy(GetComponent<Collider>());
     }
 }
