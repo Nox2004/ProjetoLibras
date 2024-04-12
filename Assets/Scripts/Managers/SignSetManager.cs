@@ -32,7 +32,7 @@ public static class SignSetManager
         //if any info is missing, set it up using the settings
         if (signCodes == null || sourceSignSet == null || targetSignSet == null)
         {
-            SettingsManager.SetSignSets();
+            GameManager.UpdateSignSets();
         }
     }
 }

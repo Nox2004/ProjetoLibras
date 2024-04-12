@@ -5,6 +5,7 @@ using System;
 
 public enum SignCode
 {
+    AnswerTookToLong = -1,
     A = 0,
     B = 1,
     C = 2,

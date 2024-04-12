@@ -8,4 +8,9 @@ public static class Injector
     {
         return new ChangeSceneManager();
     }
+
+    public static AudioManager GetAudioManager(GameObject me)
+    {
+        return new AudioManager(me);
+    }
 }

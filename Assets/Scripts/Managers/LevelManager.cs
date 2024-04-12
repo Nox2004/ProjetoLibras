@@ -1,11 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
-using Palmmedia.ReportGenerator.Core;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class LevelManager : MonoBehaviour
-{   
+public class LevelManager : MonoBehaviour, IPausable
+{  
+    #region //IPausable implementation
+
+    private bool paused = false;
+
+    public void Pause()
+    {
+        paused = true;
+        StopCoroutine(enemySpawningCoroutine);
+    }
+
+    public void Resume()
+    {
+        paused = false;
+        StartCoroutine(enemySpawningCoroutine);
+    }
+
+    #endregion
+
     [SerializeField] private bool debug; private string debugTag = "LevelManager: ";
 
     [Header("Reference")]
@@ -21,6 +38,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject enemyPrefab;
 
     [SerializeField] private float enemySpawnCooldownMin, enemySpawnCooldownMax;
+    private IEnumerator enemySpawningCoroutine;
 
     [Header("Upgrades")]
     [SerializeField] private UpgradeEventManager upgradeEventManager;
@@ -71,6 +89,8 @@ public class LevelManager : MonoBehaviour
     {
         while (true)
         {
+            //!CHANGE LATER
+            if (paused) yield return new WaitForSeconds(Random.Range(enemySpawnCooldownMin, enemySpawnCooldownMax));
             if (debug) Debug.Log(debugTag + "Trying to spawn enemy");
 
             if (upgradeEventOnGoing) 
@@ -102,7 +122,8 @@ public class LevelManager : MonoBehaviour
     {
         if (debug) Debug.Log(debugTag + "Started");
 
-        StartCoroutine(SpawnEnemyCoroutine()); //Start enemy spawning coroutine
+        enemySpawningCoroutine = SpawnEnemyCoroutine(); 
+        StartCoroutine(enemySpawningCoroutine); //Start enemy spawning coroutine
 
         //copy sign codes to available signs
         availableSigns = new List<SignCode>(SignSetManager.signCodes);
@@ -122,6 +143,8 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
+        if (paused) return;
+
         //Upgrade event cooldown
         if (!upgradeEventOnGoing) upgradeTimer += Time.deltaTime;
 

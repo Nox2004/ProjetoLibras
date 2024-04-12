@@ -34,8 +34,24 @@ public struct UpgradeEventInstanceData
     public bool isCorrect() => selectedSign == correctSign;
 }
 
-public class UpgradeEventManager : MonoBehaviour
+public class UpgradeEventManager : MonoBehaviour, IPausable
 {
+    #region //IPausable implementation
+
+    private bool paused = false;
+
+    public void Pause()
+    {
+        paused = true;
+    }
+
+    public void Resume()
+    {
+        paused = false;
+    }
+
+    #endregion
+
     private enum Stage 
     {
         Waiting,
@@ -56,6 +72,9 @@ public class UpgradeEventManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private UpgradeQuestionSignController questionController;
+    [SerializeField] private GameObject signObjectPrefab;
+    [SerializeField] private ParticleManager particleManager;
+    [SerializeField] private AudioManager audioManager;
 
     #region //Info used to instantiate stuff
 
@@ -78,12 +97,16 @@ public class UpgradeEventManager : MonoBehaviour
 
     //Answer objects
     private GameObject[] answerObjects;
-    private GameObject[] answerPrefabs;
     
     //Correct answer index
     private SignCode[] currentSigns;
     private int correctAnswerIndex;
     private int selectedAnswerIndex;
+
+    [Header("Answer Target Objects")]
+    [SerializeField] private float timeToDestroyAnswerObjects;
+    [SerializeField] private float distanceFromPlayerToDestroyAnswerObjects;
+    [SerializeField] private AudioClip destroyAnswersSound;
 
     //Player targets
     [Header("Player Targets")]
@@ -91,6 +114,8 @@ public class UpgradeEventManager : MonoBehaviour
     private GameObject[] playerTargets;
     [SerializeField] private float playerTargetHideY, playerTargetShowY, playerTargetSmoothMoveRatio;
     [SerializeField] private Material playerTargetMaterial, playerTargetHighlitedMaterial;
+
+    #region //Operational methods
 
     public UpgradeEventCurrentInfo GetCurrentInfo()
     {
@@ -113,7 +138,6 @@ public class UpgradeEventManager : MonoBehaviour
     public void StartUpgradeEvent(SignCode[] currentSigns, Texture question_texture, Texture answer_texture, GameObject[] answer_prefabs, int correct_answer_index, float speed)
     {
         this.speed = speed;
-        this.answerPrefabs = answer_prefabs;
         this.correctAnswerIndex = correct_answer_index;
         this.currentSigns = currentSigns;
 
@@ -123,6 +147,10 @@ public class UpgradeEventManager : MonoBehaviour
         if (debug) Debug.Log(debugTag + "Question Stage");
         stage = Stage.Question;
     }
+
+    #endregion
+
+    #region //Player movement target methods
 
     private void InstantiateUpgradePlayerTargets()
     {
@@ -155,15 +183,40 @@ public class UpgradeEventManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    private System.Collections.IEnumerator destroyAnswerObjects(float time, int num, GameObject[] objs)
+    {
+        for (int i = 0; i < num; i++)
+        {
+            objs[i].GetComponent<SignObjectController>().destroy = true;
+        }
+
+        yield return new WaitForSeconds(time);
+
+        audioManager.PlaySound(destroyAnswersSound);
+        for (int i = 0; i < num; i++)
+        {
+            if (objs[i] != null)
+            {
+                if (debug) Debug.Log(debugTag + "Object [" + answerObjects[i].name + "] destroyed");
+
+                objs[i].GetComponent<SignObjectController>().DestroyMe();
+            }
+        }
+    }
     void Start()
     {
         if (debug)  { Debug.Log(debugTag + "Start"); }
         
         upgradeEventHistory = new List<UpgradeEventInstanceData>();
+        audioManager = Injector.GetAudioManager(gameObject);
     }
 
     void Update()
     {
+        if (paused) return;
+
         switch (stage)
         {
             case Stage.Question:
@@ -197,10 +250,15 @@ public class UpgradeEventManager : MonoBehaviour
 
                     for (int i = 0; i < numOfOptions; i++)
                     {
-                        GameObject obj = Instantiate(answerPrefabs[i], new Vector3(xx, spawnPosition.y, spawnPosition.z), Quaternion.identity);
+                        GameObject obj = Instantiate(signObjectPrefab, new Vector3(xx, spawnPosition.y, spawnPosition.z), Quaternion.identity);
                         
-                        obj.GetComponent<SignObjectController>().speed = speed;
-                        obj.GetComponent<SignObjectController>().zLimit = zLimit;
+                        SignObjectController controller = obj.GetComponent<SignObjectController>();
+                        controller.speed = speed;
+                        controller.zLimit = zLimit;
+                        controller.particleManager = particleManager;
+
+                        controller.SetTextures(SignSetManager.GetSoureSign(currentSigns[i]).signTexture, SignSetManager.GetTargetSign(currentSigns[i]).signTexture);
+
                         answerObjects[i] = obj;
 
                         xx += spaceBetweenAnswers;
@@ -214,32 +272,46 @@ public class UpgradeEventManager : MonoBehaviour
             break;
             case Stage.Answer:
             {
+                bool next_stage = false;
+                int selected_index = (int) SignCode.AnswerTookToLong;
+                float time_to_destroy = 0;
+
+                //If object z is too close to the players
+                if (Mathf.Abs(answerObjects[0].transform.position.z - playerController.transform.position.z) < distanceFromPlayerToDestroyAnswerObjects)
+                {
+                    if (debug) Debug.Log(debugTag + "Answer objects too close to the player, destroying them");
+                    next_stage = true;
+                }
+
                 for (int i = 0; i < numOfOptions; i++)
                 {
+                    if (next_stage) break; //Jumps the loop if the next stage is already set because of proximity
+
                     if (answerObjects[i].GetComponent<SignObjectController>().chosen)
                     {
-                        selectedAnswerIndex = i;
+                        selected_index = i;
                         
-                        if (debug) { Debug.Log(debugTag + "Answer selected - index [" + selectedAnswerIndex + "]"); Debug.Log(debugTag + "Object [" + answerObjects[selectedAnswerIndex].name + "] destroyed"); }
-                        Destroy(answerObjects[selectedAnswerIndex]); //Destroy selected answer object
-                        
-                        for (int j = 0; j < numOfOptions; j++)
-                        {
-                            if (j != i)
-                            {
-                                if (debug) { Debug.Log(debugTag + "Starting destruction animation of object [" + answerObjects[j].name + "]"); }
-                                answerObjects[j].GetComponent<SignObjectController>().StartDestruction();
-                            }
-                        }
+                        if (debug) { Debug.Log(debugTag + "Answer selected - index [" + selected_index + "]"); Debug.Log(debugTag + "Object [" + answerObjects[selectedAnswerIndex].name + "] destroyed"); }
 
-                        playerController.SetState(playerController.shootingState); //Allows player to shoot again
-                        questionController.SetAnimation(UpgradeQuestionSignController.Animation.ShowAnswer); //Hides the question object
-
-                        if (debug) Debug.Log(debugTag + "Feedback Stage");
-                        stage = Stage.Feedback;
+                        next_stage = true;
+                        time_to_destroy = timeToDestroyAnswerObjects;
+                        selected_index = i;
 
                         break;
                     }
+                }
+
+                if (next_stage)
+                {
+                    StartCoroutine(destroyAnswerObjects(time_to_destroy,numOfOptions,answerObjects)); //Starts the coroutine to destroy the answer objects
+
+                    playerController.SetState(playerController.shootingState); //Allows player to shoot again
+                    questionController.SetAnimation(UpgradeQuestionSignController.Animation.ShowAnswer); //Hides the question object
+
+                    selectedAnswerIndex = selected_index;
+
+                    if (debug) Debug.Log(debugTag + "Feedback Stage");
+                    stage = Stage.Feedback;
                 }
             }
             break;
@@ -247,7 +319,7 @@ public class UpgradeEventManager : MonoBehaviour
             {
                 //Adds this event instance to the history
                 upgradeEventHistory.Add(new UpgradeEventInstanceData(   currentSigns, 
-                                                                        currentSigns[selectedAnswerIndex], 
+                                                                        (selectedAnswerIndex == (int) SignCode.AnswerTookToLong) ? SignCode.AnswerTookToLong : currentSigns[selectedAnswerIndex],
                                                                         currentSigns[correctAnswerIndex]));
 
                 if (selectedAnswerIndex == correctAnswerIndex)

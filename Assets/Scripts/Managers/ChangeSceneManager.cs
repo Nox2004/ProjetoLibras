@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChangeSceneManager : MonoBehaviour
+public class ChangeSceneManager
 {
     public void LoadScene(string sceneName)
     {

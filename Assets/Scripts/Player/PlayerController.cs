@@ -4,14 +4,44 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [SelectionBase]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IPausable
 {
+    #region //IPausable implementation
+
+    private bool paused = false;
+    private bool wasShootingBeforePause = false;
+    public void Pause()
+    {
+        paused = true;
+        //stops coroutine if player is shooting
+        if (isShooting) 
+        {
+            SetShooting(false);
+            wasShootingBeforePause = true;
+        }
+    }
+
+    public void Resume()
+    {
+        paused = false;
+        //resumes coroutine if player was shooting before pause
+        if (wasShootingBeforePause) 
+        {
+            SetShooting(true);
+            wasShootingBeforePause = false;
+        }
+        
+    }
+
+    #endregion
+
     [Header("Debug")]
     [SerializeField] private bool debug; private string debugTag = "PlayerController: ";
 
     [Header("Important references")]
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private ParticleManager particleManager;
+    private AudioManager audioManager;
     
     [Header("Horizontal Movement")]
     [SerializeField] [Range(0, 1)] [Tooltip("Ratio of smooth moving: Player will move [Distance to touch / This] every second")] 
@@ -25,6 +55,7 @@ public class PlayerController : MonoBehaviour
     [Header("Bullet Instantiation")]
     private IEnumerator shootingCoroutine; private bool isShooting;
     [SerializeField] private GameObject bulletPrefab;
+    private ObjectPooler bulletPooler;
     [SerializeField] private Vector3 bulletSpawnOffset;
     [SerializeField] private float bulletZLimit;
     [SerializeField, Tooltip("The arc (in degrees) in which bullets will be instantiated if player shoots more than one.")] private float bulletsAngleArc;
@@ -102,11 +133,12 @@ public class PlayerController : MonoBehaviour
 
     public void SimpleShoot()
     {
-        GameObject bullet = Instantiate(bulletPrefab, transform.position + bulletSpawnOffset, Quaternion.identity);
+        GameObject bullet = bulletPooler.GetObject(transform.position + bulletSpawnOffset, Quaternion.identity);
         PlayerBulletController bullet_controller = bullet.GetComponent<PlayerBulletController>();
 
         bullet_controller.zLimit = bulletZLimit;
         bullet_controller.particleManager = particleManager;
+        bullet_controller.playerAudioManager = audioManager;
         bullet_controller.speed = 35f;
         bullet_controller.damage = 1;
         bullet_controller.range = 30f;
@@ -122,17 +154,18 @@ public class PlayerController : MonoBehaviour
             angle += bulletsAngleArc / (bulletsPerShoot + 1); 
             //Vector3 direction = Quaternion.Euler(0, angle, 0) * transform.forward;
 
-            GameObject bullet = Instantiate(bulletPrefab, transform.position + bulletSpawnOffset, Quaternion.Euler(0,angle,0));
+            GameObject bullet = bulletPooler.GetObject(transform.position + bulletSpawnOffset, Quaternion.Euler(0,angle,0));
             PlayerBulletController bullet_controller = bullet.GetComponent<PlayerBulletController>();
 
             //Populate bullet properties
-            bullet_controller.speed = bulletSpeed;
             bullet_controller.zLimit = bulletZLimit;
+            bullet_controller.particleManager = particleManager;
+            bullet_controller.playerAudioManager = audioManager;
+            bullet_controller.speed = bulletSpeed;
             bullet_controller.damage = bulletDamage;
             bullet_controller.range = bulletRange;
             bullet_controller.knockback = bulletKnockback;
             bullet_controller.pierce = bulletPenetration;
-            bullet_controller.particleManager = particleManager;
         }
     }
 
@@ -171,8 +204,12 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        audioManager = Injector.GetAudioManager(gameObject);
+
         shootingState = new ShootingState();
         upgradeState = new UpgradeState(levelManager);
+
+        bulletPooler = new ObjectPooler(bulletPrefab);
 
         //Sets the initial state
         shootingCoroutine = ShootCoroutine();
@@ -190,13 +227,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // if (Input.touchCount > 0)
-        // {
-        //     if (Input.GetTouch(0).phase == TouchPhase.Began)
-        //     {
-        //         Upgrade();
-        //     }
-        // }
+        if (paused) return;
 
         currentState.UpdateState(this);
     }

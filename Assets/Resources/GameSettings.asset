@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88aa9527e0aed8d49a584e1994a09299, type: 3}
   m_Name: GameSettings
   m_EditorClassIdentifier: 
-  signsUsed: 0000000001000000020000000300000004000000
+  signsUsed: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f00000010000000110000001200000013000000140000001500000016000000170000001800000019000000
   languageSettings:
   - language: 0
+    flagSprite: {fileID: 21300000, guid: 874859cf8365b9942b69967e60d0b7a6, type: 3}
     signs: {fileID: 11400000, guid: b9ba911a1f02dbd4994c9f4a9746559b, type: 2}
-    letters: {fileID: 11400000, guid: b9ba911a1f02dbd4994c9f4a9746559b, type: 2}
+    letters: {fileID: 11400000, guid: e818f09c9c355d540ba84203666af9a5, type: 2}
   selectedLanguage: 0
   invertedSignals: 0
-  MasterVolume: 1
-  MusicOn: 1
+  musicOn: 1
+  soundsOn: 1
   effectsOn: 1
   outlineWidth: 1

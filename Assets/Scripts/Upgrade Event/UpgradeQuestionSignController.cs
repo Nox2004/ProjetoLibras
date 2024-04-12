@@ -5,8 +5,24 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UpgradeQuestionSignController : MonoBehaviour
+public class UpgradeQuestionSignController : MonoBehaviour, IPausable
 {
+    #region //IPausable implementation
+
+    private bool paused = false;
+
+    public void Pause()
+    {
+        paused = true;
+    }
+
+    public void Resume()
+    {
+        paused = false;
+    }
+
+    #endregion
+
     public enum Animation
     {
         None,
@@ -33,6 +49,11 @@ public class UpgradeQuestionSignController : MonoBehaviour
 
     [SerializeField] private float showAnswerRotationRatio, showAnswerDuration;
     private float showAnswerTimer;
+
+    private AudioManager audioManager;
+    [SerializeField] private AudioClip enterSound, showAnswerSound, exitSound;
+
+    
     
     //Set the renderer textures
     public void SetTextures(Texture questionTexture, Texture answerTexture)
@@ -46,6 +67,9 @@ public class UpgradeQuestionSignController : MonoBehaviour
 
     void Start()
     {
+        //Get the audio manager
+        audioManager = Injector.GetAudioManager(gameObject);
+
         //Set the initial position and rotation of the question object
         initialPosition = transform.localPosition;
         initialRotation = transform.rotation;
@@ -60,6 +84,8 @@ public class UpgradeQuestionSignController : MonoBehaviour
 
     void Update()
     {
+        if (paused) return;
+
         switch (currentAnimation)
         {
             case Animation.Entering:
@@ -137,16 +163,19 @@ public class UpgradeQuestionSignController : MonoBehaviour
             case Animation.Entering:
             {
                 EnterInterpolator.Reset();
+                audioManager.PlaySound(enterSound);
             }
             break;
             case Animation.Exiting:
             {
                 ExitInterpolator.Reset();
+                audioManager.PlaySound(exitSound);
             }
             break;
             case Animation.ShowAnswer:
             {
                 showAnswerTimer = showAnswerDuration;
+                audioManager.PlaySound(showAnswerSound);
             }
             break;
         }

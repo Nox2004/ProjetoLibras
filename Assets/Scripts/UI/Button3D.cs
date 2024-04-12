@@ -4,11 +4,12 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Button3D : MonoBehaviour
+public class Button3D : MonoBehaviour, ITouchable
 {
-    protected bool control, beingTouched;
-    
-    //OnTouch event
+    [HideInInspector] public bool control { get; set; } 
+    [HideInInspector] public bool beingTouched { get; set; }
+
+    //Touch event
     [SerializeField] protected UnityEvent onTouchEvent;
 
     public void HandleTouch(bool ended)

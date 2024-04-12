@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c55ace828fd63e43a395413679ffced, type: 3}
+  m_Name: Libras
+  m_EditorClassIdentifier: 
+  signs:
+  - sign: 0
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 0a8114511bd12ec429312578f74834dc, type: 3}
+    signTexture: {fileID: 2800000, guid: c21b0ebbab671274e9b13edb3f9396ff, type: 3}
+  - sign: 1
+    signObjectPrefab: {fileID: 7461692341840947896, guid: dd0869b93c12fbd4e92640e2b1a621c2, type: 3}
+    signTexture: {fileID: 2800000, guid: 9ca96de4287837149bfe854c241e5f07, type: 3}
+  - sign: 2
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 0e36289ff9221cb4b8b72b6960b69667, type: 3}
+    signTexture: {fileID: 2800000, guid: 51f32a56656095645b434a23645a5c95, type: 3}
+  - sign: 3
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 9a6d6ae635979cb45848b74ef948a2a6, type: 3}
+    signTexture: {fileID: 2800000, guid: 01710c79703baf6488a5c5b003d0d019, type: 3}
+  - sign: 4
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 946bb44a2c5c36643a2af2a0e5767f3e, type: 3}
+  - sign: 5
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: b2df07b2d9e9a3c46bcdd4f60095dd3c, type: 3}
+  - sign: 6
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 6e7b48360c9c4d341b8716f5c8c86dd7, type: 3}
+  - sign: 7
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 5ba3fabfee485c84c89ca1b910cb98fb, type: 3}
+  - sign: 8
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 8c97231e1769f3747aeb495aa378a125, type: 3}
+  - sign: 9
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 59e2be92dd8630a45bdaf59fdb60cd00, type: 3}
+  - sign: 10
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 42c5b124435d1f14f8777b4cc7647b9e, type: 3}
+  - sign: 11
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 4878e2dd5939bd94bb7bbeb146c0b87f, type: 3}
+  - sign: 12
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 96ba4c846c2a32b49bc290bf2ce466bc, type: 3}
+  - sign: 13
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: aa832abe415b345468ba5ecb69642dd1, type: 3}
+  - sign: 14
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: e946f7f1419974e4d8443f90813f7193, type: 3}
+  - sign: 15
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 8e17c52cee7b4264aaab8828a56148e3, type: 3}
+  - sign: 16
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 822d6c92a6301c64a88fea98897c8f1c, type: 3}
+  - sign: 17
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: fa832bd882c58c04ea6c2a7c8559a528, type: 3}
+  - sign: 18
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: f72e56e3d2d573e49b1c6875451827f0, type: 3}
+  - sign: 19
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: cae995a651d7c6f489b9fdba68783fa1, type: 3}
+  - sign: 20
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 2b5fc2d913e814d4291b365bb27942a3, type: 3}
+  - sign: 21
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: e26b9bea9215126449f9f559ae989a35, type: 3}
+  - sign: 22
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 0f47a702875f04f479e27cfa925738c4, type: 3}
+  - sign: 23
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: b686600697da0414398a9cf2bf20cdef, type: 3}
+  - sign: 24
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: 64847d77a639c7f4ab181984221f25f9, type: 3}
+  - sign: 25
+    signObjectPrefab: {fileID: 7461692341840947896, guid: 5965e1f11e03cda4b816d85313083923, type: 3}
+    signTexture: {fileID: 2800000, guid: d2bce305422cab34d97062b37cbd686a, type: 3}

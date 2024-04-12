@@ -13,6 +13,7 @@ public enum Language
 public struct LanguageSettings
 {
     public Language language;
+    public Sprite flagSprite;
     public SignSet signs; 
     public SignSet letters;
 }
@@ -28,9 +29,11 @@ public class GameSettings : ScriptableObject
     public Language selectedLanguage;
     public bool invertedSignals;
 
+    //private bool MusicOn, SoundsOn, SelectedLanguage, InvertedSignals, EffectsOn, OutlineWidth;
+
     //Audio
-    public float MasterVolume;
-    public bool MusicOn;
+    public bool musicOn;
+    public bool soundsOn;
 
     //Graphics
     public bool effectsOn;

@@ -3,8 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [SelectionBase]
-public abstract class EnemyController : MonoBehaviour, ITakesDamage
+public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
 {
+    #region //IPausable implementation
+
+    protected bool paused = false;
+
+    public void Pause()
+    {
+        paused = true;
+    }
+
+    public void Resume()
+    {
+        paused = false;
+    }
+
+    #endregion
+
     protected enum EnemyState
     {
         Moving,
@@ -69,6 +85,8 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage
 
     virtual protected void Update()
     {
+        if (paused) return;
+
         //Apply knockback force
         if (KnockbackForce.sqrMagnitude > Mathf.Epsilon) // Avoid small force application
         {

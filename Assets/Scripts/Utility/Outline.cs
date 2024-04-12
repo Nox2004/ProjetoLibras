@@ -14,6 +14,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 
 public class Outline : MonoBehaviour {
+
+  [SerializeField] private bool debug;
+  private string debugTag = "Outline: ";
+
   private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
 
   public enum Mode {
@@ -81,6 +85,7 @@ public class Outline : MonoBehaviour {
   private bool needsUpdate;
 
   void Awake() {
+    if (!GameManager.GetEffectsOn()) { Destroy(this); return; }
 
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
@@ -94,12 +99,11 @@ public class Outline : MonoBehaviour {
 
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
-
-    // Apply material properties immediately
-    needsUpdate = true;
   }
 
-  void OnEnable() {
+  void Start()
+  {
+    ///!!!!! I changed this part so the outline is applied at awake
     foreach (var renderer in renderers) {
 
       // Append outline shaders
@@ -110,6 +114,14 @@ public class Outline : MonoBehaviour {
 
       renderer.materials = materials.ToArray();
     }
+
+    // Apply material properties immediately
+    needsUpdate = true;
+    UpdateMaterialProperties();
+  }
+
+  void OnEnable() {
+    
   }
 
   void OnValidate() {
@@ -132,22 +144,22 @@ public class Outline : MonoBehaviour {
   void Update() {
     if (needsUpdate) {
       needsUpdate = false;
-
+      
       UpdateMaterialProperties();
     }
   }
 
   void OnDisable() {
-    foreach (var renderer in renderers) {
+    // foreach (var renderer in renderers) {
 
-      // Remove outline shaders
-      var materials = renderer.sharedMaterials.ToList();
+    //   // Remove outline shaders
+    //   var materials = renderer.sharedMaterials.ToList();
 
-      materials.Remove(outlineMaskMaterial);
-      materials.Remove(outlineFillMaterial);
+    //   materials.Remove(outlineMaskMaterial);
+    //   materials.Remove(outlineFillMaterial);
 
-      renderer.materials = materials.ToArray();
-    }
+    //   renderer.materials = materials.ToArray();
+    // }
   }
 
   void OnDestroy() {

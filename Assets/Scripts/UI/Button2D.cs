@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Button2D : MonoBehaviour
+public class Button2D : MonoBehaviour, ITouchable
 {
-    protected bool control, beingTouched;
+    [HideInInspector] public bool control { get; set; } 
+    [HideInInspector] public bool beingTouched { get; set; }
+
+    //Touch event
+    [SerializeField] protected UnityEvent onTouchEvent;
 
     protected RectTransform rectTransform;
 
-    //OnTouch event
-    [SerializeField] protected UnityEvent onTouchEvent;
-    
     virtual protected void Start()
     {
         control = true;

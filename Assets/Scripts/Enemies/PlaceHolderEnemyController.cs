@@ -11,20 +11,22 @@ public class PlaceHolderEnemyController : EnemyController
     private float fallSpeed = 0f;
     [SerializeField] private float fallAcceleration = 0.1f;
 
-    AudioSource audioSource;
+    private AudioManager audioManager;
     [SerializeField] AudioClip deathSound;
 
     override protected void Start()
     {
         base.Start();
 
-        audioSource = gameObject.AddComponent<AudioSource>();
+        audioManager = Injector.GetAudioManager(gameObject);
 
         speed *= speedMultiplier;
     }
     
     override protected void Update()
     {
+        if (paused) return;
+        
         base.Update();
 
         transform.position += Vector3.back * speed * Time.deltaTime; //Not using transform.Translate because its affected by the object's rotation
@@ -47,7 +49,7 @@ public class PlaceHolderEnemyController : EnemyController
     {
         base.Die();
 
-        audioSource.PlayOneShot(deathSound);
+        audioManager.PlaySound(deathSound);
 
         //destroy collider for performance
         Destroy(GetComponent<Collider>());
