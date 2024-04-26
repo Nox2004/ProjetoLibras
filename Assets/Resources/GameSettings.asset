@@ -18,9 +18,13 @@ MonoBehaviour:
     flagSprite: {fileID: 21300000, guid: 874859cf8365b9942b69967e60d0b7a6, type: 3}
     signs: {fileID: 11400000, guid: b9ba911a1f02dbd4994c9f4a9746559b, type: 2}
     letters: {fileID: 11400000, guid: e818f09c9c355d540ba84203666af9a5, type: 2}
+  - language: 1
+    flagSprite: {fileID: 21300000, guid: f70e370aa0ea3254c986610e43bcd773, type: 3}
+    signs: {fileID: 11400000, guid: 803ed1cb5cfce1342ab266834a4fc2d7, type: 2}
+    letters: {fileID: 11400000, guid: e818f09c9c355d540ba84203666af9a5, type: 2}
   selectedLanguage: 0
   invertedSignals: 0
-  musicOn: 1
-  soundsOn: 1
-  effectsOn: 1
+  musicOn: 0
+  soundsOn: 0
+  effectsOn: 0
   outlineWidth: 1

@@ -19,44 +19,60 @@ public class PlayerBulletController : ObjectFromPool, IPausable
     }
 
     #endregion
-    
+
     public float speed, zLimit; //speed of the bullet, and the limit of the bullet in the z axis
     [HideInInspector] public ParticleManager particleManager;
     [HideInInspector] public AudioManager playerAudioManager;
     [SerializeField] private GameObject hitParticlePrefab;
 
     public float range = 10f; private float distanceTraveled;
-    public int damage = 1;
+    public float damage = 1; private float initialDamage = 0;
     public float knockback = 0f;
-    public int pierce = 0;
+    public int pierce = 0; private int initialPierce = 0;
     private GameObject[] ignoreList;
 
-    [SerializeField] private AudioClip shootSound, collideSound;
+    [SerializeField] private GameObject coneObject, sphereObject;
+    [SerializeField] public AudioClip shootSound, collideSound;
 
     private void HitObject (Vector3 hit_pos, ITakesDamage obj)
     {
-        obj.currentHealth-=damage;
+        obj.TakeDamage(damage, pierce);
 
-        playerAudioManager.PlaySound(collideSound);
+        playerAudioManager.PlaySound(collideSound, true);
 
         //if it is an enemy
         if (obj is EnemyController)
         {
             EnemyController enemy = obj as EnemyController;
             enemy.KnockbackForce = transform.forward * knockback;
+            pierce-= enemy.piercingResistance;
 
-            if (pierce <= 0)
+            if (pierce < 0)
             {
                 DestroyBullet(hit_pos);
             }
             else
             {
+                //Reduces damage for each enemy pierced 
+                //e.g. current pierce is 0 and initial pierce is 3, damage = initialDamage * (1/4)
+                damage = initialDamage * ((pierce+1) / (initialPierce+1));
+
                 //Emit some particles
                 EmitParticleBurst(hit_pos);
 
-                pierce--;
-                //Add this to the ignore list
+                //Change shape depending on pierce
+                if (pierce > 0) 
+                {
+                    coneObject.SetActive(true);
+                    sphereObject.SetActive(false);
+                }
+                else 
+                {
+                    coneObject.SetActive(false);
+                    sphereObject.SetActive(true);
+                }
 
+                //Add this to the ignore list
                 for (int i = 0; i < ignoreList.Length; i++)
                 {
                     if (ignoreList[i] == null)
@@ -71,9 +87,6 @@ public class PlayerBulletController : ObjectFromPool, IPausable
         //If is a sign cardboard
         if (obj is SignObjectController)
         {
-            SignObjectController sign = obj as SignObjectController; 
-            sign.ChooseMe();
-
             DestroyBullet(hit_pos);
         }
     }
@@ -100,9 +113,22 @@ public class PlayerBulletController : ObjectFromPool, IPausable
     {
         base.AfterEnable();
 
+        if (pierce > 0) 
+        {
+            coneObject.SetActive(true);
+            sphereObject.SetActive(false);
+        }
+        else 
+        {
+            coneObject.SetActive(false);
+            sphereObject.SetActive(true);
+        }
+
+        initialPierce = pierce;
+        initialDamage = damage;
         distanceTraveled = 0f;
 
-        playerAudioManager.PlaySound(shootSound);
+        //playerAudioManager.PlaySound(shootSound);
         
         //Initializes ignore list
         ignoreList = new GameObject[pierce];

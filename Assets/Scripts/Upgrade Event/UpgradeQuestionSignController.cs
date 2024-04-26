@@ -56,12 +56,14 @@ public class UpgradeQuestionSignController : MonoBehaviour, IPausable
     
     
     //Set the renderer textures
-    public void SetTextures(Texture questionTexture, Texture answerTexture)
+    public void SetTextures(Texture questionTexture, Texture answerTexture, Color questionColor, Color answerColor)
     {
         questionRenderer.material.SetInt("_DrawSecondTex",1);
+        questionRenderer.material.SetColor("_SecondTexColor",questionColor);
         questionRenderer.material.SetTexture("_SecondTex",questionTexture);
 
         answerRenderer.material.SetInt("_DrawSecondTex",1);
+        answerRenderer.material.SetColor("_SecondTexColor",answerColor);
         answerRenderer.material.SetTexture("_SecondTex",answerTexture);
     }
 

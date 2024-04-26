@@ -23,7 +23,7 @@ public class SignObjectController : MonoBehaviour, ITakesDamage, IPausable
         }
     }
 
-    virtual public void TakeDamage(float damage) { }
+    virtual public void TakeDamage(float damage, int pierce) { ChooseMe(); }
 
     virtual public void Die() {}
     
@@ -71,14 +71,26 @@ public class SignObjectController : MonoBehaviour, ITakesDamage, IPausable
 
     public float zLimit;
 
+    //Paint the object
+    [SerializeField] MeshRenderer legoRenderer;
+    [SerializeField] int legoMaterialIndex;
+    [SerializeField] MeshRenderer targetRenderer;
+    [SerializeField] int targetMaterialIndex;
+
+
     //Set the renderer textures
-    public void SetTextures(Texture sourceTexture, Texture targetTexture)
+    public void SetTextures(Texture sourceTexture, Texture targetTexture, Color color)
     {
         mainRenderer.materials[sourceMaterialIndexInRend].SetInt("_DrawSecondTex",1);
+        mainRenderer.materials[sourceMaterialIndexInRend].SetColor("_SecondTexColor",Color.Lerp(color,Color.black,0.15f));
         mainRenderer.materials[sourceMaterialIndexInRend].SetTexture("_SecondTex",sourceTexture);
 
         mainRenderer.materials[targetMaterialIndexInRend].SetInt("_DrawSecondTex",1);
+        mainRenderer.materials[targetMaterialIndexInRend].SetColor("_SecondTexColor",Color.Lerp(color,Color.black,0.15f));
         mainRenderer.materials[targetMaterialIndexInRend].SetTexture("_SecondTex",targetTexture);
+
+        legoRenderer.materials[legoMaterialIndex].SetColor("_Color",color);
+        targetRenderer.materials[targetMaterialIndex].SetColor("_Color",color);
     }
     
     void Start()
@@ -89,7 +101,7 @@ public class SignObjectController : MonoBehaviour, ITakesDamage, IPausable
     void Update()
     {
         if (paused) return;
-        
+
         transform.position += velocity * speed * Time.deltaTime;
 
         if (chosen && !stoppedRotating)

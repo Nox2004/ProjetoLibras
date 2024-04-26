@@ -8,7 +8,7 @@ public interface ITakesDamage {
     float maxHealth { get; set; }
     float currentHealth { get; set; }
 
-    void TakeDamage(float damage);
+    void TakeDamage(float damage, int pierce);
 
     void Die();
 }   

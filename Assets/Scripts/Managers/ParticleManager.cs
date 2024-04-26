@@ -33,10 +33,23 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
-    public void EmitExplosion(Vector3 position, int quantity, GameObject particle_prefab)
+    public void EmitRadiusBurst(Vector3 position, int quantity, GameObject particle_prefab, Vector3 cone_angle, Vector3 cone_radius, float speed, Transform parent)
     {
         if (!GameManager.GetEffectsOn()) return;
 
+        for (int i = 0; i < quantity; i++)
+        {
+            Vector3 dir = cone_angle;
+            dir += new Vector3(  Random.Range(-cone_radius.x/2, cone_radius.x/2), 
+                                            Random.Range(-cone_radius.y/2, cone_radius.y/2), 
+                                            Random.Range(-cone_radius.z/2, cone_radius.z/2));
+
+            EmitSingleParticle(position, particle_prefab, dir, speed, parent);
+        }
+    }
+
+    public void EmitExplosion(Vector3 position, int quantity, GameObject particle_prefab)
+    {
         for (int i = 0; i < quantity; i++)
         {
             Vector3 dir = new Vector3(Random.Range(-180f, 180f), Random.Range(-180f, 180f), Random.Range(-180f, 180f));
@@ -45,13 +58,13 @@ public class ParticleManager : MonoBehaviour
         }
     }
 
-    public GameObject EmitSingleParticle(Vector3 position, GameObject particle_prefab, Vector3 direction, float speed = -1f)
+    public GameObject EmitSingleParticle(Vector3 position, GameObject particle_prefab, Vector3 direction, float speed = -1f, Transform parent = null)
     {
-        if (!GameManager.GetEffectsOn()) return null;
-
         ObjectPooler pooler = GetPooler(particle_prefab);
 
         GameObject part_obj = pooler.GetObject(position, Quaternion.identity);
+        if (parent != null) part_obj.transform.SetParent(parent);
+
         IParticle part = part_obj.GetComponent<IParticle>();
 
         part.direction = direction;

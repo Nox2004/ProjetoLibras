@@ -39,7 +39,6 @@ public enum SignCode
 public class Sign 
 {
     public SignCode sign;
-    public GameObject signObjectPrefab;
     public Texture signTexture;
 }
 
@@ -72,7 +71,6 @@ public class SignSet : ScriptableObject
         {
             newSignSet.signs[i] = new Sign();
             newSignSet.signs[i].sign = signs[i].sign;
-            newSignSet.signs[i].signObjectPrefab = signs[i].signObjectPrefab;
             newSignSet.signs[i].signTexture = signs[i].signTexture;
         }
         return newSignSet;

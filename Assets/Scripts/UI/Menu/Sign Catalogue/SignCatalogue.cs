@@ -20,22 +20,7 @@ public class SignCatalogue : MonoBehaviour
         top = verticalLayoutGroup.padding.top;
         initialTop = top;
 
-        foreach (SignCode code in SignSetManager.signCodes)
-        {
-            GameObject sign = Instantiate(signBase, transform);
-            //sign.GetComponent<SignCatalogueItem>().SetSign(code);
-            Image[] images = sign.GetComponentsInChildren<Image>();
-            
-            Texture sourceTex = SignSetManager.GetSoureSign(code).signTexture;
-            Sprite sourceSprite = Sprite.Create((Texture2D) sourceTex, new Rect(0, 0, sourceTex.width, sourceTex.height), new Vector2(0.5f, 0.5f));
-            images[0].sprite = sourceSprite;
-
-            Texture targetTex = SignSetManager.GetTargetSign(code).signTexture;
-            Sprite targetSprite = Sprite.Create((Texture2D) targetTex, new Rect(0, 0, targetTex.width, targetTex.height), new Vector2(0.5f, 0.5f));
-            images[1].sprite = targetSprite;
-        }
-
-        Destroy(signBase);
+        UpdateCatalogue();
 
         foreach (Transform child in transform)
         {
@@ -68,5 +53,36 @@ public class SignCatalogue : MonoBehaviour
             verticalLayoutGroup.CalculateLayoutInputVertical(); //apply change to vertical layout group
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
         }
+    }
+
+    public void UpdateCatalogue()
+    {
+        //destroy all children except the base
+        foreach (Transform child in transform)
+        {
+            if (child != signBase.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        signBase.gameObject.SetActive(true);
+
+        foreach (SignCode code in SignSetManager.signCodes)
+        {
+            GameObject sign = Instantiate(signBase, transform);
+            //sign.GetComponent<SignCatalogueItem>().SetSign(code);
+            Image[] images = sign.GetComponentsInChildren<Image>();
+            
+            Texture sourceTex = SignSetManager.GetSoureSign(code).signTexture;
+            Sprite sourceSprite = Sprite.Create((Texture2D) sourceTex, new Rect(0, 0, sourceTex.width, sourceTex.height), new Vector2(0.5f, 0.5f));
+            images[0].sprite = sourceSprite;
+
+            Texture targetTex = SignSetManager.GetTargetSign(code).signTexture;
+            Sprite targetSprite = Sprite.Create((Texture2D) targetTex, new Rect(0, 0, targetTex.width, targetTex.height), new Vector2(0.5f, 0.5f));
+            images[1].sprite = targetSprite;
+        }
+
+        signBase.gameObject.SetActive(false);
     }
 }

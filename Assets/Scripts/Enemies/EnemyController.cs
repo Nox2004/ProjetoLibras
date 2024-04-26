@@ -21,20 +21,34 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
 
     #endregion
 
+    [Header("Debug")]
+    public bool debug; private string debugTag;
+
+    [Header("Width in units")]
+    public float width;
+
+    [Header("Score")]
+    [SerializeField] private int pointsOnDefeated;
+
+    [Header("Important References")]
+    [SerializeField] private Renderer[] effectRenderers; //Rendereres in which effects are applied
+    [HideInInspector] public LevelManager levelManager;
+    protected AudioManager audioManager;
+    [HideInInspector] public ParticleManager particleManager;
+
+    //Enemy states
     protected enum EnemyState
     {
         Moving,
         Dead
     }
 
-    //Debug properties
-    public bool debug; private string debugTag;
-
     protected EnemyState state;
-
-    //Take damage properties
+    
+    #region //Implements take damage
     public bool alive { get => state != EnemyState.Dead; set {  } }
 
+    [Header("Health")]
     [SerializeField] private float _maxHealth; // Private backing field for max health
     public float maxHealth { get => _maxHealth ; set { _maxHealth = value; } }
 
@@ -46,33 +60,35 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
         {
             if (value < _health)
             {
-                if (value <= 0f)
-                {
-                    Die();
-                }
-                else
-                {
-                    TakeDamage(_health - value);
-                }
+                // if (value <= 0f)
+                // {
+                //     Die();
+                // }
             }
 
             _health = Mathf.Clamp(value, 0f, maxHealth); // Enforce health bounds
         }
     }
     
-    //Rendereres in which effects are applied
-    [SerializeField] private Renderer[] effectRenderers;
+    #endregion
 
     //Z limit for the enemy to be destroyed
-    public float zLimit;
+    [HideInInspector] public float zLimit;
+    [HideInInspector] public Vector3 spawnPosition;
+    [HideInInspector] public float floorWidth;
 
-    //Combat properties
+    [Header("Combat and Movement")]
     [HideInInspector] public float speed;
     public float damage;
+    public int piercingResistance = 1;
     [Range(0,1)] public float KnockbackResistance;
     [HideInInspector] public Vector3 KnockbackForce;
+
+    [Header("Effects")]
     private float whiteEffectStrength;
     public float whiteEffectDuration;
+
+    protected float minX, maxX;
 
     virtual protected void Start()
     {
@@ -81,6 +97,16 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
 
         //Set the current health to the max health
         currentHealth = maxHealth;
+
+        //Injects the audio manager
+        audioManager = Injector.GetAudioManager(gameObject);
+
+        minX = spawnPosition.x - floorWidth/2f + width/2f;
+        maxX = spawnPosition.x + floorWidth/2f - width/2f;
+
+        Vector3 tmp = transform.position;
+        tmp.x = Mathf.Clamp(tmp.x, minX, maxX);
+        transform.position = tmp;
     }
 
     virtual protected void Update()
@@ -113,15 +139,32 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
         if (transform.position.z < zLimit)
         {
             if (debug) Debug.Log(debugTag + "Out of screen - Destroying enemy");
+
+            //Removes the enemy from the level manager alive enemies list
+            levelManager.RemoveEnemy(this);
+        
             Destroy(gameObject);
-        }        
+        } 
+
+        //Clamp the enemy position to the floor
+        Vector3 tmp = transform.position;
+        tmp.x = Mathf.Clamp(tmp.x, minX, maxX);
+        transform.position = tmp;
     }
 
-    virtual public void TakeDamage(float damage)
+    virtual public void TakeDamage(float damage, int pierce)
     {
-        if (debug) Debug.Log(debugTag + "Took " + damage + " damage");
+        if (debug) Debug.Log(debugTag + "Took " + damage + " damage" + " with " + pierce + " pierce");
         
+        //Apply damage
+        currentHealth -= damage;
         whiteEffectStrength = 1;
+
+        //If the enemy is dead, Die()
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
 
     virtual public void Die()
@@ -130,5 +173,12 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
         
         //Changes the state to dead
         state = EnemyState.Dead;
+
+        //Removes the enemy from the level manager alive enemies list
+        levelManager.currentScore += pointsOnDefeated;
+        levelManager.RemoveEnemy(this);
+
+        //destroy collider for performance
+        Destroy(GetComponent<Collider>());
     }
 }

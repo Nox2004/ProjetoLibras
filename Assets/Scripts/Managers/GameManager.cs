@@ -13,6 +13,17 @@ public enum GameState
 public static class GameManager
 {
     private static GameSettings mainSettings;
+    public static int highScore 
+    { 
+        get 
+        {
+            return PlayerPrefs.GetInt("HighScore", 0);
+        }
+        set 
+        {
+            PlayerPrefs.SetInt("HighScore", value);
+        }
+    }
     
     #region //Getters and Setters
 

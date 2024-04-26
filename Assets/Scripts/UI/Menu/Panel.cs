@@ -13,8 +13,8 @@ public class Panel : MonoBehaviour
     protected Image image; protected RectTransform rect;
     protected AudioManager audioManager;
 
-    private List<ITouchable> childButtons;
-    private bool needsToUpdateButtons = false;
+    protected List<ITouchable> childButtons;
+    protected bool needsToUpdateButtons = false;
     virtual protected void Start()
     {
         audioManager = Injector.GetAudioManager(gameObject);
@@ -22,37 +22,8 @@ public class Panel : MonoBehaviour
         image = GetComponent<Image>();
         rect = GetComponent<RectTransform>();
         
-        float xRatio = rect.sizeDelta.x; float yRatio = rect.sizeDelta.y;
-
         //Set the image size to cover the whole canvas
         rect.sizeDelta = new Vector2(canvas.pixelRect.width / canvas.scaleFactor, canvas.pixelRect.height / canvas.scaleFactor);
-
-        //Get the ratio of the image size to the canvas size
-        xRatio /= rect.sizeDelta.x; yRatio /= rect.sizeDelta.y;
-
-        //readjusts children position
-        foreach (Transform child in transform)
-        {
-            RectTransform childRect = child.gameObject.GetComponent<RectTransform>();
-            childRect.localPosition = new Vector3(childRect.localPosition.x / xRatio, childRect.localPosition.y / yRatio, childRect.localPosition.z);
-        }
-
-        //readjusts children size
-        ScaleWithCanvas[] childs = GetComponentsInChildren<ScaleWithCanvas>();
-        foreach (ScaleWithCanvas child in childs)
-        {
-            RectTransform childRect = child.gameObject.GetComponent<RectTransform>();
-            if (child.scaleUniformly)
-            {
-                childRect.sizeDelta = new Vector2(childRect.sizeDelta.y / xRatio, childRect.sizeDelta.y / xRatio); 
-                //scales the size of the child with height ratio
-            }   
-            else
-            {
-                childRect.sizeDelta = new Vector2(childRect.sizeDelta.x / xRatio, childRect.sizeDelta.y / yRatio);
-                //scales the size of the child with width and height ratio
-            }
-        }
         
         //applies a border offset using a multiplier and sends the panel to the bottom of the screen
         rect.sizeDelta *= sizeMultiplier;
@@ -74,10 +45,7 @@ public class Panel : MonoBehaviour
     {
         if (needsToUpdateButtons)
         {
-            foreach (ITouchable button in childButtons)
-            {
-                button.control = active;
-            }
+            SetButtonsActive(active);
             needsToUpdateButtons = false;
         }
     }
@@ -87,5 +55,24 @@ public class Panel : MonoBehaviour
         this.active = active;
         
         needsToUpdateButtons = true;
+    }
+
+    virtual public void SetButtonsActive(bool on)
+    {
+        foreach (ITouchable button in childButtons)
+        {
+            button.control = on;
+        }
+    }
+
+    virtual public void AddButton(Button2D button)
+    {
+        childButtons.Add(button);
+        needsToUpdateButtons = true;        
+    }
+
+    virtual public void RemoveButton(Button2D button)
+    {
+        childButtons.Remove(button);
     }
 }

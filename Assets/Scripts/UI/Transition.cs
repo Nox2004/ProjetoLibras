@@ -4,6 +4,14 @@ using UnityEngine;
 
 public abstract class Transition : MonoBehaviour
 {
+    public enum Mode
+    {
+        GoToScene,
+        Restart
+    }
+
+    public Mode mode = Mode.GoToScene;
+
     protected enum Stage
     {
         StartScene,
@@ -49,7 +57,11 @@ public abstract class Transition : MonoBehaviour
                 if (transitionAnimationEnter.Finished())
                 {
                     stage = Stage.TargetScene;
-                    changeSceneManager.LoadScene(targetSceneName);
+                    switch (mode)
+                    {
+                        case Mode.GoToScene: changeSceneManager.LoadScene(targetSceneName); break;
+                        case Mode.Restart: changeSceneManager.RestartScene(); break;
+                    }
                 }
             }
             break;

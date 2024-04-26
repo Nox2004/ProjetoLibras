@@ -26,58 +26,123 @@ public class LevelManager : MonoBehaviour, IPausable
     [SerializeField] private bool debug; private string debugTag = "LevelManager: ";
 
     [Header("Reference")]
+    [SerializeField] private PauseManager pauseManager;
+    [SerializeField] private ParticleManager particleManager;
     [SerializeField] private PlayerController playerController;
+
+    [Header("Score")]
+    [SerializeField] private TMPro.TextMeshProUGUI scoreText;
+    [SerializeField] private TMPro.TextMeshProUGUI gameOverHighScoreText;
+    [SerializeField] private TMPro.TextMeshProUGUI gameOverCurrentScoreText;
+    private int _currentScore = 0;
+    [HideInInspector] public int currentScore
+    {
+        get { return _currentScore; }
+        set
+        {
+            _currentScore = value;
+            scoreText.text = _currentScore.ToString();
+        }
+    }
 
     [Header("Spawning")]
     [SerializeField] private float floorWidth;
     [SerializeField] private float zLimit;
     [SerializeField] private Vector3 spawnPosition;
-    [SerializeField] private float objectsSpeed;
+    [SerializeField] public float objectsSpeed;
+    [SerializeField] private float objectsSpeedIncreasePerEvent;
+    [SerializeField] private float maxObjectsSpeed;
 
     [Header("Enemy Spawning")]
-    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private float enemySpawnCooldown;
+    [SerializeField] private float enemySpawnCooldownDecreasePerEvent;
+    [SerializeField] private float minEnemySpawnCooldown;
+    [SerializeField] private EnemyPoolUpdate[] enemyPoolUpdates;
+    private GameObject[] currentEnemyPrefabPool;
 
-    [SerializeField] private float enemySpawnCooldownMin, enemySpawnCooldownMax;
+    [System.Serializable]
+    private struct EnemyPoolUpdate
+    {
+        public int numberOfUpgradeEvents;
+        public GameObject[] enemyPrefabs;
+    }
+
     private IEnumerator enemySpawningCoroutine;
+    private List<EnemyController> aliveEnemies = new List<EnemyController>();
 
     [Header("Upgrades")]
     [SerializeField] private UpgradeEventManager upgradeEventManager;
     [SerializeField] private float upgradeCooldown;
+    private int numberOfUpgradeEvents = 0;
+
+    [SerializeField] private int numberOfEventsToStopRewardingUpgrades;
+
 
     //Available signs and upgrade event handling
-    private List<SignCode> availableSigns; 
     private float upgradeTimer = 0f;
+    [SerializeField] private SignSelector signSelector;
 
     private bool upgradeEventOnGoing = false;
 
     //Instantiate an enemy prefab
-    private void SpawnEnemy(GameObject prefab, Vector3 pos_offset)
+    private void SpawnEnemy(GameObject prefab, float xOffsetRange)
     {
         if (debug) Debug.Log(debugTag + "Spawning enemy [" + prefab.name + "]");
 
-        GameObject enemy = Instantiate(prefab, spawnPosition + pos_offset, Quaternion.identity);
+        GameObject enemy = Instantiate(prefab, spawnPosition, Quaternion.identity);
         EnemyController enemy_controller = enemy.GetComponent<EnemyController>();
+        InsertEnemy(enemy_controller);
+
+        enemy.transform.position += Vector3.right * Random.Range(-xOffsetRange/2f+enemy_controller.width/2, xOffsetRange/2f-enemy_controller.width/2);
+        
+        enemy_controller.levelManager = this;
+        enemy_controller.particleManager = particleManager;
         enemy_controller.zLimit = zLimit;
         enemy_controller.speed = objectsSpeed;
+        enemy_controller.spawnPosition = spawnPosition;
+        enemy_controller.floorWidth = floorWidth;
+    }
+
+    private void UpdateEnemyPool(int num_of_events)
+    {
+        if (debug) Debug.Log(debugTag + "Updating enemy pool");
+
+        for (int i = 0; i < enemyPoolUpdates.Length; i++)
+        {
+            if (num_of_events == enemyPoolUpdates[i].numberOfUpgradeEvents)
+            {
+                currentEnemyPrefabPool = enemyPoolUpdates[i].enemyPrefabs;
+                break;
+            }
+        }
+    }
+
+    public void InsertEnemy(EnemyController enemy)
+    {
+        aliveEnemies.Add(enemy);
+    }
+
+    public void RemoveEnemy(EnemyController enemy)
+    {
+        aliveEnemies.Remove(enemy);
+    }
+    
+    public List<EnemyController> GetAliveEnemies()
+    {
+        return aliveEnemies;
     }
     
     //Initialize a new upgrade event
     private bool StartUpgradeEvent(SignCode[] signs, int correct_answer)
     {
         if (debug) Debug.Log(debugTag + "Populating QuestonSignController");
-        
-        GameObject[] answer_prefabs = new GameObject[signs.Length];
-        for (int i = 0; i < signs.Length; i++)
-        {
-            answer_prefabs[i] = SignSetManager.GetTargetSign(signs[i]).signObjectPrefab;
-        }
 
         upgradeEventManager.StartUpgradeEvent(  signs,
                                                 SignSetManager.GetSoureSign(signs[correct_answer]).signTexture,
                                                 SignSetManager.GetTargetSign(signs[correct_answer]).signTexture,
-                                                answer_prefabs,
                                                 correct_answer,
-                                                objectsSpeed);
+                                                objectsSpeed,
+                                                numberOfUpgradeEvents < numberOfEventsToStopRewardingUpgrades);
 
         if (debug) Debug.Log(debugTag + "Creating upgrade event manager");
 
@@ -89,8 +154,6 @@ public class LevelManager : MonoBehaviour, IPausable
     {
         while (true)
         {
-            //!CHANGE LATER
-            if (paused) yield return new WaitForSeconds(Random.Range(enemySpawnCooldownMin, enemySpawnCooldownMax));
             if (debug) Debug.Log(debugTag + "Trying to spawn enemy");
 
             if (upgradeEventOnGoing) 
@@ -100,9 +163,9 @@ public class LevelManager : MonoBehaviour, IPausable
                 continue;
             }
 
-            SpawnEnemy(enemyPrefab, new Vector3(Random.Range(-floorWidth/2f, floorWidth/2f), 0, 0));
+            SpawnEnemy(currentEnemyPrefabPool[Random.Range(0,currentEnemyPrefabPool.Length)], floorWidth);
 
-            yield return new WaitForSeconds(Random.Range(enemySpawnCooldownMin, enemySpawnCooldownMax));
+            yield return new WaitForSeconds(enemySpawnCooldown);
         }
     }
 
@@ -111,34 +174,36 @@ public class LevelManager : MonoBehaviour, IPausable
         return upgradeEventManager;
     }
     
-    public void RestartLevel()
+    public void GameOver()
     {
+        if (currentScore > GameManager.highScore)
+        {
+            GameManager.highScore = currentScore;
+        }
+
+        gameOverHighScoreText.text = "high score: " + GameManager.highScore.ToString();
+        gameOverCurrentScoreText.text = currentScore.ToString();
+
+        pauseManager.ActivateGameOverScreen();
         //!!!change later - Restart scene
-        Debug.Log("Restarting scene");
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        //Debug.Log("Restarting scene");
+        //UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 
     void Start()
     {
         if (debug) Debug.Log(debugTag + "Started");
 
+        currentScore = 0;
+
+        //Initialize enemy pool
+        UpdateEnemyPool(0);
+
         enemySpawningCoroutine = SpawnEnemyCoroutine(); 
         StartCoroutine(enemySpawningCoroutine); //Start enemy spawning coroutine
-
-        //copy sign codes to available signs
-        availableSigns = new List<SignCode>(SignSetManager.signCodes);
-
-        if (debug) 
-        {
-            string debug_str = debugTag + "Available signs - [";
-            foreach (SignCode sign in availableSigns) debug_str += sign + ", ";
-            debug_str += "]";
-
-            Debug.Log(debug_str);
-        }
         
         //Initialize Upgrade Event Manager
-        upgradeEventManager.Initialize(objectsSpeed, spawnPosition, zLimit, floorWidth);
+        upgradeEventManager.Initialize(this, signSelector, playerController, objectsSpeed, spawnPosition, zLimit, floorWidth);
     }
 
     void Update()
@@ -146,7 +211,14 @@ public class LevelManager : MonoBehaviour, IPausable
         if (paused) return;
 
         //Upgrade event cooldown
-        if (!upgradeEventOnGoing) upgradeTimer += Time.deltaTime;
+        if (!upgradeEventOnGoing) 
+        {
+            upgradeTimer += Time.deltaTime;
+            enemySpawnCooldown -= (enemySpawnCooldownDecreasePerEvent / upgradeCooldown) * Time.deltaTime;
+            enemySpawnCooldown = Mathf.Max(enemySpawnCooldown, minEnemySpawnCooldown);
+            objectsSpeed += (objectsSpeedIncreasePerEvent / upgradeCooldown) * Time.deltaTime;
+            objectsSpeed = Mathf.Min(objectsSpeed, maxObjectsSpeed);
+        }
 
         //When upgrade event cooldown is over
         if (upgradeTimer > upgradeCooldown)
@@ -156,31 +228,10 @@ public class LevelManager : MonoBehaviour, IPausable
             {
                 if (debug) Debug.Log("LevelManager: Starting upgrade event");
 
-                int num = upgradeEventManager.GetCurrentInfo().numOfOptions;
+                int num = upgradeEventManager.GetCurrentInfo().numOfSignOptions;
+                SignSelection signSelection = signSelector.SelectSigns(num);
 
-                //select 3 signs from sign code list
-                SignCode[] selectedSigns = new SignCode[num];
-                for (int i = 0; i < num; i++)
-                {
-                    int randomIndex = Random.Range(0, availableSigns.Count);
-
-                    selectedSigns[i] = availableSigns[randomIndex];
-                    availableSigns.RemoveAt(randomIndex);
-                }
-
-                //Select a correct answer
-                int correct_answer = Random.Range(0, selectedSigns.Length);
-                
-                if (debug) 
-                {
-                    string debug_str = "LevelManager: Selected signs: [";
-                    foreach (SignCode sign in selectedSigns) debug_str += sign + ", ";
-                    debug_str += "]";
-                    Debug.Log(debug_str);
-                    Debug.Log("Correct answer: " + selectedSigns[correct_answer]);
-                }
-
-                upgradeEventOnGoing = StartUpgradeEvent(selectedSigns, correct_answer);
+                upgradeEventOnGoing = StartUpgradeEvent(signSelection.signs, signSelection.correctSignIndex);
             }
             else //If there is an upgrade event on going, check if it is finished
             {
@@ -188,31 +239,11 @@ public class LevelManager : MonoBehaviour, IPausable
                 {
                     if (debug) Debug.Log(debugTag + "Upgrade event finished");
 
-                    // enemySpawnCooldownMin*=0.85f; //!!!Change this later
-                    // enemySpawnCooldownMax*=0.85f;
-                    // objectsSpeed += 0.4f;
-                    // score += upgradeEventManager.Finished(); //!!!Change this later
-                    // scoreText.text = score.ToString(); //!!!Change this later
-
                     upgradeEventOnGoing = false;
                     upgradeTimer = 0;
 
-                    if (availableSigns.Count < upgradeEventManager.GetCurrentInfo().numOfOptions) //if there are not enough available signs, refresh the list
-                    {
-                        //copy sign codes to available signs
-                        availableSigns = new List<SignCode>(SignSetManager.signCodes);
-
-                        if (debug) 
-                        {
-                            Debug.Log(debugTag + "Not enough available signs to create next update event, refreshing list");
-
-                            string debug_str = debugTag + "Available signs - [";
-                            foreach (SignCode sign in availableSigns) debug_str += sign + ", ";
-                            debug_str += "]";
-
-                            Debug.Log(debug_str);
-                        }
-                    }
+                    numberOfUpgradeEvents++;
+                    UpdateEnemyPool(numberOfUpgradeEvents);
                 }
             }
         }

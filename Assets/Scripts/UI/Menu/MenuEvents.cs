@@ -5,16 +5,28 @@ using UnityEngine.SceneManagement;
 
 public class MenuEvents : MonoBehaviour
 {
-    private ChangeSceneManager sceneManager = Injector.GetSceneManager();
+    [Header("Main Menu Buttons")]
     [SerializeField] private MainMenu3DButton[] mainMenuButtons;
 
-    [SerializeField] private MenuPanel modeSelectionPanel, signsPanel, settingsPanel;
-    private MenuPanel currentPanel = null;
+    [Header("Sign Catalogue Component")]
+    [SerializeField] private SignCatalogue signCatalogue;
 
+    [Header("Menu Panels")]
+    [SerializeField] private Panel modeSelectionPanel;
+    [SerializeField] private Panel signsPanel;
+    [SerializeField] private Panel settingsPanel;
+    private Panel currentPanel = null;
+
+    [SerializeField] private TMPro.TextMeshProUGUI highScoreText;
+
+    [Header("Transitions")]
     [SerializeField] private GameObject transitionPrefab;
 
-    //Initializes the settings
-    [SerializeField] private MainMenuToggle musicOnButton, soundsOnButton, effectsOnButton, invertedSignalsButton;
+    [Header("Settings Elements")]
+    [SerializeField] private Toggle2D musicOnButton;
+    [SerializeField] private Toggle2D soundsOnButton;
+    [SerializeField] private Toggle2D effectsOnButton;
+    [SerializeField] private Toggle2D invertedSignalsButton;
     
     private void Start()
     {
@@ -22,6 +34,8 @@ public class MenuEvents : MonoBehaviour
         soundsOnButton.SetValue(GameManager.GetSoundsOn());
         effectsOnButton.SetValue(GameManager.GetEffectsOn());
         invertedSignalsButton.SetValue(GameManager.GetInvertedSignals());
+
+        highScoreText.text = "High Score:\n" + GameManager.highScore; //!!!!CHANGE LATER
     }
 
     public void PlayButton()
@@ -95,5 +109,6 @@ public class MenuEvents : MonoBehaviour
     public void SetInvertedSignals(bool value)
     {
         GameManager.SetInvertedSignals(value);
+        signCatalogue.UpdateCatalogue();
     }
 }

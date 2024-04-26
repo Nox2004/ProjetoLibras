@@ -24,10 +24,10 @@ public class MusicManager : Singleton<MusicManager>
         oldAudioSource = gameObject.AddComponent<AudioSource>();
         currentAudioSource = gameObject.AddComponent<AudioSource>();
         
-        PlayMusic(SceneManager.GetActiveScene().name);
+        ChangeMusicBySceneName(SceneManager.GetActiveScene().name);
     }
 
-    public void PlayMusic(string sceneName)
+    public void ChangeMusicBySceneName(string sceneName)
     {
         AudioClip music = Array.Find(musicsByScene, x => x.sceneName == sceneName).music;
 

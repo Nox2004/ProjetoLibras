@@ -19,7 +19,7 @@ public class PlayerBulletParticle : ObjectFromPool, IParticle, IPausable
     }
 
     #endregion
-    
+
     public Vector3 direction { get; set; }
     public float speed { get; set; }
 
@@ -27,7 +27,7 @@ public class PlayerBulletParticle : ObjectFromPool, IParticle, IPausable
     public float lifeSpan { get; set; }
 
     [SerializeField] private Vector2 lifeTimeRange, speedRange;
-    
+    [SerializeField] private float speedMultiplierOverTime = 0.1f;
     private Vector3 initialScale;
 
     void Start()
@@ -59,7 +59,7 @@ public class PlayerBulletParticle : ObjectFromPool, IParticle, IPausable
         float _lifespan = lifeSpan / lifeTime;
 
         transform.localScale = initialScale * _lifespan;
-        speed *= Mathf.Pow(0.1f, Time.deltaTime);
+        speed *= Mathf.Pow(speedMultiplierOverTime, Time.deltaTime);
 
         //transform.Translate(direction * speed * Time.deltaTime);
         transform.Translate(Vector3.forward * speed * Time.deltaTime);

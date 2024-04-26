@@ -6,34 +6,19 @@ public class PauseManager : MonoBehaviour
 {
     private bool paused;
 
-    [SerializeField] private Panel pausePanel, pauseButtonPanel, signsPanel;
+    [SerializeField] private Panel pausePanel, pauseButtonPanel, signsPanel, gameOverPanel;
     [SerializeField] private GameObject transitionPrefab;
     [SerializeField] private string menuSceneName;
     private ChangeSceneManager sceneManager = Injector.GetSceneManager();
+
+    //private List<IPausable> pausables = new List<IPausable>();
 
     void Start()
     {
         sceneManager = Injector.GetSceneManager();
     }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (paused)
-            {
-                ResumeGame();
-            }
-            else
-            {
-                PauseGame();
-            }
-        }
-    }
-
-    //private List<IPausable> pausables = new List<IPausable>();
-
-    public void PauseGame()
+    
+    private void PauseGame()
     {
         if (paused) return;
 
@@ -51,10 +36,6 @@ public class PauseManager : MonoBehaviour
                 pausable.Pause();
             }
         }
-        
-        //hides the pause button and shows the pause panel
-        pauseButtonPanel.SetActive(false);
-        pausePanel.SetActive(true);
     }
 
     public void ResumeGame()
@@ -81,21 +62,47 @@ public class PauseManager : MonoBehaviour
         pausePanel.SetActive(false);
     }
 
+    public void PauseButton()
+    {
+        PauseGame();
+
+        //hides the pause button and shows the pause panel
+        pauseButtonPanel.SetActive(false);
+        pausePanel.SetActive(true);
+    }
+
+    public void ActivateGameOverScreen()
+    {
+        PauseGame();
+
+        //hides the pause button and shows the game over panel
+        pauseButtonPanel.SetActive(false);
+        gameOverPanel.SetActive(true);
+    }
+
     public void ShowSigns()
     {
         if (!paused) return;
 
         signsPanel.SetActive(true);
+        pausePanel.SetButtonsActive(false);
     }
 
     public void HideSigns()
     {
         signsPanel.SetActive(false);
+        pausePanel.SetButtonsActive(true);
     }
 
     public void GoBackToMenu()
     {
         GameObject transition_obj = Instantiate(transitionPrefab);
         transition_obj.GetComponent<Transition>().targetSceneName = menuSceneName;
+    }
+
+    public void RestartLevel()
+    {
+        GameObject transition_obj = Instantiate(transitionPrefab);
+        transition_obj.GetComponent<Transition>().mode = Transition.Mode.Restart;
     }
 }

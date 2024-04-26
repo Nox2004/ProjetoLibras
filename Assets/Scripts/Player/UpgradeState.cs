@@ -8,7 +8,7 @@ public class UpgradeState : IPlayerState
     private float touchTime = 0f, touchEndTime = 0f;
     private float tapThreshold = 0.2f;
 
-    private int numOfUpgrades;
+    private int numOfSigns;
     private float initialXPos;
     private float xSpace;
 
@@ -32,7 +32,7 @@ public class UpgradeState : IPlayerState
         touchTime = 0f; touchEndTime = 0f;
 
         //upgrade stuff
-        numOfUpgrades = info.numOfOptions;
+        numOfSigns = info.numOfSignOptions;
         initialXPos = info.startAnswerX;
         xSpace = info.spaceBetweenAnswers;
 
@@ -40,7 +40,7 @@ public class UpgradeState : IPlayerState
         float worldpos_x = me.transform.position.x;
         float min_distance = float.MaxValue;
         
-        for (int i = 0; i < numOfUpgrades; i++)
+        for (int i = 0; i < numOfSigns; i++)
         {
             float x = initialXPos + i * xSpace;
             float dist = Mathf.Abs(worldpos_x - x);
@@ -64,7 +64,7 @@ public class UpgradeState : IPlayerState
             float min_distance = float.MaxValue;
             int p_index = -1;
             
-            for (int i = 0; i < numOfUpgrades; i++)
+            for (int i = 0; i < numOfSigns; i++)
             {
                 float x = initialXPos + i * xSpace;
                 float dist = Mathf.Abs(worldpos_x - x);
@@ -97,8 +97,7 @@ public class UpgradeState : IPlayerState
                         // Tap stuff
                         
                         shoot = true;
-                        Debug.Log("Tapped");
-
+                        
                         return;
                     }
                 }

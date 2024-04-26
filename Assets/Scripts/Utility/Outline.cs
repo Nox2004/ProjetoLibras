@@ -66,6 +66,9 @@ public class Outline : MonoBehaviour {
   [SerializeField, Range(0f, 20f)]
   private float outlineWidth = 2f;
 
+  [SerializeField]
+  private MeshRenderer[] ignoreRenderers;
+
   [Header("Optional")]
 
   [SerializeField, Tooltip("Precompute enabled: Per-vertex calculations are performed in the editor and serialized with the object. "
@@ -89,6 +92,7 @@ public class Outline : MonoBehaviour {
 
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
+    renderers = renderers.Where(x => !ignoreRenderers.Contains(x)).ToArray();
 
     // Instantiate outline materials
     outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));

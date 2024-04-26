@@ -85,8 +85,18 @@ public class FadePanel : Panel
                 changingAlpha = false;
             }
         }
-    
 
+        if (needsToUpdateButtons)
+        {
+            foreach (childImage childImage in childImages)
+            {
+
+                childImage.image.color = new Color(childImage.image.color.r, 
+                                                childImage.image.color.g, 
+                                                childImage.image.color.b, 
+                                                (currentAlpha/maxAlpha) * childImage.alpha);
+            }
+        }
     }
 
     override public void SetActive(bool active)
@@ -95,5 +105,27 @@ public class FadePanel : Panel
         
         changingAlpha = true;
         targetAlpha = active ? maxAlpha : 0f;
+    }
+
+    public override void AddButton(Button2D button)
+    {
+        base.AddButton(button);
+
+        Image childImage = button.GetComponent<Image>();
+        if (childImage != null)
+        {
+            childImages.Add(new childImage(childImage, childImage.color.a));
+        }
+    }
+
+    public override void RemoveButton(Button2D button)
+    {
+        base.RemoveButton(button);
+
+        Image childImage = button.GetComponent<Image>();
+        if (childImage != null)
+        {
+            childImages.RemoveAll(x => x.image == childImage);
+        }
     }
 }

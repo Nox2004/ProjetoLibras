@@ -74,6 +74,33 @@ public class ComponentPooler<T> where T : Behaviour
         return output;
     }
 
+    public T[] GetActiveComponents()
+    {
+        CheckInUse();
+
+        int activeCount = 0;
+        for (int i = 0; i < poolSize; i++)
+        {
+            if (IsActive(pool[i]))
+            {
+                activeCount++;
+            }
+        }
+
+        T[] activeComponents = new T[activeCount];
+        int j = 0;
+        for (int i = 0; i < poolSize; i++)
+        {
+            if (IsActive(pool[i]))
+            {
+                activeComponents[j] = pool[i];
+                j++;
+            }
+        }
+
+        return activeComponents;
+    }
+
     public void ReturnComponent(T component)
     {
         component.enabled = false;

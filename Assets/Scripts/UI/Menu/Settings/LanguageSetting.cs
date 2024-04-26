@@ -7,6 +7,7 @@ public class LanguageSetting : MonoBehaviour
 {
     private LanguageSettings[] languageSettings;
     private int selectedLanguageIndex = 0;
+    [SerializeField] private SignCatalogue signCatalogue;
 
     private Image image;
 
@@ -36,5 +37,7 @@ public class LanguageSetting : MonoBehaviour
 
         image.sprite = languageSettings[selectedLanguageIndex].flagSprite;
         GameManager.SetLanguage(languageSettings[selectedLanguageIndex].language);
+
+        signCatalogue.UpdateCatalogue();
     }
 }
