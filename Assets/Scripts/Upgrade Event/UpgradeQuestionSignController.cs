@@ -158,7 +158,6 @@ public class UpgradeQuestionSignController : MonoBehaviour, IPausable
     public void SetAnimation (Animation value)
     {
         currentAnimation = value;
-        Debug.Log("SetAnimation: " + value);
 
         switch (value)
         {

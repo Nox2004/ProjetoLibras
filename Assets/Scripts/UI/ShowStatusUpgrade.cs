@@ -12,7 +12,7 @@ public class ShowStatusUpgrade : MonoBehaviour
     [Serializable]
     private struct StatusImage
     {
-        public PlayerStatus status;
+        public PlayerUpgradeId status;
         public GameObject obj;
     }
     [SerializeField] private StatusImage[] statusImages;
@@ -54,7 +54,7 @@ public class ShowStatusUpgrade : MonoBehaviour
         rectTransform.localPosition = tmp;
     }
 
-    public void ShowStatus(PlayerStatus status)
+    public void ShowStatus(PlayerUpgradeId status)
     {
         foreach (StatusImage statusObject in statusImages)
         {

@@ -26,9 +26,9 @@ public class UpgradeButton : Button2D, IPausable
 
     #endregion
 
-    [Serializable] public class PlayerStatusEvent : UnityEvent <PlayerStatus> {}
-    [SerializeField] private PlayerStatusEvent UpgradeEvent;
-    [HideInInspector] public PlayerStatus status;
+    [Serializable] public class PlayerUpgradeIdEvent : UnityEvent <PlayerUpgradeId> {}
+    [SerializeField] private PlayerUpgradeIdEvent UpgradeEvent;
+    [HideInInspector] public PlayerUpgradeId status;
 
     private float currentScale;
     [SerializeField] private float normalScale = 1f, touchScale = 1f, scaleSmoothRatio;

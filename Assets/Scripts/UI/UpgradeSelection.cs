@@ -12,7 +12,7 @@ public class UpgradeSelection : MonoBehaviour
         panel = GetComponent<Panel>();
     }
 
-    public void SetButtons(UpgradeEventManager.PlayerUpgrade[] currentUpgradeSelection)
+    public void SetButtons(PlayerUpgrade[] currentUpgradeSelection)
     {
         //remove all buttons
         foreach (Transform child in transform)
@@ -25,12 +25,12 @@ public class UpgradeSelection : MonoBehaviour
         buttonExample.SetActive(true);
 
         //add buttons to select upgrade
-        foreach (UpgradeEventManager.PlayerUpgrade upgrade in currentUpgradeSelection)
+        foreach (PlayerUpgrade upgrade in currentUpgradeSelection)
         {
             GameObject button = Instantiate(buttonExample, transform);
             button.GetComponent<Image>().sprite = upgrade.icon;
             button.GetComponent<Image>().color = Color.white;
-            button.GetComponent<UpgradeButton>().status = upgrade.status;
+            button.GetComponent<UpgradeButton>().status = upgrade.id;
 
             panel.AddButton(button.GetComponent<Button2D>());
         }

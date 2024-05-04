@@ -5,8 +5,120 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-//private enum Status { ShootRate, Damage, Speed, Range, BulletsPerShoot, Knockback, Penetration, Count }
-public enum PlayerStatus { ShootRate, BulletPower, BulletRange, BulletsPerShoot, Penetration, Count }
+//private enum Status { ShootRate, Damage, Speed, Range, BulletsPerShoot, Knockback, Piercing, Count }
+public enum PlayerUpgradeId { ShootRate, BulletPower, BulletRange, BulletsPerShoot, Piercing, Aim, LotsOfDamage, LotsOfBullets, LotsOfShootRate, Drone, Count }
+
+//Store possible upgrades, their levels and probability
+[System.Serializable]
+public class PlayerUpgrade
+{
+    public PlayerUpgradeId id;
+    public int rarity;
+    public int currentLevel;
+    public int maxLevel;
+
+    public Sprite icon;
+
+    public int weight;
+
+    public static PlayerUpgrade GetRandom(PlayerUpgrade[] list, PlayerUpgrade[] ignore = null)
+    {
+        //Creates a copy and remove the ignore
+        List<PlayerUpgrade> listCopy = new List<PlayerUpgrade>(list);
+        if (ignore != null)
+        {
+            foreach (PlayerUpgrade i in ignore)
+            {
+                listCopy.Remove(i);
+            }
+        }
+        
+        int totalWeight = 0;
+        foreach (PlayerUpgrade upgrade in listCopy)
+        {
+            if (upgrade.currentLevel >= upgrade.maxLevel && upgrade.maxLevel != -1) continue; //Ignore upgrades that are at max level
+            
+            totalWeight += upgrade.weight/upgrade.rarity;
+        } 
+
+        int random = Random.Range(0, totalWeight);
+        int count = 0;
+
+        //Debug.Log("Total weight: " + totalWeight);
+        //Debug.Log("Radom: " + random);
+
+        foreach (PlayerUpgrade upgrade in listCopy)
+        {
+            if (upgrade.currentLevel >= upgrade.maxLevel && upgrade.maxLevel != -1) continue; //Ignore upgrades that are at max level
+            
+            if (upgrade.weight/upgrade.rarity == 0) continue;
+
+            count += upgrade.weight/upgrade.rarity;
+
+            //Debug.Log("Count of " + upgrade.id + ": " + count);
+
+            if (random <= count) return upgrade;
+        }
+        
+        Debug.LogError("Not able to choose a upgrade, returning the first one from the list.");
+        return list[0];
+    }
+}
+
+[System.Serializable]
+public class PlayerStatus
+{
+    [Header("Shoot Rate")]
+    public float initialShootRate;
+    public float shootRateIncreasePerLevel;
+    public float shootRateDiminishMultiplier;
+
+    [Header("Bullet Power")]
+    public float initialBulletDamage;
+    public float bulletDamageIncreasePerLevel;
+    public float bulletDamageDiminishMultiplier;
+
+    public float initialBulletKnockback;
+    public float bulletKnockbackIncreasePerLevel;
+    public float bulletKnockbackDiminishMultiplier;
+
+    [Header("Bullet Range")]
+    public float initialBulletRange;
+    public float bulletRangeIncreasePerLevel;
+    public float bulletRangeDiminishMultiplier;
+
+    public float initialBulletSpeed;
+    public float bulletSpeedIncreasePerLevel;
+    public float bulletSpeedDiminishMultiplier;
+
+    [Header("Bullets Per Shoot")]
+    public int initialBulletsPerShoot;
+    public int bulletsPerShootIncreasePerLevel;
+    [Tooltip("Lerp value to calculate fina damage 0 - 1 -> (damage / bullets) - damage")] [Range(0,1)] public float bulletQuantityDamageLerp;
+
+    [Header("Piercing")]
+    public int initialPiercing;
+    public int piercingIncreasePerLevel;
+
+    [Header("Aim")]
+    public float initialAimImprecision;
+
+    [Header("More Damage Less shot rate")]
+    public float lotsOfDamageDamageMultiplier;
+    public float lotsOfDamageShootRateMultiplier;
+
+    [Header("More Bullets Less range")]
+    public int lotsOfBulletsQuantityOfBulletsIncrease;
+    public float lotsOfBulletsRangeMultiplier;
+
+    [Header("More Shoot Rate Less knockback")]
+    public float lotsOfShootRateShootRateMultiplier;
+    public float lotsOfShootRateKnockbackMultiplier;
+
+    [Header("Drone")]
+    public GameObject dronePrefab;
+    public GameObject[] drones;
+}
 
 [SelectionBase]
 public class PlayerController : MonoBehaviour, IPausable
@@ -86,14 +198,15 @@ public class PlayerController : MonoBehaviour, IPausable
 
 
     [Header("Shooting")]
-    [SerializeField, Tooltip("Shoots per second")] private float ShootRate; private float initialShootRate;
+    [SerializeField, Tooltip("Shoots per second")] private float ShootRate;
     private float shootCooldown => 1f / ShootRate; //Cooldown between shoots
-    [SerializeField] private int bulletsPerShoot = 1; private int initialBulletsPerShoot;
-    [SerializeField] private float bulletSpeed; private float initialBulletSpeed;
-    [SerializeField] private float bulletRange; private float initialBulletRange;
-    [SerializeField] private float bulletDamage; private float initialBulletDamage;
-    [SerializeField] private float bulletKnockback; private float initialBulletKnockback;
-    [SerializeField] private int bulletPenetration; private int initialBulletPenetration;
+    [SerializeField] private int bulletsPerShoot = 1;
+    [SerializeField] private float bulletSpeed;
+    [SerializeField] private float bulletRange;
+    [SerializeField] private float bulletDamage;
+    [SerializeField] private float bulletKnockback;
+    [SerializeField] private int bulletPiercing;
+    [SerializeField] private float aimImprecision;
     
     //State machine properties
     public IPlayerState currentState;
@@ -115,48 +228,65 @@ public class PlayerController : MonoBehaviour, IPausable
     }
     private Vector3 stuckInPlacePos;
 
-    #region //Shooting upgrade
+    #region //Upgrades
 
-    private int[] statusLevels = new int[(int) PlayerStatus.Count];
+    [SerializeField] public PlayerUpgrade[] upgrades = new PlayerUpgrade[(int)PlayerUpgradeId.Count];
+    [SerializeField] private PlayerStatus playerStatus;
 
-    public void Upgrade(PlayerStatus status, int levelUp = 1)
+    public void Upgrade(PlayerUpgradeId upgradeId, int levelUp = 1)
     {
-        statusLevels[(int) status]+= levelUp;
-        if (debug) Debug.Log(debugTag + "Upgraded " + status + " to level " + statusLevels[(int) status]);
+        upgrades[(int) upgradeId].currentLevel += levelUp;
+        if (debug) Debug.Log(debugTag + "Upgraded " + upgradeId + " to level " + upgrades[(int) upgradeId].currentLevel);
         //upgradeStatusObject.ShowStatus((Status)random);
+
+        UpdateStatus();
 
         //getDiminishingSum => f(I,L,M,C) = I+Sum(M * C^n,n,0,L-1)
         //initial + 0
         //initial + 0.5
         //initial + 0.5 * 0.8
         //initial + 0.5 * 0.8 + 0.5 * 0.64
+    }
+
+    public void UpdateStatus()
+    {
+        PlayerStatus _ps = playerStatus;
 
         //apply upgrades
-        bulletDamage = initialBulletDamage + getDiminishingSum(0.3f, 0.9f, 0, statusLevels[(int)PlayerStatus.BulletPower]-1); //0 - 0.3 - 0.57 - 0.81 - 1.02
-        bulletKnockback = initialBulletKnockback + getDiminishingSum(2f, 0.75f, 0, statusLevels[(int)PlayerStatus.BulletPower]-1); //0 - 2 - 3.5 - 4.6
+        bulletDamage = _ps.initialBulletDamage + getDiminishingSum(_ps.bulletDamageIncreasePerLevel, _ps.bulletDamageDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.BulletPower].currentLevel-1);
+        bulletKnockback = _ps.initialBulletKnockback + getDiminishingSum(_ps.bulletKnockbackIncreasePerLevel, _ps.bulletKnockbackDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.BulletPower].currentLevel-1);
 
-        bulletSpeed = initialBulletSpeed + getDiminishingSum(10, 0.7f, 0, statusLevels[(int)PlayerStatus.BulletRange]-1); //0 - 10 - 17 - 23
-        bulletRange = initialBulletRange + getDiminishingSum(5, 0.75f, 0, statusLevels[(int)PlayerStatus.BulletRange]-1); //0 - 5 - 8.75 - 11.5
+        bulletSpeed = _ps.initialBulletSpeed + getDiminishingSum(_ps.bulletSpeedIncreasePerLevel, _ps.bulletSpeedDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.BulletRange].currentLevel-1);
+        bulletRange = _ps.initialBulletRange + getDiminishingSum(_ps.bulletRangeIncreasePerLevel, _ps.bulletRangeDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.BulletRange].currentLevel-1);
         
-        bulletsPerShoot = initialBulletsPerShoot + statusLevels[(int)PlayerStatus.BulletsPerShoot]; //1 - 2 - 3 - 4
-        if (bulletsPerShoot > 1) bulletDamage = bulletDamage / (bulletsPerShoot * 0.75f); //Compensate for multiple bullets
-
-        ShootRate = initialShootRate + getDiminishingSum(0.5F, 0.75f, 0, statusLevels[(int)PlayerStatus.ShootRate]-1); //0 - 0.5 - 0.875 - 1.15
-
-        bulletPenetration = initialBulletPenetration + statusLevels[(int)PlayerStatus.Penetration]; //0 - 1 - 2 - 3
-
-        // bulletDamage = initialBulletDamage + Mathf.Sqrt(statusLevels[(int)Status.BulletPower]*1) * 0.5f; //0 - 0.5 - 0.7 - 0.9
-        // bulletKnockback = initialBulletKnockback + Mathf.Sqrt(statusLevels[(int)Status.BulletPower] * 9f); //0 - 3 - 4.2 - 5.2
-
-        // bulletSpeed = initialBulletSpeed + Mathf.Sqrt(statusLevels[(int)Status.BulletRange] * 200f); //0 - 14 - 20
-        // bulletRange = initialBulletRange + Mathf.Sqrt(statusLevels[(int)Status.BulletRange] * 25f); //0 - 5 - 7 - 9
-
-        // bulletsPerShoot = initialBulletsPerShoot + statusLevels[(int)Status.BulletsPerShoot]; //1 - 2 - 3 - 4
-        // if (bulletsPerShoot > 1) bulletDamage = bulletDamage / (bulletsPerShoot * 0.75f); //Compensate for multiple bullets
-
-        // ShootRate = initialShootRate + Mathf.Sqrt(statusLevels[(int)Status.ShootRate] * 2) * 0.5f; //0 - 0.7 - 1 - 1.2
+        bulletsPerShoot = _ps.initialBulletsPerShoot + upgrades[(int)PlayerUpgradeId.BulletsPerShoot].currentLevel * _ps.bulletsPerShootIncreasePerLevel;
         
-        // bulletPenetration = initialBulletPenetration + statusLevels[(int)Status.Penetration]; //0 - 1 - 2 - 3
+        if (upgrades[(int)PlayerUpgradeId.LotsOfBullets].currentLevel > 0)
+        {
+            bulletsPerShoot += _ps.lotsOfBulletsQuantityOfBulletsIncrease;
+            bulletRange *= _ps.lotsOfBulletsRangeMultiplier;
+        }
+        
+        if (bulletsPerShoot > 1) bulletDamage = Mathf.Lerp(bulletDamage / bulletsPerShoot,bulletDamage,_ps.bulletQuantityDamageLerp); //Compensate for multiple bullets
+
+        ShootRate = _ps.initialShootRate + getDiminishingSum(_ps.shootRateIncreasePerLevel, _ps.shootRateDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.ShootRate].currentLevel-1);
+
+        bulletPiercing = _ps.initialPiercing + upgrades[(int)PlayerUpgradeId.Piercing].currentLevel * _ps.piercingIncreasePerLevel;
+
+        if (upgrades[(int)PlayerUpgradeId.Aim].currentLevel == 0) aimImprecision = _ps.initialAimImprecision;
+        else aimImprecision = 0f;
+
+        if (upgrades[(int)PlayerUpgradeId.LotsOfDamage].currentLevel > 0)
+        {
+            bulletDamage *= _ps.lotsOfDamageDamageMultiplier;
+            ShootRate *= _ps.lotsOfDamageShootRateMultiplier;
+        }
+
+        if (upgrades[(int)PlayerUpgradeId.LotsOfShootRate].currentLevel > 0)
+        {
+            ShootRate *= _ps.lotsOfShootRateShootRateMultiplier;
+            bulletKnockback *= _ps.lotsOfShootRateKnockbackMultiplier;
+        }        
     }
 
     public float getDiminishingSum(float value, float mult, int start, int end)
@@ -246,7 +376,7 @@ public class PlayerController : MonoBehaviour, IPausable
     {
         bool playedSound = false;
 
-        float angle = -bulletsAngleArc / 2;
+        float angle = -bulletsAngleArc / 2 + Random.Range(-aimImprecision/2, aimImprecision/2);
         for (int i = 0; i < bulletsPerShoot; i++)
         {
             angle += bulletsAngleArc / (bulletsPerShoot + 1); 
@@ -263,7 +393,7 @@ public class PlayerController : MonoBehaviour, IPausable
             bullet_controller.damage = bulletDamage;
             bullet_controller.range = bulletRange;
             bullet_controller.knockback = bulletKnockback;
-            bullet_controller.pierce = bulletPenetration;
+            bullet_controller.pierce = bulletPiercing;
 
             if (!playedSound)
             {
@@ -356,18 +486,11 @@ public class PlayerController : MonoBehaviour, IPausable
 
         headRigInitialPos = headRig.localPosition; //Initial head position 
 
+        UpdateStatus();
+
         //Sets the initial state
         shootingCoroutine = ShootCoroutine();
         SetState(shootingState);
-
-        //Initializes the upgrade levels
-        for (int i = 0; i < (int)PlayerStatus.Count; i++) statusLevels[i] = 0;
-        initialBulletDamage = bulletDamage;
-        initialBulletKnockback = bulletKnockback;
-        initialBulletRange = bulletRange;
-        initialBulletSpeed = bulletSpeed;
-        initialBulletsPerShoot = bulletsPerShoot;
-        initialShootRate = ShootRate;
     }
 
     void Update()
@@ -392,12 +515,8 @@ public class PlayerController : MonoBehaviour, IPausable
         RiggingMovementAnimation(xLookingAtDistance);
     }
 
-    //on colliding
     void OnTriggerEnter(Collider other)
     {
-        //checks if object implements ITakesDamage
-        
-
         if (other.gameObject.tag == "Damages Player")
         {
             levelManager.GameOver();

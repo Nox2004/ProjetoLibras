@@ -128,6 +128,19 @@ public class PlayerBulletController : ObjectFromPool, IPausable
         initialDamage = damage;
         distanceTraveled = 0f;
 
+        //!!!CHANGE LATER
+        float scale = initialDamage;
+        if (scale < 1)
+        {
+            scale = Mathf.Lerp(0.5f, 1f, scale);
+        }
+        else
+        {
+            //scale*=2;
+        }
+        //Set scale
+        transform.localScale = new Vector3(scale, scale, scale);
+
         //playerAudioManager.PlaySound(shootSound);
         
         //Initializes ignore list

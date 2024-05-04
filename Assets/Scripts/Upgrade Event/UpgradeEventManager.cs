@@ -109,9 +109,8 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
     [SerializeField] private AudioClip wrongAnswerSound;
 
     [Header("Player Upgrades")]
-    [SerializeField] private PlayerUpgrade[] upgradeList = new PlayerUpgrade[(int)PlayerStatus.Count];
     private PlayerUpgrade[] currentUpgradeSelection;
-    private PlayerStatus selectedUpgrade;
+    private PlayerUpgradeId selectedUpgrade;
     [HideInInspector] public bool rewardUpgrade;
     [SerializeField] public int pointsRewardWhenNoUpgrade;
 
@@ -124,52 +123,11 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
     [SerializeField] private UpgradeSelection upgradeSelection;
     [SerializeField] private Panel upgradeSelectionPanel;
 
-    //Store possible upgrades and probability
-    [Serializable]
-    public class PlayerUpgrade
-    {
-        public PlayerStatus status;
-        public int rarity;
-        public Sprite icon;
-        public int weight;
-
-        public static PlayerUpgrade GetRandom(PlayerUpgrade[] list, PlayerUpgrade[] ignore = null)
-        {
-            //Creates a copy and remove the ignore
-            List<PlayerUpgrade> listCopy = new List<PlayerUpgrade>(list);
-            if (ignore != null)
-            {
-                foreach (PlayerUpgrade i in ignore)
-                {
-                    listCopy.Remove(i);
-                }
-            }
-            
-            int totalWeight = 0;
-            foreach (PlayerUpgrade upgrade in listCopy)
-            {
-                totalWeight += upgrade.weight*upgrade.rarity;
-            } 
-
-            int random = UnityEngine.Random.Range(0, totalWeight);
-            int count = 0;
-
-            foreach (PlayerUpgrade upgrade in listCopy)
-            {
-                count += upgrade.weight*upgrade.rarity;
-
-                if (random <= count) return upgrade;
-            }
-
-            return list[0];
-        }
-    }
-
     private void InitializeUpgrades()
     {
-        for (int i = 0; i < upgradeList.Length; i++)
+        for (int i = 0; i < playerController.upgrades.Length; i++)
         {
-            upgradeList[i].weight = initialUpgradeWeight;
+            playerController.upgrades[i].weight = initialUpgradeWeight;
         }
     }
 
@@ -177,32 +135,34 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
     {
         PlayerUpgrade[] possibleUpgrades = new PlayerUpgrade[numOfPossibleUpgrades];
 
+        //Choose the upgrades
         for (int i = 0; i < numOfPossibleUpgrades; i++)
         {
-            possibleUpgrades[i] = PlayerUpgrade.GetRandom(upgradeList, possibleUpgrades);
+            possibleUpgrades[i] = PlayerUpgrade.GetRandom(playerController.upgrades, possibleUpgrades);
             possibleUpgrades[i].weight = upgradeWeightAfterShowed;
         }
 
-        for (int i = 0; i < upgradeList.Length; i++)
+        //Increase the weight of the upgrades that were not shown
+        for (int i = 0; i < playerController.upgrades.Length; i++)
         {
             bool shown = false;
             for (int j = 0; j < numOfPossibleUpgrades; j++)
             {
-                if (upgradeList[i].status == possibleUpgrades[j].status) 
+                if (playerController.upgrades[i].id == possibleUpgrades[j].id) 
                 {
                     shown = true; break;
                 }
             }
             if (shown) continue;
 
-            upgradeList[i].weight += upgradeWeightIncrease;
+            playerController.upgrades[i].weight += upgradeWeightIncrease;
         }
         
         return possibleUpgrades;
     }
 
     //!!!Change later
-    public void SelectUpgrade(PlayerStatus status)
+    public void SelectUpgrade(PlayerUpgradeId status)
     {
         selectedUpgrade = status;
     }
@@ -420,7 +380,7 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
                     {
                         //Rewards player with a upgrade
                         currentUpgradeSelection = ChooseUpgrades(numOfUpgradeOptions);
-                        selectedUpgrade = PlayerStatus.Count;
+                        selectedUpgrade = PlayerUpgradeId.Count;
 
                         upgradeSelectionPanel.SetActive(true);
                         upgradeSelection.SetButtons(currentUpgradeSelection);
@@ -431,7 +391,7 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
                     else
                     {
                         //Rewards player with points
-                        levelManager.currentScore += pointsRewardWhenNoUpgrade;
+                        levelManager.AddPointsToProgression(pointsRewardWhenNoUpgrade);
                         
                         if (debug) Debug.Log(debugTag + "Waiting stage");
                         stage = Stage.Waiting;
@@ -449,14 +409,14 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
             break;
             case Stage.ChoosingUpgrade:
             {
-                if (selectedUpgrade != PlayerStatus.Count)
+                if (selectedUpgrade != PlayerUpgradeId.Count)
                 {
                     playerController.Upgrade(selectedUpgrade);
                     upgradeSelectionPanel.SetActive(false);
 
                     for (int i = 0; i < currentUpgradeSelection.Length; i++)
                     {
-                        if (currentUpgradeSelection[i].status == selectedUpgrade) currentUpgradeSelection[i].weight = upgradeWeightAfterSelected;
+                        if (currentUpgradeSelection[i].id == selectedUpgrade) currentUpgradeSelection[i].weight = upgradeWeightAfterSelected;
                     }
 
                     if (debug) Debug.Log(debugTag + "Waiting stage");
