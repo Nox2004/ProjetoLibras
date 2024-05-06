@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StarProgressionBar : MonoBehaviour
 {
@@ -58,10 +59,20 @@ public class StarProgressionBar : MonoBehaviour
             float width = rectTransform.rect.width;
 
             GameObject star = Instantiate(starExample, starParent.transform);
+            
+            //Set position
             Vector3 tmp = star.transform.localPosition;
             tmp.x = (-width / 2) + (width / starProgressionSystem.currentNumOfSubstars) * (i+1f);
             star.transform.localPosition = tmp;
+
+            //Set sprite
+            Sprite sprite = starProgressionSystem.currentStar.subStars[i].reward.rewardIcon;
+            star.GetComponent<Image>().sprite = sprite;
+            
+            //Set size to match sprites
+            star.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.texture.width / (sprite.pixelsPerUnit / 100), sprite.texture.height / (sprite.pixelsPerUnit / 100));
         }
+        
 
         starExample.SetActive(false);
     }

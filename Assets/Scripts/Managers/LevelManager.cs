@@ -3,155 +3,6 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[System.Serializable]
-public class StartProgressionSystem
-{
-    [SerializeField] private Star[] stars;
-    private bool reward = false; //Is set to true when player reaches a substar
-
-    public int currentStarIndex; //Index of the star player is currently trying to reach
-    public int currentSubStarIndex; //Index of the star player is currently trying to reach
-
-    public int currentStarScore = 0; //Score used to reach the current star
-
-
-    //Total score of the player (considering all the past stars)
-    public int currentTotalScore { get { 
-        int total = 0;
-        for (int i = 0; i < currentStarIndex; i++)
-        {
-            total += stars[i].pointsRequired;
-        }
-        return total+currentStarScore;
-    } }
-    
-    public Star currentStar { get { return stars[currentStarIndex]; } }
-    public SubStar currentSubstar { get { return currentStar.subStars[currentSubStarIndex]; } }
-    public float currentNumOfSubstars { get { return currentStar.numOfSubstars; } }
-    
-    //Progression up to reach the current star in a range from 0 to 1
-    public float currentStarProgression { get { return (float) currentStarScore / currentStar.pointsRequired; } }
-    
-    public RewardType currentRewardType { get { return currentSubstar.reward.rewardType; } }
-
-    //Progression up to reach the last star in a range from 0 to 1
-    public float totalStarProgression { get {
-        float maxScore = 0;
-        for (int i = 0; i < stars.Length; i++)
-        {
-            maxScore += stars[i].pointsRequired;
-        }
-        return currentTotalScore / maxScore;
-    } }
-
-    public bool ReadyForReward() { return reward; }
-
-    public void AddScore(int score)
-    {
-        if (reward) return;
-       
-        int _substar = currentStar.pointsRequired / currentStar.numOfSubstars;
-        int _max = (currentSubStarIndex+1) * _substar;
-
-        currentStarScore += score;
-
-        //reached a new substar
-        if (currentStarScore > _max)
-        {
-            //caps score and sets reward to true
-            currentStarScore = _max;
-            reward = true;
-        }
-    }
-
-    public void ResolveReward()
-    {
-        //gets to the next substar
-        currentSubStarIndex++;
-
-        //reached next star
-        if (currentSubStarIndex >= currentStar.numOfSubstars) 
-        {
-            currentStarIndex++;
-            currentSubStarIndex = 0;
-        }
-
-        reward = false;
-    }
-}
-
-[System.Serializable]
-public class Star
-{
-    public int pointsRequired;
-    public SubStar[] subStars;
-    public int numOfSubstars { get { return subStars.Length; } }
-}
-
-[System.Serializable]
-public class SubStar
-{
-    public EnemyPool enemyPool;
-    public Reward reward;
-}
-
-public enum RewardType
-{
-    UpgradeEvent,
-    FreeUpgreade,
-    BossFight,
-    Points
-}
-
-[System.Serializable]
-public class Reward
-{
-    public RewardType rewardType;
-}
-
-
-[System.Serializable]
-public class EnemyPool
-{
-    public EnemyInPool[] pool;
-    private float _totalWeight = 0;
-    private float totalWeight {
-        get
-        {
-            if (_totalWeight == 0)
-            {
-                foreach (EnemyInPool enemy in pool)
-                {
-                    _totalWeight += enemy.chanceWeight;
-                }
-            }
-            return _totalWeight;
-        }
-    }
-
-    public GameObject GetRandomEnemy()
-    {
-        float random = Random.Range(0, totalWeight);
-        float count = 0;
-
-        foreach (EnemyInPool enemy in pool)
-        {
-            count += enemy.chanceWeight;
-
-            if (random <= count) return enemy.enemyPrefab;
-        }
-
-        return null;
-    }
-}
-
-[System.Serializable]
-public class EnemyInPool
-{
-    public GameObject enemyPrefab;
-    public float chanceWeight;
-}
-
 public class LevelManager : MonoBehaviour, IPausable
 {  
     #region //IPausable implementation
@@ -215,13 +66,9 @@ public class LevelManager : MonoBehaviour, IPausable
     [SerializeField] private UpgradeEventManager upgradeEventManager;
     private int numberOfUpgradeEvents = 0;
 
-    [SerializeField] private int numberOfEventsToStopRewardingUpgrades;
 
-
-    //Available signs and upgrade event handling
-    private float upgradeTimer = 0f;
+    //Upgrade event handling
     [SerializeField] private SignSelector signSelector;
-
     private bool upgradeEventOnGoing = false;
 
     //Instantiate an enemy prefab
@@ -281,8 +128,7 @@ public class LevelManager : MonoBehaviour, IPausable
                                                 SignSetManager.GetSoureSign(signs[correct_answer]).signTexture,
                                                 SignSetManager.GetTargetSign(signs[correct_answer]).signTexture,
                                                 correct_answer,
-                                                objectsSpeed,
-                                                numberOfUpgradeEvents < numberOfEventsToStopRewardingUpgrades);
+                                                objectsSpeed);
 
         if (debug) Debug.Log(debugTag + "Creating upgrade event manager");
 
@@ -358,37 +204,32 @@ public class LevelManager : MonoBehaviour, IPausable
         {
             if (debug) Debug.Log(debugTag + "Player reached a substar");
 
-            switch (starProgressionSystem.currentRewardType)
+            if (starProgressionSystem.currentReward is UpgradeReward)
             {
-                case RewardType.UpgradeEvent:
+                //If there is no upgrade event on going, start a new upgrade event
+                if (!upgradeEventOnGoing)
                 {
-                    //If there is no upgrade event on going, start a new upgrade event
-                    if (!upgradeEventOnGoing)
+                    if (debug) Debug.Log("LevelManager: Starting upgrade event");
+
+                    int num = upgradeEventManager.GetCurrentInfo().numOfSignOptions;
+                    SignSelection signSelection = signSelector.SelectSigns(num);
+
+                    upgradeEventOnGoing = StartUpgradeEvent(signSelection.signs, signSelection.correctSignIndex);
+                }
+                else //If there is an upgrade event on going, check if it is finished
+                {
+                    if (upgradeEventManager.Finished())
                     {
-                        if (debug) Debug.Log("LevelManager: Starting upgrade event");
+                        if (debug) Debug.Log(debugTag + "Upgrade event finished");
 
-                        int num = upgradeEventManager.GetCurrentInfo().numOfSignOptions;
-                        SignSelection signSelection = signSelector.SelectSigns(num);
+                        upgradeEventOnGoing = false;
 
-                        upgradeEventOnGoing = StartUpgradeEvent(signSelection.signs, signSelection.correctSignIndex);
-                    }
-                    else //If there is an upgrade event on going, check if it is finished
-                    {
-                        if (upgradeEventManager.Finished())
-                        {
-                            if (debug) Debug.Log(debugTag + "Upgrade event finished");
+                        numberOfUpgradeEvents++;
 
-                            upgradeEventOnGoing = false;
-                            upgradeTimer = 0;
-
-                            numberOfUpgradeEvents++;
-
-                            starProgressionSystem.ResolveReward();
-                            //UpdateEnemyPool(numberOfUpgradeEvents);
-                        }
+                        starProgressionSystem.ResolveReward();
+                        //UpdateEnemyPool(numberOfUpgradeEvents);
                     }
                 }
-                break;
             }
         }
     }

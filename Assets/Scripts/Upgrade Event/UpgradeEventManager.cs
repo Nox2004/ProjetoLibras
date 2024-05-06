@@ -111,8 +111,6 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
     [Header("Player Upgrades")]
     private PlayerUpgrade[] currentUpgradeSelection;
     private PlayerUpgradeId selectedUpgrade;
-    [HideInInspector] public bool rewardUpgrade;
-    [SerializeField] public int pointsRewardWhenNoUpgrade;
 
     [SerializeField] private int numOfUpgradeOptions;
     [SerializeField] private int initialUpgradeWeight;
@@ -191,12 +189,11 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
         InitializeUpgrades();
     }
 
-    public void StartUpgradeEvent(SignCode[] currentSigns, Texture question_texture, Texture answer_texture, int correctAnswerIndex, float speed, bool rewardUpgrade)
+    public void StartUpgradeEvent(SignCode[] currentSigns, Texture question_texture, Texture answer_texture, int correctAnswerIndex, float speed)
     {
         this.speed = speed;
         this.correctAnswerIndex = correctAnswerIndex;
         this.currentSigns = currentSigns;
-        this.rewardUpgrade = rewardUpgrade;
 
         questionController.SetTextures(question_texture, answer_texture, questionColor, answerColors[correctAnswerIndex]);
         questionController.SetAnimation(UpgradeQuestionSignController.Animation.Entering);
@@ -375,27 +372,25 @@ public class UpgradeEventManager : MonoBehaviour, IPausable
                     confettiLauncher.LaunchConfetti();
                     audioManager.PlaySound(correctAnswerSound);
                     //playerController.Upgrade(); //!Change later
-                    
-                    if (rewardUpgrade)
-                    {
-                        //Rewards player with a upgrade
-                        currentUpgradeSelection = ChooseUpgrades(numOfUpgradeOptions);
-                        selectedUpgrade = PlayerUpgradeId.Count;
+                
+                    //Rewards player with a upgrade
+                    currentUpgradeSelection = ChooseUpgrades(numOfUpgradeOptions);
+                    selectedUpgrade = PlayerUpgradeId.Count;
 
-                        upgradeSelectionPanel.SetActive(true);
-                        upgradeSelection.SetButtons(currentUpgradeSelection);
+                    upgradeSelectionPanel.SetActive(true);
+                    upgradeSelection.SetButtons(currentUpgradeSelection);
 
-                        if (debug) Debug.Log(debugTag + "Choosing upgrade stage");
-                        stage = Stage.ChoosingUpgrade;
-                    }  
-                    else
-                    {
-                        //Rewards player with points
-                        levelManager.AddPointsToProgression(pointsRewardWhenNoUpgrade);
+                    if (debug) Debug.Log(debugTag + "Choosing upgrade stage");
+                    stage = Stage.ChoosingUpgrade;
+
+                    // else
+                    // {
+                    //     //Rewards player with points
+                    //     levelManager.AddPointsToProgression(pointsRewardWhenNoUpgrade);
                         
-                        if (debug) Debug.Log(debugTag + "Waiting stage");
-                        stage = Stage.Waiting;
-                    }
+                    //     if (debug) Debug.Log(debugTag + "Waiting stage");
+                    //     stage = Stage.Waiting;
+                    // }
                 }
                 else 
                 {

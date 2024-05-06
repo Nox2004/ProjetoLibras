@@ -5,8 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-//private enum Status { ShootRate, Damage, Speed, Range, BulletsPerShoot, Knockback, Piercing, Count }
-public enum PlayerUpgradeId { ShootRate, BulletPower, BulletRange, BulletsPerShoot, Piercing, Aim, LotsOfDamage, LotsOfBullets, LotsOfShootRate, Drone, Count }
+//private enum Status { shootRate, Damage, Speed, Range, BulletsPerShoot, Knockback, Piercing, Count }
+public enum PlayerUpgradeId { shootRate, BulletPower, BulletRange, BulletsPerShoot, Piercing, Aim, LotsOfDamage, LotsOfBullets, LotsOfshootRate, Drone, Count }
 
 //Store possible upgrades, their levels and probability
 [System.Serializable]
@@ -69,7 +69,7 @@ public class PlayerUpgrade
 public class PlayerStatus
 {
     [Header("Shoot Rate")]
-    public float initialShootRate;
+    public float initialshootRate;
     public float shootRateIncreasePerLevel;
     public float shootRateDiminishMultiplier;
 
@@ -105,19 +105,20 @@ public class PlayerStatus
 
     [Header("More Damage Less shot rate")]
     public float lotsOfDamageDamageMultiplier;
-    public float lotsOfDamageShootRateMultiplier;
+    public float lotsOfDamageshootRateMultiplier;
 
     [Header("More Bullets Less range")]
     public int lotsOfBulletsQuantityOfBulletsIncrease;
     public float lotsOfBulletsRangeMultiplier;
 
     [Header("More Shoot Rate Less knockback")]
-    public float lotsOfShootRateShootRateMultiplier;
-    public float lotsOfShootRateKnockbackMultiplier;
+    public float lotsOfshootRateshootRateMultiplier;
+    public float lotsOfshootRateKnockbackMultiplier;
 
     [Header("Drone")]
     public GameObject dronePrefab;
-    public GameObject[] drones;
+    public List<PlayerDrone> drones;
+    public Vector3 droneSpawnPosition;
 }
 
 [SelectionBase]
@@ -158,10 +159,13 @@ public class PlayerController : MonoBehaviour, IPausable
     [Header("Important references")]
     [SerializeField] private LevelManager levelManager;
     [SerializeField] private ShowStatusUpgrade upgradeStatusObject;
-    [SerializeField] private ParticleManager particleManager;
+    [SerializeField] public ParticleManager particleManager;
     [SerializeField] Camera mainCamera; 
     [SerializeField] private LayerMask floorLayerMask; // Layer mask for the floor
     private AudioManager audioManager;
+
+    //Time
+    public float time;
     
     [Header("Horizontal Movement")]
     [SerializeField] private float xStart, xRange; //Starting X in game world, and range of horizontal movement in game world (floor width)
@@ -191,22 +195,23 @@ public class PlayerController : MonoBehaviour, IPausable
     [Header("Bullet Instantiation")]
     [SerializeField] private GameObject bulletPrefab;
     private ObjectPooler bulletPooler;
-    private IEnumerator shootingCoroutine; private bool isShooting;
+    private IEnumerator shootingCoroutine; public bool isShooting;
     [SerializeField] private Vector3 bulletSpawnOffset;
     [SerializeField] private float bulletZLimit;
     [SerializeField, Tooltip("The arc (in degrees) in which bullets will be instantiated if player shoots more than one.")] private float bulletsAngleArc;
 
 
     [Header("Shooting")]
-    [SerializeField, Tooltip("Shoots per second")] private float ShootRate;
-    private float shootCooldown => 1f / ShootRate; //Cooldown between shoots
-    [SerializeField] private int bulletsPerShoot = 1;
-    [SerializeField] private float bulletSpeed;
-    [SerializeField] private float bulletRange;
-    [SerializeField] private float bulletDamage;
-    [SerializeField] private float bulletKnockback;
-    [SerializeField] private int bulletPiercing;
-    [SerializeField] private float aimImprecision;
+    [SerializeField, Tooltip("Shoots per second")] public float shootRate;
+    private float shootCooldown => 1f / shootRate; //Cooldown between shoots
+    [SerializeField] public int bulletsPerShoot = 1;
+    [SerializeField] public float bulletSpeed;
+    [SerializeField] public float bulletRange;
+    [SerializeField] public float bulletDamage;
+    [SerializeField] public float bulletKnockback;
+    [SerializeField] public int bulletPiercing;
+    [SerializeField] public float aimImprecision;
+    [SerializeField] public int quantityOfDrones;
     
     //State machine properties
     public IPlayerState currentState;
@@ -269,7 +274,7 @@ public class PlayerController : MonoBehaviour, IPausable
         
         if (bulletsPerShoot > 1) bulletDamage = Mathf.Lerp(bulletDamage / bulletsPerShoot,bulletDamage,_ps.bulletQuantityDamageLerp); //Compensate for multiple bullets
 
-        ShootRate = _ps.initialShootRate + getDiminishingSum(_ps.shootRateIncreasePerLevel, _ps.shootRateDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.ShootRate].currentLevel-1);
+        shootRate = _ps.initialshootRate + getDiminishingSum(_ps.shootRateIncreasePerLevel, _ps.shootRateDiminishMultiplier, 0, upgrades[(int)PlayerUpgradeId.shootRate].currentLevel-1);
 
         bulletPiercing = _ps.initialPiercing + upgrades[(int)PlayerUpgradeId.Piercing].currentLevel * _ps.piercingIncreasePerLevel;
 
@@ -279,14 +284,31 @@ public class PlayerController : MonoBehaviour, IPausable
         if (upgrades[(int)PlayerUpgradeId.LotsOfDamage].currentLevel > 0)
         {
             bulletDamage *= _ps.lotsOfDamageDamageMultiplier;
-            ShootRate *= _ps.lotsOfDamageShootRateMultiplier;
+            shootRate *= _ps.lotsOfDamageshootRateMultiplier;
         }
 
-        if (upgrades[(int)PlayerUpgradeId.LotsOfShootRate].currentLevel > 0)
+        if (upgrades[(int)PlayerUpgradeId.LotsOfshootRate].currentLevel > 0)
         {
-            ShootRate *= _ps.lotsOfShootRateShootRateMultiplier;
-            bulletKnockback *= _ps.lotsOfShootRateKnockbackMultiplier;
-        }        
+            shootRate *= _ps.lotsOfshootRateshootRateMultiplier;
+            bulletKnockback *= _ps.lotsOfshootRateKnockbackMultiplier;
+        }
+
+        //Drones
+        if (upgrades[(int)PlayerUpgradeId.Drone].currentLevel > 0)
+        {
+            //Instantiate drone
+            for (int i = quantityOfDrones; i < upgrades[(int)PlayerUpgradeId.Drone].currentLevel; i++)
+            {
+                GameObject droneObj = Instantiate(_ps.dronePrefab, _ps.droneSpawnPosition, Quaternion.identity);
+                PlayerDrone drone = droneObj.GetComponent<PlayerDrone>();
+                
+                drone.player = this;
+                drone.droneIndex = i;
+                
+                _ps.drones.Add(drone);
+                quantityOfDrones++;
+            }
+        }
     }
 
     public float getDiminishingSum(float value, float mult, int start, int end)
@@ -496,6 +518,8 @@ public class PlayerController : MonoBehaviour, IPausable
     void Update()
     {
         if (paused) return;
+
+        time += Time.deltaTime;
 
         if (stuckInPlace > 0)
         {

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.43504605, g: 0.48216456, b: 0.5630978, a: 1}
+  m_IndirectSpecularColor: {r: 0.4374895, g: 0.4853106, b: 0.56558496, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -488,7 +488,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -51.4, y: 0}
-  m_SizeDelta: {x: 30, y: 30}
+  m_SizeDelta: {x: 12.23, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &35544323
 MonoBehaviour:
@@ -503,7 +503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.27394092, g: 0.34689215, b: 0.7169812, a: 1}
+  m_Color: {r: 0.39745256, g: 0.46319112, b: 0.8050314, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -928,6 +928,7 @@ MonoBehaviour:
   floorLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  time: 0
   xStart: 0
   xRange: 5
   smoothMoveRatio: 0.25
@@ -946,10 +947,11 @@ MonoBehaviour:
   wheelMaterialIndex: 1
   wheelUVSpeed: -0.2
   bulletPrefab: {fileID: 7252992186801787625, guid: 6092e4d17cbc5224ea913eec600d59bc, type: 3}
+  isShooting: 0
   bulletSpawnOffset: {x: 0, y: 0, z: 0.4}
   bulletZLimit: 20
   bulletsAngleArc: 45
-  ShootRate: 1
+  shootRate: 0
   bulletsPerShoot: 1
   bulletSpeed: 16
   bulletRange: 8
@@ -957,6 +959,7 @@ MonoBehaviour:
   bulletKnockback: 3
   bulletPiercing: 0
   aimImprecision: 0
+  quantityOfDrones: 0
   upgrades:
   - id: 0
     rarity: 1
@@ -1013,13 +1016,13 @@ MonoBehaviour:
     icon: {fileID: 21300000, guid: e5b5dbc199fa57b4b9cf453c3af6546b, type: 3}
     weight: 0
   - id: 9
-    rarity: 2
-    currentLevel: 0
+    rarity: 1
+    currentLevel: 1
     maxLevel: 3
-    icon: {fileID: 21300000, guid: e5b5dbc199fa57b4b9cf453c3af6546b, type: 3}
+    icon: {fileID: 21300000, guid: 91e56323f3a207745adaf5a752f75017, type: 3}
     weight: 0
   playerStatus:
-    initialShootRate: 1
+    initialshootRate: 1
     shootRateIncreasePerLevel: 0.7
     shootRateDiminishMultiplier: 0.6
     initialBulletDamage: 1
@@ -1036,18 +1039,19 @@ MonoBehaviour:
     bulletSpeedDiminishMultiplier: 0.8
     initialBulletsPerShoot: 1
     bulletsPerShootIncreasePerLevel: 1
-    bulletQuantityDamageLerp: 0
+    bulletQuantityDamageLerp: 0.25
     initialPiercing: 0
     piercingIncreasePerLevel: 1
     initialAimImprecision: 0
     lotsOfDamageDamageMultiplier: 2
-    lotsOfDamageShootRateMultiplier: 0.6
+    lotsOfDamageshootRateMultiplier: 0
     lotsOfBulletsQuantityOfBulletsIncrease: 3
     lotsOfBulletsRangeMultiplier: 0.65
-    lotsOfShootRateShootRateMultiplier: 2
-    lotsOfShootRateKnockbackMultiplier: 0
-    dronePrefab: {fileID: 0}
+    lotsOfshootRateshootRateMultiplier: 2
+    lotsOfshootRateKnockbackMultiplier: 0
+    dronePrefab: {fileID: 4484430573669288504, guid: 95e8cdb74e901a04394ee44afba92986, type: 3}
     drones: []
+    droneSpawnPosition: {x: 0, y: 3, z: -4}
 --- !u!114 &173439565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18957,81 +18961,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 391202314}
   m_CullTransparentMesh: 1
---- !u!1 &410652150
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 410652151}
-  - component: {fileID: 410652153}
-  - component: {fileID: 410652152}
-  m_Layer: 5
-  m_Name: StarBase (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &410652151
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 410652150}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 776720692}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 98.7, y: 0}
-  m_SizeDelta: {x: 45, y: 45}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &410652152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 410652150}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.95789504, g: 1, b: 0.2028302, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e412db4f0903a8740a9e1ea3a2c40db8, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &410652153
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 410652150}
-  m_CullTransparentMesh: 1
 --- !u!1 &413315386
 GameObject:
   m_ObjectHideFlags: 0
@@ -19293,44 +19222,7 @@ MonoBehaviour:
   playerController: {fileID: 173439564}
   starProgressionSystem:
     stars:
-    - pointsRequired: 60
-      subStars:
-      - enemyPool:
-          pool:
-          - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-            chanceWeight: 10
-        reward:
-          rewardType: 0
-      - enemyPool:
-          pool:
-          - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-            chanceWeight: 10
-        reward:
-          rewardType: 0
-      - enemyPool:
-          pool:
-          - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-            chanceWeight: 10
-        reward:
-          rewardType: 0
-      - enemyPool:
-          pool:
-          - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-            chanceWeight: 10
-        reward:
-          rewardType: 0
-      - enemyPool:
-          pool:
-          - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-            chanceWeight: 10
-        reward:
-          rewardType: 0
-      - enemyPool:
-          pool:
-          - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-            chanceWeight: 10
-        reward:
-          rewardType: 0
+    - {fileID: 11400000, guid: a0daa956163eb3a428400a679fbd612b, type: 2}
     currentStarIndex: 0
     currentSubStarIndex: 0
     currentStarScore: 0
@@ -19369,7 +19261,6 @@ MonoBehaviour:
     - {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
     - {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
   upgradeEventManager: {fileID: 440361107}
-  numberOfEventsToStopRewardingUpgrades: 7
   signSelector:
     inicialSignShowWeight: 3
     showWeightIncrement: 1
@@ -19428,11 +19319,9 @@ MonoBehaviour:
   playerTargetHighlitedMaterial: {fileID: 2100000, guid: 637dee0da487d8c47a10f105d7e48c88, type: 2}
   correctAnswerSound: {fileID: 8300000, guid: c2730e7ca2ac6fb41a3e6810fed7f51c, type: 3}
   wrongAnswerSound: {fileID: 8300000, guid: cf4474d84d7e30048a0c31d9890325a5, type: 3}
-  rewardUpgrade: 0
-  pointsRewardWhenNoUpgrade: 50
   numOfUpgradeOptions: 3
-  initialUpgradeWeight: 1
-  upgradeWeightIncrease: 1
+  initialUpgradeWeight: 4
+  upgradeWeightIncrease: 2
   upgradeWeightAfterShowed: 1
   upgradeWeightAfterSelected: 0
   upgradeSelection: {fileID: 1656738403}
@@ -20788,7 +20677,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1976502933}
-  - {fileID: 410652151}
   m_Father: {fileID: 2123542873}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -26499,7 +26387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.14079742, g: 0.14721592, b: 0.26415092, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -27752,8 +27640,8 @@ RectTransform:
   m_Children:
   - {fileID: 612356792}
   - {fileID: 1929678343}
-  - {fileID: 776720692}
   - {fileID: 35544322}
+  - {fileID: 776720692}
   m_Father: {fileID: 1938901076}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.1, y: 0.04}
