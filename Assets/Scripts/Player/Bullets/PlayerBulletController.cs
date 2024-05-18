@@ -44,7 +44,7 @@ public class PlayerBulletController : ObjectFromPool, IPausable
         if (obj is EnemyController)
         {
             EnemyController enemy = obj as EnemyController;
-            enemy.KnockbackForce = transform.forward * knockback;
+            enemy.KnockbackForce += transform.forward * knockback * (1f-enemy.KnockbackResistance);
             pierce-= enemy.piercingResistance;
 
             if (pierce < 0)

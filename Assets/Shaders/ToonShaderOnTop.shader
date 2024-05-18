@@ -16,7 +16,11 @@ Shader "Custom/ToonShaderOnTop"
 
         Pass
 		{
-            
+            Tags
+			{
+				"LightMode" = "ForwardBase"
+			}
+			
             CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag

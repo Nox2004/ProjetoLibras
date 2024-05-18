@@ -18,9 +18,9 @@ public class MainMenu2DButton : Button2D
         audioManager = Injector.GetAudioManager(gameObject);
     }
 
-    override protected void Update()
+    override protected void LateUpdate()
     {
-        base.Update();
+        base.LateUpdate();
 
         float target_scale = beingTouched ? touchScale : normalScale;
         currentScale += (target_scale-currentScale) / (scaleSmoothRatio / Time.deltaTime);

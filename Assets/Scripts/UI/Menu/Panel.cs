@@ -29,14 +29,7 @@ public class Panel : MonoBehaviour
         rect.sizeDelta *= sizeMultiplier;
 
         childButtons = new List<ITouchable>();
-        foreach (Transform child in transform)
-        {
-            ITouchable button = child.GetComponent<ITouchable>();
-            if (button != null)
-            {
-                childButtons.Add(button);
-            }
-        }
+        Utilities.GetComponentsInAllChildren(transform, ref childButtons);
 
         SetActive(active);
     }

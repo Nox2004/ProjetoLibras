@@ -12,13 +12,11 @@ public class LevelManager : MonoBehaviour, IPausable
     public void Pause()
     {
         paused = true;
-        StopCoroutine(enemySpawningCoroutine);
     }
 
     public void Resume()
     {
         paused = false;
-        StartCoroutine(enemySpawningCoroutine);
     }
 
     #endregion
@@ -30,6 +28,16 @@ public class LevelManager : MonoBehaviour, IPausable
     [SerializeField] private ParticleManager particleManager;
     [SerializeField] private PlayerController playerController;
 
+    enum LevelManagerState
+    {
+        SpawningEnemies,
+        SignQuizEvent,
+        Boss,
+        GameOver
+    }
+
+    private LevelManagerState state;
+
     [Header("Score")]
     [SerializeField] public StartProgressionSystem starProgressionSystem;
 
@@ -38,38 +46,39 @@ public class LevelManager : MonoBehaviour, IPausable
         starProgressionSystem.AddScore(points);
     }
 
+    [Header("Difficulty")]
+    public float difficultyValue = 0f;
+    [SerializeField] private float difficultyValueIncreasePerPostgameLevel;
+
     [Header("Spawning")]
     [SerializeField] private float floorWidth;
     [SerializeField] private float zLimit;
     [SerializeField] private Vector3 spawnPosition;
     [SerializeField] public float objectsSpeed;
     [SerializeField] private float startObjectsSpeed, endObjectsSpeed;
-    [SerializeField] private float maxObjectsSpeed;
+    [SerializeField] private float postGameObjectsSpeedMultiplier;
 
     [Header("Enemy Spawning")]
+    private float enemySpawnTimer;
     [SerializeField] private float enemySpawnCooldown;
     [SerializeField] private float startEnemySpawnCooldown, endEnemySpawnCooldown;
-    [SerializeField] private EnemyPoolUpdate[] enemyPoolUpdates;
-    private GameObject[] currentEnemyPrefabPool;
+    [SerializeField] private float postGameEnemySpawnCooldownMultiplier;
+    [SerializeField] private EnemyPool currentEnemyPool;
 
-    [System.Serializable]
-    private struct EnemyPoolUpdate
-    {
-        public int numberOfUpgradeEvents;
-        public GameObject[] enemyPrefabs;
-    }
-
-    private IEnumerator enemySpawningCoroutine;
     private List<EnemyController> aliveEnemies = new List<EnemyController>();
 
     [Header("Upgrades")]
-    [SerializeField] private UpgradeEventManager upgradeEventManager;
-    private int numberOfUpgradeEvents = 0;
+    [SerializeField] private SignQuizEventManager signQuizEventManager;
 
 
     //Upgrade event handling
     [SerializeField] private SignSelector signSelector;
-    private bool upgradeEventOnGoing = false;
+
+    [Header("GameOver")]
+    [SerializeField] private float gameOverCountdown;
+    [SerializeField] private LevelManagerState stateBeforeGameOver;
+    [SerializeField] private int reviveUses = 1;
+    [SerializeField] private Button2D reviveButton;
 
     //Instantiate an enemy prefab
     private void SpawnEnemy(GameObject prefab, float xOffsetRange)
@@ -85,23 +94,10 @@ public class LevelManager : MonoBehaviour, IPausable
         enemy_controller.levelManager = this;
         enemy_controller.particleManager = particleManager;
         enemy_controller.zLimit = zLimit;
+        enemy_controller.difficultyValue = difficultyValue;
         enemy_controller.speed = objectsSpeed;
         enemy_controller.spawnPosition = spawnPosition;
         enemy_controller.floorWidth = floorWidth;
-    }
-
-    private void UpdateEnemyPool(int num_of_events)
-    {
-        if (debug) Debug.Log(debugTag + "Updating enemy pool");
-
-        for (int i = 0; i < enemyPoolUpdates.Length; i++)
-        {
-            if (num_of_events == enemyPoolUpdates[i].numberOfUpgradeEvents)
-            {
-                currentEnemyPrefabPool = enemyPoolUpdates[i].enemyPrefabs;
-                break;
-            }
-        }
     }
 
     public void InsertEnemy(EnemyController enemy)
@@ -118,55 +114,63 @@ public class LevelManager : MonoBehaviour, IPausable
     {
         return aliveEnemies;
     }
-    
-    //Initialize a new upgrade event
-    private bool StartUpgradeEvent(SignCode[] signs, int correct_answer)
+
+    public SignQuizEventManager GetSignQuizEventManager()
     {
-        if (debug) Debug.Log(debugTag + "Populating QuestonSignController");
-
-        upgradeEventManager.StartUpgradeEvent(  signs,
-                                                SignSetManager.GetSoureSign(signs[correct_answer]).signTexture,
-                                                SignSetManager.GetTargetSign(signs[correct_answer]).signTexture,
-                                                correct_answer,
-                                                objectsSpeed);
-
-        if (debug) Debug.Log(debugTag + "Creating upgrade event manager");
-
-        return true;
-    }
-
-    //Coroutine for spawning enemies
-    private IEnumerator SpawnEnemyCoroutine()
-    {
-        while (true)
-        {
-            if (debug) Debug.Log(debugTag + "Trying to spawn enemy");
-
-            if (upgradeEventOnGoing) 
-            {
-                if (debug) Debug.Log(debugTag + "Upgrade event on going, waiting to spawn enemy");
-                yield return new WaitForSeconds(1); 
-                continue;
-            }
-
-            SpawnEnemy(currentEnemyPrefabPool[Random.Range(0,currentEnemyPrefabPool.Length)], floorWidth);
-
-            yield return new WaitForSeconds(enemySpawnCooldown);
-        }
-    }
-
-    public UpgradeEventManager GetUpgradeEventManager()
-    {
-        return upgradeEventManager;
+        return signQuizEventManager;
     }
     
     public void GameOver()
     {
-        pauseManager.ActivateGameOverScreen();
+        //start game over screen countdown
+        state = LevelManagerState.GameOver;
+
+        if (reviveUses <= 0)
+        {
+            reviveButton.gameObject.SetActive(false);
+        }
+
         //!!!change later - Restart scene
         //Debug.Log("Restarting scene");
         //UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
+
+    public void Revive()
+    {
+        //start game over screen countdown
+        state = stateBeforeGameOver;
+        playerController.Revive();
+        reviveUses--;
+
+        pauseManager.DeactivateGameOverScreen();
+
+        //!!!change later - Restart scene
+        //Debug.Log("Restarting scene");
+        //UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    private void OnNewSubstar()
+    {
+        playerController.OnNewSubstar();
+    }
+
+    private void OnNewStar()
+    {
+        //Updates high score
+        if (starProgressionSystem.numberOfStarsAchieved > GameManager.maxStarsAchieved)
+        {
+            GameManager.maxStarsAchieved = starProgressionSystem.numberOfStarsAchieved;
+        }
+        if (starProgressionSystem.postGameLevel > GameManager.maxPostGameScore)
+        {
+            GameManager.maxPostGameScore = starProgressionSystem.postGameLevel;
+        }
+
+        playerController.OnNewStar();
+    }
+
+    private SubStar lastSubStar;
+    private int lastStarIndex;
 
     void Start()
     {
@@ -174,63 +178,118 @@ public class LevelManager : MonoBehaviour, IPausable
 
         //Initialize enemy pool and difficulty
         UpdateDifficulty();
-        UpdateEnemyPool(0);
 
-        enemySpawningCoroutine = SpawnEnemyCoroutine(); 
-        StartCoroutine(enemySpawningCoroutine); //Start enemy spawning coroutine
-        
+        //Initialize state
+        state = LevelManagerState.SpawningEnemies;
+
         //Initialize Upgrade Event Manager
-        upgradeEventManager.Initialize(this, signSelector, playerController, objectsSpeed, spawnPosition, zLimit, floorWidth);
+        signQuizEventManager.Initialize(this, signSelector, playerController, objectsSpeed, spawnPosition, zLimit, floorWidth);
+    
+        //Initialize Star Progression System
+        //starProgressionSystem.Initialize(starIndex,subStarIndex);
+
+        lastStarIndex = starProgressionSystem.currentStarIndex;
+        lastSubStar = starProgressionSystem.currentSubstar;
     }
 
     void UpdateDifficulty()
     {
-        objectsSpeed = Mathf.Lerp(startObjectsSpeed, endObjectsSpeed, starProgressionSystem.totalStarProgression);
-        enemySpawnCooldown = Mathf.Lerp(startEnemySpawnCooldown, endEnemySpawnCooldown, starProgressionSystem.totalStarProgression);
+        difficultyValue = starProgressionSystem.totalStarProgression;
+        if (starProgressionSystem.isInPostGame)
+        {
+            difficultyValue += starProgressionSystem.postGameLevel * difficultyValueIncreasePerPostgameLevel;
+        }
+
+        objectsSpeed = Mathf.LerpUnclamped(startObjectsSpeed, endObjectsSpeed, difficultyValue);
+        enemySpawnCooldown = Mathf.LerpUnclamped(startEnemySpawnCooldown, endEnemySpawnCooldown, difficultyValue);
+        
+        currentEnemyPool = starProgressionSystem.currentSubstar.enemyPool;
     }
 
     void Update()
     {
         if (paused) return;
 
-        //Upgrade event cooldown
-        if (!upgradeEventOnGoing) 
+        switch (state)
         {
-            UpdateDifficulty();
-        }
-
-        //When player reaches a substar
-        if (starProgressionSystem.ReadyForReward())
-        {
-            if (debug) Debug.Log(debugTag + "Player reached a substar");
-
-            if (starProgressionSystem.currentReward is UpgradeReward)
+            case LevelManagerState.SpawningEnemies:
             {
-                //If there is no upgrade event on going, start a new upgrade event
-                if (!upgradeEventOnGoing)
+                UpdateDifficulty();
+
+                enemySpawnTimer -= Time.deltaTime;
+                if (enemySpawnTimer <= 0)
                 {
-                    if (debug) Debug.Log("LevelManager: Starting upgrade event");
-
-                    int num = upgradeEventManager.GetCurrentInfo().numOfSignOptions;
-                    SignSelection signSelection = signSelector.SelectSigns(num);
-
-                    upgradeEventOnGoing = StartUpgradeEvent(signSelection.signs, signSelection.correctSignIndex);
+                    enemySpawnTimer = enemySpawnCooldown;
+                    SpawnEnemy(currentEnemyPool.GetRandomEnemyPrefab(), floorWidth);
                 }
-                else //If there is an upgrade event on going, check if it is finished
+
+                //When player reaches a substar
+                if (starProgressionSystem.ReadyForReward())
                 {
-                    if (upgradeEventManager.Finished())
+                    //if (debug) Debug.Log(debugTag + "Player reached a substar");
+
+                    if (starProgressionSystem.currentReward is SignQuizReward)
                     {
-                        if (debug) Debug.Log(debugTag + "Upgrade event finished");
+                    
+                        if (debug) Debug.Log("LevelManager: Starting upgrade event");
 
-                        upgradeEventOnGoing = false;
+                        int num = signQuizEventManager.GetCurrentInfo().numOfSignOptions;
+                        SignSelection signSelection = signSelector.SelectSigns(num);
 
-                        numberOfUpgradeEvents++;
+                        signQuizEventManager.StartSignQuizEvent(signSelection.signs,
+                                                SignSetManager.GetSoureSign(signSelection.signs[signSelection.correctSignIndex]).signTexture,
+                                                SignSetManager.GetTargetSign(signSelection.signs[signSelection.correctSignIndex]).signTexture,
+                                                signSelection.correctSignIndex,
+                                                objectsSpeed,
+                                                starProgressionSystem.currentReward as SignQuizReward);
 
-                        starProgressionSystem.ResolveReward();
-                        //UpdateEnemyPool(numberOfUpgradeEvents);
+                        if (debug) Debug.Log(debugTag + "Creating upgrade event manager");
+
+                        state = LevelManagerState.SignQuizEvent;
                     }
                 }
             }
+            break;
+            case LevelManagerState.SignQuizEvent:
+            {
+                if (signQuizEventManager.Finished())
+                {
+                    if (debug) Debug.Log(debugTag + "Upgrade event finished");
+
+                    starProgressionSystem.ResolveReward(signQuizEventManager.AnsweredRight());
+                    
+                    //goes back to spawning enemies
+                    state = LevelManagerState.SpawningEnemies;
+                }
+            }
+            break;
+            case LevelManagerState.Boss:
+            {
+
+            }
+            break;
+            case LevelManagerState.GameOver:
+            {
+                objectsSpeed *= Mathf.Pow(0.1f, Time.deltaTime);
+                gameOverCountdown -= Time.deltaTime;
+                if (gameOverCountdown <= 0)
+                {
+                    pauseManager.ActivateGameOverScreen();
+                }
+            }
+            break;
+        }
+
+        //Trigger new star or substar event
+        if (lastStarIndex != starProgressionSystem.currentStarIndex)
+        {
+            OnNewStar();
+            lastStarIndex = starProgressionSystem.currentStarIndex;
+        }
+        else if (lastSubStar != starProgressionSystem.currentSubstar)
+        {
+            OnNewSubstar();
+            lastSubStar = starProgressionSystem.currentSubstar;
         }
     }
 }

@@ -17,7 +17,7 @@ public class MenuEvents : MonoBehaviour
     [SerializeField] private Panel settingsPanel;
     private Panel currentPanel = null;
 
-    [SerializeField] private TMPro.TextMeshProUGUI highScoreText;
+    [SerializeField] private StarHighScore highScoreElement;
 
     [Header("Transitions")]
     [SerializeField] private GameObject transitionPrefab;
@@ -35,7 +35,7 @@ public class MenuEvents : MonoBehaviour
         effectsOnButton.SetValue(GameManager.GetEffectsOn());
         invertedSignalsButton.SetValue(GameManager.GetInvertedSignals());
 
-        highScoreText.text = "High Score:\n" + GameManager.highScore; //!!!!CHANGE LATER
+        highScoreElement.fill();
     }
 
     public void PlayButton()

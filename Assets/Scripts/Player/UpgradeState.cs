@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class UpgradeState : IPlayerState
 {
-    private UpgradeEventManager upgradeManager;
+    private SignQuizEventManager upgradeManager;
 
     private float touchTime = 0f, touchEndTime = 0f;
     private float tapThreshold = 0.2f;
@@ -19,12 +19,12 @@ public class UpgradeState : IPlayerState
 
     public UpgradeState(LevelManager levelManager)
     {
-        upgradeManager = levelManager.GetUpgradeEventManager();
+        upgradeManager = levelManager.GetSignQuizEventManager();
     }
 
     public void EnterState(PlayerController me)
     {
-        UpgradeEventCurrentInfo info = upgradeManager.GetCurrentInfo();
+        SignQuizEventCurrentInfo info = upgradeManager.GetCurrentInfo();
 
         shoot = false; shooted = false;
 
@@ -60,14 +60,14 @@ public class UpgradeState : IPlayerState
             Touch t = Input.touches[Input.touches.Length - 1];
 
             //get nearest X position
-            float worldpos_x = me.GetTouchX(t);
+            float world_touchpos_x = me.GetTouchX(t);
             float min_distance = float.MaxValue;
             int p_index = -1;
             
             for (int i = 0; i < numOfSigns; i++)
             {
                 float x = initialXPos + i * xSpace;
-                float dist = Mathf.Abs(worldpos_x - x);
+                float dist = Mathf.Abs(world_touchpos_x - x);
                 
                 if (dist < min_distance)
                 {
@@ -78,7 +78,8 @@ public class UpgradeState : IPlayerState
 
             #region // Handle taps
 
-            if (Input.touchCount == 1 && p_index == position_index)
+                                                                        //GetTouchX will return transform.position.x if player is not touching the floor
+            if (Input.touchCount == 1 && p_index == position_index && world_touchpos_x != me.transform.position.x)
             {
                 // Check touch time
                 if (t.phase == TouchPhase.Began)

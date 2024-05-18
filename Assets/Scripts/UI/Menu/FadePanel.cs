@@ -24,22 +24,44 @@ public class FadePanel : Panel
             this.alpha = alpha;
         }
     }
+
+    private struct childText
+    {
+        public TMPro.TextMeshProUGUI text;
+        public float alpha;
+
+        public childText(TMPro.TextMeshProUGUI text, float alpha)
+        {
+            this.text = text;
+            this.alpha = alpha;
+        }
+    }
     List<childImage> childImages = new List<childImage>();
+    List<childText> childTexts = new List<childText>();
 
     // Start is called before the first frame update
     override protected void Start()
     {
         base.Start();
 
+        List<Image> _childImages = new List<Image>();
+        Utilities.GetComponentsInAllChildren(transform,ref _childImages);
+        
         childImages = new List<childImage>();
 
-        foreach (Transform child in transform)
+        foreach (Image image in _childImages)
         {
-            Image childImage = child.gameObject.GetComponent<Image>();
-            if (childImage != null)
-            {
-                childImages.Add(new childImage(childImage, childImage.color.a));
-            }
+            childImages.Add(new childImage(image, image.color.a));
+        }
+
+        List<TMPro.TextMeshProUGUI> _childTexts = new List<TMPro.TextMeshProUGUI>();
+        Utilities.GetComponentsInAllChildren(transform,ref _childTexts);
+
+        childTexts = new List<childText>();
+
+        foreach (TMPro.TextMeshProUGUI text in _childTexts)
+        {
+            childTexts.Add(new childText(text, text.color.a));
         }        
 
         if (active) 
@@ -74,10 +96,16 @@ public class FadePanel : Panel
             foreach (childImage childImage in childImages)
             {
 
-                childImage.image.color = new Color(childImage.image.color.r, 
-                                                childImage.image.color.g, 
-                                                childImage.image.color.b, 
-                                                (currentAlpha/maxAlpha) * childImage.alpha);
+                Color tmp = childImage.image.color;
+                tmp.a = (currentAlpha/maxAlpha) * childImage.alpha;
+                childImage.image.color = tmp;
+            }
+
+            foreach (childText childText in childTexts)
+            {
+                Color tmp = childText.text.color;
+                tmp.a = (currentAlpha/maxAlpha) * childText.alpha;
+                childText.text.color = tmp;
             }
 
             if (currentAlpha == targetAlpha)

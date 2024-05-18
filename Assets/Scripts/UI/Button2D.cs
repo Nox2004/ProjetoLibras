@@ -19,7 +19,7 @@ public class Button2D : MonoBehaviour, ITouchable
         rectTransform = GetComponent<RectTransform>();
     }
 
-    virtual protected void Update()
+    virtual protected void LateUpdate()
     {
         if (Input.touchCount > 0)
         {

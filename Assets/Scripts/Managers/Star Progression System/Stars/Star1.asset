@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3103f91162d6f5147adc45e2d40972d8, type: 3}
   m_Name: Star1
   m_EditorClassIdentifier: 
-  pointsRequired: 45
+  pointsRequired: 80
   subStars:
   - enemyPool:
       pool:
@@ -22,9 +22,9 @@ MonoBehaviour:
   - enemyPool:
       pool:
       - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
-        chanceWeight: 50
+        chanceWeight: 40
       - enemyPrefab: {fileID: 702947067586095354, guid: 9e92eeb7b4d3a92438c2e31831320e51, type: 3}
-        chanceWeight: 50
+        chanceWeight: 60
     reward: {fileID: 11400000, guid: e49fb3720431bc942b709df47e365018, type: 2}
   - enemyPool:
       pool:

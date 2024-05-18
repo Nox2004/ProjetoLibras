@@ -3,7 +3,7 @@ using UnityEngine;
 
 public enum RewardType
 {
-    UpgradeEvent,
+    SignQuizEvent,
     FreeUpgreade,
     BossFight,
     Points

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3103f91162d6f5147adc45e2d40972d8, type: 3}
+  m_Name: PostGameStar
+  m_EditorClassIdentifier: 
+  pointsRequired: 120
+  subStars:
+  - enemyPool:
+      pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
+        chanceWeight: 50
+    reward: {fileID: 11400000, guid: e4b942ddb14c21a46bd2cebe573bb8b6, type: 2}
+  - enemyPool:
+      pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
+        chanceWeight: 50
+    reward: {fileID: 11400000, guid: e4b942ddb14c21a46bd2cebe573bb8b6, type: 2}
+  - enemyPool:
+      pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
+        chanceWeight: 33
+    reward: {fileID: 11400000, guid: 7ae5aaf302ec4734d8e3dce9d234a5ff, type: 2}

@@ -74,6 +74,7 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
 
     //Z limit for the enemy to be destroyed
     [HideInInspector] public float zLimit;
+    [HideInInspector] public float difficultyValue;
     [HideInInspector] public Vector3 spawnPosition;
     [HideInInspector] public float floorWidth;
 
@@ -82,6 +83,8 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
     public float damage;
     public int piercingResistance = 1;
     [Range(0,1)] public float KnockbackResistance;
+    [Range(0,1)] public float KnockbackMultiplier = 0.85f;
+    //private Vector3 _knockbackForce;
     [HideInInspector] public Vector3 KnockbackForce;
 
     [Header("Effects")]
@@ -117,10 +120,10 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
         if (KnockbackForce.sqrMagnitude > Mathf.Epsilon) // Avoid small force application
         {
             //Apply knockback resistance
-            if (KnockbackResistance > 0) KnockbackForce *= Mathf.Pow((1-KnockbackResistance),Time.deltaTime);
+            if (KnockbackResistance > 0) KnockbackForce *= Mathf.Pow((1-KnockbackMultiplier),Time.deltaTime);
 
             //Apply knockback force
-            transform.position += (KnockbackForce * Time.deltaTime);
+            transform.position += KnockbackForce * Time.deltaTime;
         }
 
         //Apply white effect strength

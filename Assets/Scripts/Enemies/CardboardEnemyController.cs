@@ -21,15 +21,28 @@ public class CardboardEnemyController : EnemyController
     [SerializeField] protected Vector3 fallRotationVector;
     private float angleRotated;
 
+    [SerializeField] protected MeshRenderer cardboardRenderer;
+    [SerializeField] protected int cardboardMaterialIndex;
+
+    [SerializeField] protected MeshRenderer baseRenderer;
+    [SerializeField] protected int baseMaterialIndex;
+
+    private Color originalCardboardColor;
+    [SerializeField] private Color deadColor;
+    private float deadColorLerpValue = 1f;
+    [SerializeField] private float deadColorLerpMultiplier;
+    
     [Header("Sounds")]
     [SerializeField] AudioClip[] deathSounds;
-    [SerializeField] AudioClip[] hitSounds;
+    [SerializeField] AudioClip[] hitSounds;    
 
     override protected void Start()
     {
         base.Start();
 
         speed *= speedMultiplier;
+
+        originalCardboardColor = cardboardRenderer.material.GetColor("_Color");
     }
     
     override protected void Update()
@@ -37,6 +50,8 @@ public class CardboardEnemyController : EnemyController
         if (paused) return;
         
         base.Update();
+
+        speed = levelManager.objectsSpeed * speedMultiplier;
 
         transform.position += Vector3.back * speed * Time.deltaTime; //Not using transform.Translate because its affected by the object's rotation
 
@@ -56,19 +71,12 @@ public class CardboardEnemyController : EnemyController
                 }
 
                 cardboardTransform.Rotate(fallRotationVector * fallSpeed * Time.deltaTime);
+
             }
 
-
-            // float target_x = cardboardInitialXRotation + 60;
-            // if (cardboardTransform.localRotation.eulerAngles.x < target_x)
-            // {
-            //     cardboardTransform.Rotate(Vector3.up, fallSpeed);
-            //     // var tmp = cardboardTransform.localRotation.eulerAngles;
-            //     // tmp.x += fallSpeed * Time.deltaTime;
-            //     // tmp.x = Mathf.Min(tmp.x, target_x);
-                
-            //     //cardboardTransform.localRotation = Quaternion.Euler(tmp);
-            // }
+            deadColorLerpValue *= Mathf.Pow(deadColorLerpMultiplier, Time.deltaTime);
+            cardboardRenderer.materials[cardboardMaterialIndex].SetColor("_Color", Color.Lerp(deadColor, originalCardboardColor, deadColorLerpValue));
+            baseRenderer.materials[baseMaterialIndex].SetColor("_Color", Color.Lerp(deadColor, originalCardboardColor, deadColorLerpValue));
         }
     }
 

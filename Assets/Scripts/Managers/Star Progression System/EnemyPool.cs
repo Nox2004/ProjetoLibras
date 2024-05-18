@@ -4,8 +4,8 @@ using UnityEngine;
 public class EnemyPool
 {
     public EnemyInPool[] pool;
-    private float _totalWeight = 0;
-    private float totalWeight {
+    private int _totalWeight = 0;
+    private int totalWeight {
         get
         {
             if (_totalWeight == 0)
@@ -19,10 +19,10 @@ public class EnemyPool
         }
     }
 
-    public GameObject GetRandomEnemy()
+    public GameObject GetRandomEnemyPrefab()
     {
-        float random = Random.Range(0, totalWeight);
-        float count = 0;
+        int random = Random.Range(0, totalWeight);
+        int count = 0;
 
         foreach (EnemyInPool enemy in pool)
         {
@@ -31,6 +31,8 @@ public class EnemyPool
             if (random <= count) return enemy.enemyPrefab;
         }
 
+        Debug.LogError("Error in GetRandomEnemyPrefab: Random  - " + random + " Count - " + count);
+        
         return null;
     }
 }
@@ -39,5 +41,5 @@ public class EnemyPool
 public class EnemyInPool
 {
     public GameObject enemyPrefab;
-    public float chanceWeight;
+    public int chanceWeight;
 }

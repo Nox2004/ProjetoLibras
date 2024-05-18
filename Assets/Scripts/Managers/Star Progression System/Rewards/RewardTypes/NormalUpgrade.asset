@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardIcon: {fileID: 21300000, guid: ceeb74bd8e0c24c45b0273ed2b9ba628, type: 3}
   numberOfUpgradeOptions: 3
-  upgradeRarityLevel: 1
+  upgradeTier: 1

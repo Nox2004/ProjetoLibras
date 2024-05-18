@@ -18,6 +18,34 @@ public struct LanguageSettings
     public SignSet letters;
 }
 
+[Serializable]
+public struct TranslatableText
+{
+    [SerializeField] private LocalizedText[] localizedTexts;
+
+    public string translatedText { get
+        {
+            foreach (LocalizedText localizedText in localizedTexts)
+            {
+                if (localizedText.language == GameManager.GetLanguage())
+                {
+                    return localizedText.text;
+                }
+            }
+
+            Debug.LogError("!!!!Language not found");
+            return localizedTexts[0].text;
+        }
+    }
+}
+
+[Serializable]
+public struct LocalizedText
+{
+    public Language language;
+    public string text;
+}
+
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/GameSettings", order = 1)]
 public class GameSettings : ScriptableObject
 {

@@ -28,6 +28,7 @@ public class PlayerDrone : MonoBehaviour, IPausable
 
     [SerializeField] private float distanceFromPlayer;
     [SerializeField] private float hoverAngularSpeed;
+    public float hoverSpeedMultiplier = 1f;
     [SerializeField] private Vector3 offsetPos;
 
     [SerializeField] float movementSmoothnessRatio;
@@ -43,10 +44,18 @@ public class PlayerDrone : MonoBehaviour, IPausable
     private ObjectPooler bulletPooler;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Vector3 bulletOffset;
-    [SerializeField] private float outputDamageRatio = 3;
-    [SerializeField] private float shootRate = 1;
+    [SerializeField] public float outputDamageRatio = 3;
+    [SerializeField] public float shootRate = 1;
     private float shootingCooldown => 1 / shootRate;
     private float shootTimer = 0;
+
+    [SerializeField] public int piercing = 0;
+    
+    [HideInInspector] public int quantityOfDrones;
+    [HideInInspector] public float playerDamage, playerNumOfBullets, playerShootRate;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip shootSound;
     
     void Start()
     {
@@ -70,14 +79,14 @@ public class PlayerDrone : MonoBehaviour, IPausable
         }
 
         //Gets the angle of the drone in relation to the player
-        float targetAngle = 360 / player.quantityOfDrones * droneIndex;
+        float targetAngle = 360 / quantityOfDrones * droneIndex;
         
         //Smoothly rotates the drone to the target angle
         currentDirection += (targetAngle - currentDirection) / (movementSmoothnessRatio / Time.deltaTime);
 
         //Calculates the target position of the drone
         Vector3 targetPosition = player.transform.position + offsetPos;
-        targetPosition += Quaternion.Euler(0, currentDirection + (player.time * hoverAngularSpeed), 0) * Vector3.forward * distanceFromPlayer;
+        targetPosition += Quaternion.Euler(0, currentDirection + (player.time * hoverAngularSpeed * hoverSpeedMultiplier), 0) * Vector3.forward * distanceFromPlayer;
 
         //Smoothly moves the drone to the target position
         currentPosition += (targetPosition - currentPosition) / (movementSmoothnessRatio / Time.deltaTime);
@@ -89,13 +98,13 @@ public class PlayerDrone : MonoBehaviour, IPausable
         transform.position = currentPosition + yWave.GetValue() * Vector3.up;
 
         //Rotates the propeller
-        propeller.Rotate(Vector3.up, propellerSpeed * Time.deltaTime);
+        propeller.Rotate(Vector3.forward, propellerSpeed * Time.deltaTime);
     }
 
     private void Shoot()
     {
         //player damage output per shoot
-        float dpsTarget = (player.bulletDamage * player.bulletsPerShoot * player.shootRate) / outputDamageRatio;
+        float dpsTarget = (playerDamage * playerNumOfBullets * playerShootRate) / outputDamageRatio;
         float dmg = dpsTarget / shootRate;
 
         GameObject bullet = bulletPooler.GetObject(transform.position + bulletOffset, Quaternion.Euler(0,0,0));
@@ -109,8 +118,8 @@ public class PlayerDrone : MonoBehaviour, IPausable
         bullet_controller.damage = dmg;
         bullet_controller.range = 10f;
         bullet_controller.knockback = 0;
-        bullet_controller.pierce = 0;
+        bullet_controller.pierce = piercing;
 
-        audioManager.PlaySound(bullet_controller.shootSound, true);
+        audioManager.PlaySound(shootSound, true);
     }
 }

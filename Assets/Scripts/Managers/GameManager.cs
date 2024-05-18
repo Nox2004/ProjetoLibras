@@ -13,17 +13,30 @@ public enum GameState
 public static class GameManager
 {
     private static GameSettings mainSettings;
-    public static int highScore 
+    public static int maxStarsAchieved
     { 
         get 
         {
-            return PlayerPrefs.GetInt("HighScore", 0);
+            return PlayerPrefs.GetInt("MaxStarsAchieved", 0);
         }
         set 
         {
-            PlayerPrefs.SetInt("HighScore", value);
+            PlayerPrefs.SetInt("MaxStarsAchieved", value);
         }
     }
+
+    public static int maxPostGameScore
+    { 
+        get 
+        {
+            return PlayerPrefs.GetInt("MaxPostGameScore", 0);
+        }
+        set 
+        {
+            PlayerPrefs.SetInt("MaxPostGameScore", value);
+        }
+    }
+
     
     #region //Getters and Setters
 

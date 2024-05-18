@@ -28,9 +28,9 @@ public class Toggle2D : Button2D
         image = GetComponent<Image>();
     }
 
-    override protected void Update()
+    override protected void LateUpdate()
     {
-        base.Update();
+        base.LateUpdate();
 
         float target_scale = beingTouched ? touchScale : normalScale;
         currentScale += (target_scale-currentScale) / (scaleSmoothRatio / Time.deltaTime);
