@@ -51,7 +51,7 @@ public class SignObjectController : MonoBehaviour, ITakesDamage, IPausable
     [SerializeField] private MeshRenderer mainRenderer;
 
     private Vector3 velocity = new Vector3(0, 0, -1);
-    public float speed;
+    public LevelManager levelManager;
 
     public bool chosen = false;
     public bool destroy = false;
@@ -102,7 +102,7 @@ public class SignObjectController : MonoBehaviour, ITakesDamage, IPausable
     {
         if (paused) return;
 
-        transform.position += velocity * speed * Time.deltaTime;
+        transform.position += velocity * levelManager.objectsSpeed * Time.deltaTime;
 
         if (chosen && !stoppedRotating)
         {

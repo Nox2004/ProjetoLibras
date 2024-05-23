@@ -24,7 +24,7 @@ MonoBehaviour:
     letters: {fileID: 11400000, guid: e818f09c9c355d540ba84203666af9a5, type: 2}
   selectedLanguage: 0
   invertedSignals: 0
-  musicOn: 0
+  musicOn: 1
   soundsOn: 0
-  effectsOn: 0
+  effectsOn: 1
   outlineWidth: 1

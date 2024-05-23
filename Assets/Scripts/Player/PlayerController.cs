@@ -25,6 +25,7 @@ public class PlayerUpgrade
 
     public enum UpgradeTier
     {
+        Any = -1,
         Common = 1,
         Rare = 2,
     }
@@ -80,7 +81,7 @@ public class PlayerUpgradeManager
         int totalWeight = 0;
         foreach (PlayerUpgrade upgrade in listCopy)
         {
-            if (upgrade.tier != targetTier) continue; //Ignore upgrades from other tiers
+            if (upgrade.tier != targetTier && targetTier != PlayerUpgrade.UpgradeTier.Any) continue; //Ignore upgrades from other tiers
             if (upgrade.currentLevel >= upgrade.maxLevel && upgrade.maxLevel != -1) continue; //Ignore upgrades that are at max level
             
             //ignore upgrades that are exclusive with the current ones
@@ -123,7 +124,7 @@ public class PlayerUpgradeManager
 
         foreach (PlayerUpgrade upgrade in listCopy)
         {
-            if (upgrade.tier != targetTier) continue; //Ignore upgrades from other tiers
+            if (upgrade.tier != targetTier && targetTier != PlayerUpgrade.UpgradeTier.Any) continue; //Ignore upgrades from other tiers
             if (upgrade.currentLevel >= upgrade.maxLevel && upgrade.maxLevel != -1) continue; //Ignore upgrades that are at max level
 
             //ignore upgrades that are exclusive with the current ones
@@ -743,12 +744,12 @@ public class PlayerController : MonoBehaviour, IPausable
 
     #endregion
 
-    public void OnNewSubstar()
+    public void OnSubstar()
     {
 
     }
 
-    public void OnNewStar()
+    public void OnStar()
     {
         if (hasShield)
         {
@@ -829,7 +830,7 @@ public class PlayerController : MonoBehaviour, IPausable
         }
 
         //UV Animation
-        wheelUVOffset += wheelUVSpeed * Time.deltaTime;
+        wheelUVOffset += wheelUVSpeed * levelManager.objectsSpeed * Time.deltaTime;
         //wheelRenderer.materials[wheelMaterialIndex].SetTextureOffset("_MainTex", new Vector2(0,wheelUVOffset));
         wheelRenderer.materials[wheelMaterialIndex].SetFloat("_UVOffsetY", wheelUVOffset);
 

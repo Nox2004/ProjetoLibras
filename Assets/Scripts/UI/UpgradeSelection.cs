@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class UpgradeSelection : MonoBehaviour
 {
-    [HideInInspector] public SignQuizEventManager quizManager;
+    [HideInInspector] public LevelManager levelManager;
     [SerializeField] private GameObject buttonExample;
     private Transform buttonParent;
     private Panel panel;
@@ -19,6 +19,10 @@ public class UpgradeSelection : MonoBehaviour
     private AudioManager audioManager;
     [SerializeField] private AudioClip selectingNoUpgrade;
     [SerializeField] private AudioClip selectingAUpgrade;
+
+    [SerializeField] private Image selectButton;
+    [SerializeField] private Sprite selectButtonSpriteUnselected;
+    [SerializeField] private Sprite selectButtonSpriteSelected;
 
     void Start()
     {
@@ -47,6 +51,8 @@ public class UpgradeSelection : MonoBehaviour
             if (upgradeButtons[i].upgrade == upgrade) upgradeButtons[i].selected = true;
             else upgradeButtons[i].selected = false;
         }
+
+        selectButton.sprite = selectButtonSpriteSelected;
     }
 
     public void ApplyUpgrade()
@@ -58,7 +64,7 @@ public class UpgradeSelection : MonoBehaviour
         }
 
         audioManager.PlaySound(selectingAUpgrade);
-        quizManager.SelectUpgrade(selectedUpgrade.id);
+        levelManager.SelectUpgrade(selectedUpgrade.id);
     }
 
     public void SetButtons(PlayerUpgrade[] currentUpgradeSelection)
@@ -84,7 +90,7 @@ public class UpgradeSelection : MonoBehaviour
         foreach (PlayerUpgrade upgrade in currentUpgradeSelection)
         {
             GameObject button = Instantiate(buttonExample, buttonParent);
-            button.GetComponent<Image>().color = Color.black;
+            button.GetComponent<Image>().color = Color.white; //!!!Change later
 
             upgradeButtons.Add(button.GetComponent<UpgradeButton>());
             upgradeButtons[index].upgrade = upgrade;
@@ -94,5 +100,8 @@ public class UpgradeSelection : MonoBehaviour
         }
 
         buttonExample.SetActive(false);
+
+        //Set the select button to unselected
+        selectButton.sprite = selectButtonSpriteUnselected;
     }
 }

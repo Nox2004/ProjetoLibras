@@ -9,41 +9,89 @@ public class StarHighScore : MonoBehaviour
 
     private GameObject[] stars = new GameObject[0];
 
-    [SerializeField] private GameObject postGameLevelObject;
-    [SerializeField] private TMPro.TextMeshProUGUI postGameLevelText;
+    [Header("Tutorial")]
+    [SerializeField] private Sprite tutorialCompletedIcon;
+
+    [Header("Normal mode")]
+    [SerializeField] private int numberOfStarsInNormalMode;
+    [SerializeField] private Sprite normalModeStar;
+    [SerializeField] private Sprite normalModePostGameStar;
+
+    [Header("Endless mode")]
+    [SerializeField] private Sprite endlessModeStar;
 
     void Start()
     {
         starParent = starExample.transform.parent;
-        fill();
     }
     
-    public void fill()
+    public void fill(GameModeID gameModeID)
     {
+        //Get game mode
+        GameMode gamemode = GameManager.GetGameMode(gameModeID);
+
+        //Reset stars
         starExample.SetActive(true);
-        postGameLevelObject.SetActive(false);
 
         for (int i = 0; i < stars.Length; i++)
         {
             Destroy(stars[i]);
         }
 
-        stars = new GameObject[GameManager.maxStarsAchieved];
-        for (int i = 0; i < GameManager.maxStarsAchieved; i++)
+        //Procceds with customized star filling for each game mode
+        switch (gameModeID)
         {
-            GameObject star = Instantiate(starExample, starParent);
-            stars[i] = star;
-        }
+            case GameModeID.Tutorial:
+            {
+                if (gamemode.highScore > 0)
+                {
+                    GameObject star = Instantiate(starExample, starParent);
+                    star.GetComponent<Image>().sprite = tutorialCompletedIcon;
+                    stars = new GameObject[1];
+                    stars[0] = star;
+                }
+            }
+            break;
+            case GameModeID.Normal:
+            {
+                int numOfStars = Math.Min(numberOfStarsInNormalMode, gamemode.highScore);
+                int postGameLevel = gamemode.highScore - numOfStars;
 
+                //Create stars
+                stars = new GameObject[numOfStars+Mathf.Min(1,postGameLevel)];
+
+                GameObject star;
+
+                for (int i = 0; i < numOfStars; i++)
+                {
+                    star = Instantiate(starExample, starParent);
+                    star.GetComponent<Image>().sprite = normalModeStar;
+                    stars[i] = star;
+                }
+                
+                if (postGameLevel > 0)
+                {
+                    star = Instantiate(starExample, starParent);
+                    star.GetComponent<Image>().sprite = normalModePostGameStar;
+                    star.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = postGameLevel.ToString();
+                    stars[numOfStars] = star;
+                }
+            }
+            break;
+            case GameModeID.Endless:
+            {
+                if (gamemode.highScore > 0)
+                {
+                    GameObject star = Instantiate(starExample, starParent);
+                    star.GetComponent<Image>().sprite = tutorialCompletedIcon;
+                    star.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = gamemode.highScore.ToString();
+                    stars = new GameObject[1];
+                    stars[0] = star;
+                }
+            }
+            break;
+        }
+        
         starExample.SetActive(false);
-
-        if (GameManager.maxPostGameScore > 0)
-        {
-            postGameLevelObject.SetActive(true);
-            postGameLevelText.text = GameManager.maxPostGameScore.ToString();
-
-            //set post game level object on hierarchy
-            postGameLevelObject.transform.SetAsLastSibling();
-        }
     }
 }

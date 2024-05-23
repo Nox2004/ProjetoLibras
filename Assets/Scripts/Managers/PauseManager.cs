@@ -6,6 +6,7 @@ public class PauseManager : MonoBehaviour
 {
     private bool paused;
 
+    [SerializeField] private LevelManager levelManager;
     [SerializeField] private Panel pausePanel, pauseButtonPanel, signsPanel, gameOverPanel;
     [SerializeField] private GameObject transitionPrefab;
     [SerializeField] private string menuSceneName;
@@ -21,7 +22,7 @@ public class PauseManager : MonoBehaviour
         sceneManager = Injector.GetSceneManager();
     }
     
-    private void PauseGame()
+    public void PauseGame()
     {
         if (paused) return;
 
@@ -81,7 +82,7 @@ public class PauseManager : MonoBehaviour
         //hides the pause button and shows the game over panel
         pauseButtonPanel.SetActive(false);
         gameOverPanel.SetActive(true);
-        highScoreUIElement.fill();
+        highScoreUIElement.fill(levelManager.gameModeID);
     }
 
     public void DeactivateGameOverScreen()

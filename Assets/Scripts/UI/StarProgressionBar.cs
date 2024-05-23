@@ -8,7 +8,6 @@ public class StarProgressionBar : MonoBehaviour
     [Header("References")]
     //Star system
     [SerializeField] private LevelManager levelManager;
-    private StartProgressionSystem starProgressionSystem;
 
     [SerializeField] private RectTransform progressMarker; //Marker that shows the current progression
 
@@ -41,7 +40,7 @@ public class StarProgressionBar : MonoBehaviour
     private float lastFrameProgression;
 
     //Last frame values
-    private int lastStarIndex = 0;
+    private Star lastStar;
     private bool lastReward = false;
     private int lastSubstarIndex = 0;
     
@@ -56,31 +55,30 @@ public class StarProgressionBar : MonoBehaviour
         
         progressBarImage.color = barColor;
         progressBarOutlineImage.color = outlineColor;
-
-        starProgressionSystem = levelManager.starProgressionSystem;
-        fillAmmount = starProgressionSystem.currentStarProgression;
+        
+        fillAmmount = levelManager.currentStarProgression;
         lastFillAmmount = fillAmmount;
 
         UpdateSubstars();
 
-        lastStarIndex = starProgressionSystem.currentStarIndex;
-        lastReward = starProgressionSystem.ReadyForReward();
-        lastSubstarIndex = starProgressionSystem.currentSubStarIndex;
+        lastStar = levelManager.currentStar;
+        lastReward = levelManager.StarReadyForReward();
+        lastSubstarIndex = levelManager.currentSubStarIndex;
     }
 
     // Update is called once per frame
     void Update()
     {
-        fillAmmount += (starProgressionSystem.currentStarProgression-fillAmmount) / (fillingSmoothRatio / Time.deltaTime);
+        fillAmmount += (levelManager.currentStarProgression-fillAmmount) / (fillingSmoothRatio / Time.deltaTime);
         progressBarRect.localScale = new Vector3(fillAmmount, 1, 1);
         
-        if (lastFrameProgression != starProgressionSystem.currentStarProgression)
+        if (lastFrameProgression != levelManager.currentStarProgression)
         {
             lastFillAmmount = fillAmmount;
         }
-        lastFrameProgression = starProgressionSystem.currentStarProgression;
+        lastFrameProgression = levelManager.currentStarProgression;
 
-        float lerpValue = Mathf.Abs(fillAmmount-starProgressionSystem.currentStarProgression) / Mathf.Abs(lastFillAmmount-starProgressionSystem.currentStarProgression);
+        float lerpValue = Mathf.Abs(fillAmmount-levelManager.currentStarProgression) / Mathf.Abs(lastFillAmmount-levelManager.currentStarProgression);
         progressBarImage.color = Color.Lerp(barColor, barColorFilling, lerpValue);
 
 
@@ -88,30 +86,45 @@ public class StarProgressionBar : MonoBehaviour
         tmp.x = (-rectTransform.rect.width / 2) + rectTransform.rect.width * fillAmmount;
         progressMarker.localPosition = tmp; 
 
-        if (lastStarIndex != starProgressionSystem.currentStarIndex)
+        if (lastStar != levelManager.currentStar)
         {
             UpdateSubstars();
-            lastSubstarIndex = starProgressionSystem.currentSubStarIndex;
+            lastSubstarIndex = levelManager.currentSubStarIndex;
             
-            if (starProgressionSystem.isInPostGame)
-            {
-                //sets up post game level text
-
-            }
             //start new star animation
         }
-        if (lastReward != starProgressionSystem.ReadyForReward())
+        if (lastReward != levelManager.StarReadyForReward())
         {
             //start reward animation
         }
-        if (lastSubstarIndex != starProgressionSystem.currentSubStarIndex)
+        if (lastSubstarIndex != levelManager.currentSubStarIndex)
         {
             //start fill substar animation
         }
 
-        lastStarIndex = starProgressionSystem.currentStarIndex;
-        lastReward = starProgressionSystem.ReadyForReward();
-        lastSubstarIndex = starProgressionSystem.currentSubStarIndex;
+        lastStar = levelManager.currentStar;
+        lastReward = levelManager.StarReadyForReward();
+        lastSubstarIndex = levelManager.currentSubStarIndex;
+
+        //Normal mode particularities
+        if (levelManager is NormalModeLevelManager)
+        {
+            NormalModeLevelManager lm = levelManager as NormalModeLevelManager;
+
+            if (lm.isInPostGame)
+            {
+                //set star to be filled
+                stars[lm.currentNumOfSubstars-1].GetComponentInChildren<TMPro.TextMeshProUGUI>().text = lm.postGameLevel.ToString();
+            }
+        }
+
+        //Endless mode particularities
+        if (levelManager is EndlessModeLevelManager)
+        {
+            EndlessModeLevelManager lm = levelManager as EndlessModeLevelManager;
+
+            stars[lm.currentNumOfSubstars-1].GetComponentInChildren<TMPro.TextMeshProUGUI>().text = (lm.score+1).ToString();
+        }
     }
 
     void UpdateSubstars()
@@ -130,10 +143,10 @@ public class StarProgressionBar : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        stars = new GameObject[starProgressionSystem.currentNumOfSubstars];
+        stars = new GameObject[levelManager.currentNumOfSubstars];
 
         //create stars using star system sub stars
-        for (int i = 0; i < starProgressionSystem.currentNumOfSubstars; i++)
+        for (int i = 0; i < levelManager.currentNumOfSubstars; i++)
         {
             float width = rectTransform.rect.width;
 
@@ -141,21 +154,15 @@ public class StarProgressionBar : MonoBehaviour
             
             //Set position
             Vector3 tmp = star.transform.localPosition;
-            tmp.x = (-width / 2) + (width / starProgressionSystem.currentNumOfSubstars) * (i+1f);
+            tmp.x = (-width / 2) + (width / levelManager.currentNumOfSubstars) * (i+1f);
             star.transform.localPosition = tmp;
 
             //Set sprite
-            Sprite sprite = starProgressionSystem.currentStar.subStars[i].reward.rewardIcon;
+            Sprite sprite = levelManager.currentStar.subStars[i].reward.rewardIcon;
             star.GetComponent<Image>().sprite = sprite;
             
             //Set size to match sprites
             star.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.texture.width / (sprite.pixelsPerUnit / 100), sprite.texture.height / (sprite.pixelsPerUnit / 100));
-
-            if (starProgressionSystem.isInPostGame && i == starProgressionSystem.currentNumOfSubstars-1)
-            {
-                //set star to be filled
-                star.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = starProgressionSystem.postGameLevel.ToString();
-            }
 
             stars[i] = star;
         }

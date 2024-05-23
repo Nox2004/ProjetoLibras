@@ -34,8 +34,6 @@ public class MenuEvents : MonoBehaviour
         soundsOnButton.SetValue(GameManager.GetSoundsOn());
         effectsOnButton.SetValue(GameManager.GetEffectsOn());
         invertedSignalsButton.SetValue(GameManager.GetInvertedSignals());
-
-        highScoreElement.fill();
     }
 
     public void PlayButton()

@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d66b2e6fd2c6ae4dbbca2106bb6fbd3, type: 3}
+  m_Name: GameModes
+  m_EditorClassIdentifier: 
+  _gameModes:
+  - id: 0
+    unlocked: 1
+    highScore: 1
+    icon: {fileID: 21300000, guid: 743352483b616284a9ec09cd972bbd68, type: 3}
+    sceneName: Tutorial
+    name:
+      localizedTexts:
+      - language: 0
+        text: Tutorial
+      - language: 1
+        text: Tutorial
+    hasToUnlockText:
+      localizedTexts:
+      - language: 0
+        text: 
+      - language: 1
+        text: 
+  - id: 1
+    unlocked: 0
+    highScore: 0
+    icon: {fileID: 21300000, guid: 2d3d8e1118cd30044929db68c9263b9d, type: 3}
+    sceneName: Game
+    name:
+      localizedTexts:
+      - language: 0
+        text: Modo Normal
+      - language: 1
+        text: Normal Mode
+    hasToUnlockText:
+      localizedTexts:
+      - language: 0
+        text: "Fa\xE7a o tutorial para desbloquear esse modo!"
+      - language: 1
+        text: Do the tutorial to unlock this mode!
+  - id: 2
+    unlocked: 0
+    highScore: 0
+    icon: {fileID: 21300000, guid: 90563e5d72f4359499821de485396890, type: 3}
+    sceneName: Endless
+    name:
+      localizedTexts:
+      - language: 0
+        text: Modo Infinito
+      - language: 1
+        text: Endless Mode
+    hasToUnlockText:
+      localizedTexts:
+      - language: 0
+        text: Consiga 3 estrelas no modo normal para desbloquear este modo!
+      - language: 1
+        text: Get 3 stars on normal mode to unlock this mode!

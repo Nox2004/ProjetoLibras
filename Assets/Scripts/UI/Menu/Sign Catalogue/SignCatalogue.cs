@@ -6,6 +6,7 @@ public class SignCatalogue : MonoBehaviour
 {
     [SerializeField] GameObject signBase;
 
+    private bool needsToUpdateLimit = true;
     private VerticalLayoutGroup verticalLayoutGroup;
     private float touchStartY;
     private float initialTop = 0, top = 0;
@@ -21,18 +22,22 @@ public class SignCatalogue : MonoBehaviour
         initialTop = top;
 
         UpdateCatalogue();
-
-        foreach (Transform child in transform)
-        {
-            minLimit += child.GetComponent<RectTransform>().rect.height;
-            minLimit += verticalLayoutGroup.spacing;
-        }
-        minLimit -= rectTransform.rect.height;
-        minLimit -= initialTop;
     }
     
     void Update()
     {
+        if (needsToUpdateLimit)
+        {
+            foreach (Transform child in transform)
+            {
+                minLimit += child.GetComponent<RectTransform>().rect.height;
+                minLimit += verticalLayoutGroup.spacing;
+            }
+            minLimit -= rectTransform.rect.height;
+            minLimit -= initialTop;
+            needsToUpdateLimit = false;
+        }
+
         if (Input.touchCount == 1)
         {
             Touch touch = Input.GetTouch(0);

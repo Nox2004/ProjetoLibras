@@ -16,6 +16,9 @@ public class MainMenu2DButton : Button2D
         base.Start();
 
         audioManager = Injector.GetAudioManager(gameObject);
+
+        currentScale = normalScale;
+        transform.localScale = Vector3.one * currentScale;
     }
 
     override protected void LateUpdate()
@@ -27,7 +30,7 @@ public class MainMenu2DButton : Button2D
 
         beingTouched = false;
 
-        transform.localScale = new Vector3(currentScale, currentScale, currentScale);
+        transform.localScale = Vector3.one * currentScale;
     }
 
     override protected void OnTouchEnd()

@@ -37,7 +37,7 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
 
     #endregion
 
-    private enum Stage 
+    public enum Stage 
     {
         Waiting,
         Question, //Shows the source sign
@@ -51,7 +51,7 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
     private string debugTag = "SignQuizEventManager: ";
 
     //Stage
-    private Stage stage = Stage.Waiting;
+    public Stage stage = Stage.Waiting;
 
     [Header("References")]
     [SerializeField] private UpgradeQuestionSignController questionController;
@@ -80,7 +80,6 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
     #endregion
 
     //Speed of the sign objects
-    private float speed; //Filled by Initialize
 
     //Answer objects
     private GameObject[] answerObjects;
@@ -108,20 +107,6 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
     [SerializeField] private AudioClip correctAnswerSound;
     [SerializeField] private AudioClip wrongAnswerSound;
 
-    [Header("Player Upgrades")]
-    private PlayerUpgrade[] currentUpgradeSelection;
-    private PlayerUpgradeId selectedUpgrade;
-    private SignQuizReward currentReward;
-
-    [SerializeField] private UpgradeSelection upgradeSelection;
-    [SerializeField] private Panel upgradeSelectionPanel;
-
-    //!!!Change later
-    public void SelectUpgrade(PlayerUpgradeId status)
-    {
-        selectedUpgrade = status;
-    }
-
     #region //Operational methods
 
     public SignQuizEventCurrentInfo GetCurrentInfo()
@@ -129,12 +114,11 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
         return new SignQuizEventCurrentInfo(numOfSignOptions, startAnswerX, spaceBetweenAnswers);
     }
 
-    public void Initialize(LevelManager levelManager, SignSelector selector, PlayerController playerController, float speed, Vector3 spawn_position, float z_limit, float floor_width)
+    public void Initialize(LevelManager levelManager, SignSelector selector, PlayerController playerController, Vector3 spawn_position, float z_limit, float floor_width)
     {
         this.levelManager = levelManager;
         this.signSelector = selector;
         this.playerController = playerController;
-        this.speed = speed;
         this.spawnPosition = spawn_position;
         this.zLimit = z_limit;
         this.floorWidth = floor_width;
@@ -145,12 +129,10 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
         InstantiateUpgradePlayerTargets();
     }
 
-    public void StartSignQuizEvent(SignCode[] currentSigns, Texture question_texture, Texture answer_texture, int correctAnswerIndex, float speed, SignQuizReward reward)
+    public void StartSignQuizEvent(SignCode[] currentSigns, Texture question_texture, Texture answer_texture, int correctAnswerIndex)
     {
-        this.speed = speed;
         this.correctAnswerIndex = correctAnswerIndex;
         this.currentSigns = currentSigns;
-        this.currentReward = reward;
 
         questionController.SetTextures(question_texture, answer_texture, questionColor, answerColors[correctAnswerIndex]);
         questionController.SetAnimation(UpgradeQuestionSignController.Animation.Entering);
@@ -251,7 +233,7 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
                         GameObject obj = Instantiate(signObjectPrefab, new Vector3(xx, spawnPosition.y, spawnPosition.z), Quaternion.identity);
                         
                         SignObjectController controller = obj.GetComponent<SignObjectController>();
-                        controller.speed = speed;
+                        controller.levelManager = levelManager;
                         controller.zLimit = zLimit;
                         controller.particleManager = particleManager;
 
@@ -326,49 +308,15 @@ public class SignQuizEventManager : MonoBehaviour, IPausable
                     //positive feedback
                     confettiLauncher.LaunchConfetti();
                     audioManager.PlaySound(correctAnswerSound);
-                    //playerController.Upgrade(); //!Change later
 
-                    if (debug) Debug.Log(debugTag + "Choosing upgrade stage");
+                    if (debug) Debug.Log(debugTag + "Waiting stage");
                     
-                    if (currentReward is UpgradeReward)
-                    {
-                        UpgradeReward reward = (UpgradeReward) currentReward;
-
-                        //Rewards player with a upgrade
-                        currentUpgradeSelection = playerController.upgradeManager.UpgradeSelection(reward.numberOfUpgradeOptions, reward.upgradeTier);
-                        selectedUpgrade = PlayerUpgradeId.Count;
-
-                        upgradeSelectionPanel.SetActive(true);
-                        upgradeSelection.SetButtons(currentUpgradeSelection);
-                        upgradeSelection.quizManager = this;
-
-                        stage = Stage.ChoosingUpgrade;
-                    }
-                    else
-                    {
-                    //     //Rewards player with points
-                    //     levelManager.AddPointsToProgression(pointsRewardWhenNoUpgrade);
-                        
-                         if (debug) Debug.Log(debugTag + "Waiting stage");
-                         stage = Stage.Waiting;
-                    }
+                    stage = Stage.Waiting;
                 }
                 else 
                 {
                     //negative feedback
                     audioManager.PlaySound(wrongAnswerSound);
-
-                    if (debug) Debug.Log(debugTag + "Waiting stage");
-                    stage = Stage.Waiting;
-                }
-            }
-            break;
-            case Stage.ChoosingUpgrade:
-            {
-                if (selectedUpgrade != PlayerUpgradeId.Count)
-                {
-                    playerController.Upgrade(selectedUpgrade);
-                    upgradeSelectionPanel.SetActive(false);
 
                     if (debug) Debug.Log(debugTag + "Waiting stage");
                     stage = Stage.Waiting;

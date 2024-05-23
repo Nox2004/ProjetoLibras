@@ -13,32 +13,31 @@ public enum GameState
 public static class GameManager
 {
     private static GameSettings mainSettings;
-    public static int maxStarsAchieved
-    { 
-        get 
-        {
-            return PlayerPrefs.GetInt("MaxStarsAchieved", 0);
-        }
-        set 
-        {
-            PlayerPrefs.SetInt("MaxStarsAchieved", value);
-        }
-    }
+    private static GameModeManager gameModeManager;
 
-    public static int maxPostGameScore
-    { 
-        get 
-        {
-            return PlayerPrefs.GetInt("MaxPostGameScore", 0);
-        }
-        set 
-        {
-            PlayerPrefs.SetInt("MaxPostGameScore", value);
-        }
-    }
+    private static string gameModeDataPath;
 
     
     #region //Getters and Setters
+
+    public static GameMode[] GetGameModes() => gameModeManager.gameModes;
+
+    public static GameMode GetGameMode(GameModeID id) => gameModeManager.GetGameMode(id);
+
+    public static void UnlockGameMode(GameModeID id)
+    {
+        Debug.Log("Unlocking game mode: " + id);
+        GameMode mode = GetGameMode(id);
+        mode.unlocked = true;
+        gameModeManager.SaveGameModeData();
+    }
+
+    public static void SetHighScore(GameModeID id, int highScore)
+    {
+        GameMode mode = GetGameMode(id);
+        mode.highScore = highScore;
+        gameModeManager.SaveGameModeData();
+    }
 
     public static LanguageSettings[] GetLanguages() => mainSettings.languageSettings;
 
@@ -124,12 +123,20 @@ public static class GameManager
 
     static GameManager()
     {
-        mainSettings = Resources.Load<GameSettings>("GameSettings");
-        LoadSettings();
+        //Load Game Mode Data
+        gameModeManager = Resources.Load<GameModeManager>("GameModes");
+        gameModeManager.SetSaveFilePath(Application.persistentDataPath + "/gameModeSaveData.json");
+        //gameModeManager.LoadGameModeData();
+        gameModeManager.SaveGameModeData();
         
-        UpdateSignSets();
-        MusicManager.Instance.UpdateVolume(mainSettings.musicOn ? 1 : 0);
-    }
+        //Load Game Settings
+        mainSettings = Resources.Load<GameSettings>("GameSettings");
 
-    
+        LoadSettings();
+
+        MusicManager.Instance.UpdateVolume(mainSettings.musicOn ? 1 : 0);
+        
+        //Update Sign Sets
+        UpdateSignSets();
+    }
 }

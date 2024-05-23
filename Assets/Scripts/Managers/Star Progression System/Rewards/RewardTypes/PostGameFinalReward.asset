@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00b50795fa3dba64d9c8c89b5b2055c5, type: 3}
   m_Name: PostGameFinalReward
   m_EditorClassIdentifier: 
-  rewardIcon: {fileID: 21300000, guid: da5f17a8e0376664f9025fb9cb4b9cdc, type: 3}
+  rewardIcon: {fileID: 21300000, guid: b70ca4ac12a92f84486d8970c5f34782, type: 3}

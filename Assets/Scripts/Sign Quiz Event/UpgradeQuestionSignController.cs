@@ -163,6 +163,11 @@ public class UpgradeQuestionSignController : MonoBehaviour, IPausable
         {
             case Animation.Entering:
             {
+                xAngle = 0f;
+                yAngle = 0f;
+                yPosition = 0f;
+                xAngleInterpolator.Reset(); yAngleInterpolator.Reset(); zAngleInterpolator.Reset();
+                
                 EnterInterpolator.Reset();
                 audioManager.PlaySound(enterSound);
             }

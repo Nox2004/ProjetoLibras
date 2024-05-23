@@ -1,0 +1,186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1188791435344203372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7284170357249347734}
+  - component: {fileID: 2931698267414205405}
+  - component: {fileID: 5192605205341383899}
+  m_Layer: 0
+  m_Name: Level Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7284170357249347734
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188791435344203372}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.6939666, y: -0.3227539, z: 1.9351054}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2931698267414205405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188791435344203372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b7b0024495f5144a8424c3cc4c8c7d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 1
+  pauseManager: {fileID: 0}
+  particleManager: {fileID: 0}
+  playerController: {fileID: 0}
+  gameModeID: 1
+  starProgressionSystem:
+    stars:
+    - {fileID: 11400000, guid: a0daa956163eb3a428400a679fbd612b, type: 2}
+    - {fileID: 11400000, guid: c852331a0071ed54a91b36baf1cae802, type: 2}
+    - {fileID: 11400000, guid: 06e6c23d917ae02479f856fda4262958, type: 2}
+    postGameStar: {fileID: 11400000, guid: 51263b421c4daa045a79d5840f7d0ff8, type: 2}
+    currentStarIndex: 0
+    currentSubStarIndex: 0
+    currentStarScore: 0
+    postGameEnemyPools:
+    - pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
+        chanceWeight: 50
+    - pool:
+      - enemyPrefab: {fileID: 702947067586095354, guid: 9e92eeb7b4d3a92438c2e31831320e51, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
+        chanceWeight: 33
+    - pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
+        chanceWeight: 50
+    - pool:
+      - enemyPrefab: {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 2856323925033057277, guid: e7fa6429f0b3bde4a9ff87789bea6548, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
+        chanceWeight: 33
+    - pool:
+      - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
+        chanceWeight: 33
+    - pool:
+      - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
+        chanceWeight: 50
+    - pool:
+      - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 2856323925033057277, guid: e7fa6429f0b3bde4a9ff87789bea6548, type: 3}
+        chanceWeight: 33
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 33
+    - pool:
+      - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
+        chanceWeight: 50
+    - pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
+        chanceWeight: 50
+    - pool:
+      - enemyPrefab: {fileID: 2856323925033057277, guid: e7fa6429f0b3bde4a9ff87789bea6548, type: 3}
+        chanceWeight: 50
+      - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
+        chanceWeight: 50
+  floorWidth: 6
+  zLimit: -5
+  spawnPosition: {x: 0, y: -1, z: 32}
+  objectsSpeed: 0
+  signQuizEventManager: {fileID: 5192605205341383899}
+  upgradeSelection: {fileID: 0}
+  upgradeSelectionPanel: {fileID: 0}
+  signSelector:
+    inicialSignShowWeight: 3
+    showWeightIncrement: 1
+    showWeightAfterSelected: 1
+    inicialSimiliarWeight: 2
+    weightSimiliarIncrement: 1
+  difficultyValue: 0
+  difficultyValueIncreasePerPostgameLevel: 0.1
+  startObjectsSpeed: 3.2
+  endObjectsSpeed: 4
+  postGameObjectsSpeedMultiplier: 1.1
+  enemySpawnCooldown: 0
+  startEnemySpawnCooldown: 3.8
+  endEnemySpawnCooldown: 5
+  postGameEnemySpawnCooldownMultiplier: 0.95
+  currentEnemyPool:
+    pool: []
+  gameOverCountdown: 1
+  stateBeforeGameOver: 0
+  reviveUses: 1
+  reviveButton: {fileID: 0}
+--- !u!114 &5192605205341383899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1188791435344203372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bda0e444a1eda34088d11ad3361d901, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  stage: 0
+  questionController: {fileID: 0}
+  signObjectPrefab: {fileID: 2608742760891060934, guid: 1fcb1108a98c84946b5e2f82c13c9fe1, type: 3}
+  particleManager: {fileID: 0}
+  confettiLauncher: {fileID: 0}
+  levelManager: {fileID: 2931698267414205405}
+  playerController: {fileID: 0}
+  numOfSignOptions: 3
+  upgradeAnswerSpawnBorder: 1
+  questionColor: {r: 0, g: 0, b: 0, a: 1}
+  answerColors:
+  - {r: 0.27429688, g: 0.2953789, b: 0.8679245, a: 1}
+  - {r: 0.7605224, g: 0.8396226, b: 0.059407253, a: 1}
+  - {r: 0.9056604, g: 0.19223925, b: 0.19223925, a: 1}
+  timeToDestroyAnswerObjects: 1
+  distanceFromPlayerToDestroyAnswerObjects: 1
+  destroyAnswersSound: {fileID: 8300000, guid: 52ebd50149d1f554183ed5a833c1bb13, type: 3}
+  playerTargetPrefab: {fileID: 2594530986015775802, guid: 939ba6994eb76d04597ef437d970df5c, type: 3}
+  playerTargetHideY: -1.5
+  playerTargetShowY: -1
+  playerTargetSmoothMoveRatio: 0.5
+  playerTargetMaterial: {fileID: 2100000, guid: 2de978eeeeda4b540adaacfdc172a2e8, type: 2}
+  playerTargetHighlitedMaterial: {fileID: 2100000, guid: 637dee0da487d8c47a10f105d7e48c88, type: 2}
+  correctAnswerSound: {fileID: 8300000, guid: c2730e7ca2ac6fb41a3e6810fed7f51c, type: 3}
+  wrongAnswerSound: {fileID: 8300000, guid: cf4474d84d7e30048a0c31d9890325a5, type: 3}

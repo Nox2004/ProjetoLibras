@@ -178,7 +178,7 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
         state = EnemyState.Dead;
 
         //Removes the enemy from the level manager alive enemies list
-        levelManager.AddPointsToProgression(pointsOnDefeated);
+        levelManager.AddStarScore(pointsOnDefeated);
         levelManager.RemoveEnemy(this);
 
         //destroy collider for performance
