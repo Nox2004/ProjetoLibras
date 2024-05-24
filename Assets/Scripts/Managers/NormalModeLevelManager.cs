@@ -236,6 +236,16 @@ public class NormalModeLevelManager : LevelManager
 
                         state = LevelManagerState.SignQuizEvent;
                     }
+                    else if (currentReward is BossReward)
+                    {
+                        if (debug) Debug.Log(debugTag + "Starting boss event");
+
+                        BossReward bossReward = currentReward as BossReward;
+                        currentBoss = SpawnBoss(bossReward.bossPrefab);
+                        
+                        //Start boss event
+                        state = LevelManagerState.Boss;
+                    }
                 }
             }
             break;
@@ -261,10 +271,6 @@ public class NormalModeLevelManager : LevelManager
                             //Goes back to spawning enemies
                             state = LevelManagerState.SpawningEnemies;
                         }
-                    }
-                    else if (reward is BossReward)
-                    {
-
                     }
                     else 
                     {

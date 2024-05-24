@@ -27,6 +27,8 @@ public class LevelManager : MonoBehaviour, IPausable
     [SerializeField] protected PauseManager pauseManager;
     [SerializeField] protected ParticleManager particleManager;
     [SerializeField] protected PlayerController playerController;
+    public PlayerController PlayerController { get => playerController; }
+    [HideInInspector] public BossController currentBoss;
 
     #region //Star Progression System
 
@@ -147,6 +149,25 @@ public class LevelManager : MonoBehaviour, IPausable
         enemy_controller.difficultyValue = 0f;
 
         return enemy_controller;
+    }
+
+    protected virtual BossController SpawnBoss(GameObject prefab)
+    {
+        if (debug) Debug.Log(debugTag + "Spawning boss [" + prefab.name + "]");
+
+        GameObject boss = Instantiate(prefab, spawnPosition, Quaternion.identity * Quaternion.Euler(0, 180, 0));
+        BossController boss_controller = boss.GetComponent<BossController>();
+        currentBoss = boss_controller;
+
+        boss_controller.levelManager = this;
+        boss_controller.particleManager = particleManager;
+        boss_controller.zLimit = zLimit;
+        boss_controller.speed = objectsSpeed;
+        boss_controller.spawnPosition = spawnPosition;
+        boss_controller.floorWidth = floorWidth;
+        boss_controller.difficultyValue = 0f;
+
+        return boss_controller;
     }
 
     public virtual void InsertEnemy(EnemyController enemy)

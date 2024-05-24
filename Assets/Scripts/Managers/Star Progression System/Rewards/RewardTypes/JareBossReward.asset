@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05d96811c34e85c47bcae35111f36f56, type: 3}
-  m_Name: BossReward
+  m_Name: JareBossReward
   m_EditorClassIdentifier: 
   rewardIcon: {fileID: 21300000, guid: a2d565c683ed265469999910ff866162, type: 3}
-  BossPrefab: {fileID: 0}
+  bossPrefab: {fileID: 4438987659645761185, guid: 7ead3ca909b416a4ab559f2945fb42bb, type: 3}

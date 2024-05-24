@@ -18,7 +18,7 @@ MonoBehaviour:
       pool:
       - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}
         chanceWeight: 100
-    reward: {fileID: 11400000, guid: e49fb3720431bc942b709df47e365018, type: 2}
+    reward: {fileID: 11400000, guid: 8d7e9d5893c46bf40af93175c5fc855e, type: 2}
   - enemyPool:
       pool:
       - enemyPrefab: {fileID: 2856323925033057277, guid: 82352f1424caa114eb4bb18590aaf0dc, type: 3}

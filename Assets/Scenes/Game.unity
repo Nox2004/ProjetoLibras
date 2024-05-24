@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.43504605, g: 0.48216456, b: 0.5630978, a: 1}
+  m_IndirectSpecularColor: {r: 0.4374895, g: 0.4853106, b: 0.56558496, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1526,6 +1526,7 @@ MonoBehaviour:
   pauseManager: {fileID: 2120793152}
   particleManager: {fileID: 899165714}
   playerController: {fileID: 173439564}
+  currentBoss: {fileID: 0}
   gameModeID: 1
   _currentStar: {fileID: 0}
   currentSubStarIndex: 0

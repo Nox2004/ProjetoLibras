@@ -135,7 +135,12 @@ public abstract class EnemyController : MonoBehaviour, ITakesDamage, IPausable
             Renderer rend = effectRenderers[i];
             
             //Sets the white effect in the first material of that renderer
-            rend.material.SetFloat("_WhiteEffectStrength", whiteEffectStrength);
+            for (int j = 0; j < rend.materials.Length; j++)
+            {
+                Material rendMaterial = rend.materials[j];
+                rendMaterial.SetFloat("_WhiteEffectStrength", whiteEffectStrength);
+            }
+            //rend.material.SetFloat("_WhiteEffectStrength", whiteEffectStrength);
         }
 
         //if the enemy is out of the screen, destroy it
