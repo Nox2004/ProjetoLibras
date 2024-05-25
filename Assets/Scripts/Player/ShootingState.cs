@@ -19,7 +19,7 @@ public class ShootingState : IPlayerState
     public void UpdateState(PlayerController me)
     {
         #region //Moves horizontally based on touch position on the screen
-
+        
         if (Input.touchCount > 0)
         {
             //Gets the last touch

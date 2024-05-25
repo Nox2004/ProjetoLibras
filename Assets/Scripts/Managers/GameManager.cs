@@ -126,8 +126,7 @@ public static class GameManager
         //Load Game Mode Data
         gameModeManager = Resources.Load<GameModeManager>("GameModes");
         gameModeManager.SetSaveFilePath(Application.persistentDataPath + "/gameModeSaveData.json");
-        //gameModeManager.LoadGameModeData();
-        gameModeManager.SaveGameModeData();
+        gameModeManager.LoadGameModeData();
         
         //Load Game Settings
         mainSettings = Resources.Load<GameSettings>("GameSettings");

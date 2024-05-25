@@ -97,6 +97,7 @@ public class GameModeManager : ScriptableObject
             gameModeSaveData.data.Add(new GameModeSaveInstance((int) gameModes[i].id, gameModes[i].unlocked, gameModes[i].highScore));
         }
         string saveString = JsonUtility.ToJson(gameModeSaveData);
+        
         File.WriteAllText(saveFilePath, saveString);
     }
   

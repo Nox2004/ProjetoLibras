@@ -45,4 +45,4 @@ MonoBehaviour:
         chanceWeight: 33
       - enemyPrefab: {fileID: 2856323925033057277, guid: e7fa6429f0b3bde4a9ff87789bea6548, type: 3}
         chanceWeight: 33
-    reward: {fileID: 11400000, guid: 41d8bb4eb52b77844a0e35ea8ecb8e0d, type: 2}
+    reward: {fileID: 11400000, guid: 8d7e9d5893c46bf40af93175c5fc855e, type: 2}

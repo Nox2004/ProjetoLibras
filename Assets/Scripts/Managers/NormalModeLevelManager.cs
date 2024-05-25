@@ -69,10 +69,9 @@ public class NormalModeLevelManager : LevelManager
 
     [SerializeField] private Star postGameStar;
     public bool isInPostGame { get { return currentStarIndex >= stars.Length; } }
-    public int postGameLevel { get { return (currentStarIndex - stars.Length)+1; } } 
+    public int postGameLevel { get { return Mathf.Max(0,(currentStarIndex - stars.Length)+1); } } 
 
     public EnemyPool[] postGameEnemyPools;
-
 
     protected override void ResolveReward(bool rightAnswer)
     {
@@ -112,9 +111,9 @@ public class NormalModeLevelManager : LevelManager
         }
 
         //Updates high score
-        if (numberOfStarsAchieved + postGameLevel - 1 > GameManager.GetGameMode(gameModeID).highScore)
+        if (numberOfStarsAchieved + postGameLevel > GameManager.GetGameMode(gameModeID).highScore)
         {
-            GameManager.SetHighScore(gameModeID, numberOfStarsAchieved + postGameLevel - 1);
+            GameManager.SetHighScore(gameModeID, numberOfStarsAchieved + postGameLevel);
 
             if (numberOfStarsAchieved >= 3) //!!!!! change later
             {
@@ -140,7 +139,7 @@ public class NormalModeLevelManager : LevelManager
 
     [Header("GameOver")]
     [SerializeField] private float gameOverCountdown;
-    [SerializeField] private LevelManagerState stateBeforeGameOver;
+    private LevelManagerState stateBeforeGameOver;
     [SerializeField] private int reviveUses = 1;
     [SerializeField] private Button2D reviveButton;
 
@@ -204,12 +203,16 @@ public class NormalModeLevelManager : LevelManager
     {
         if (paused) return;
 
+        if (state != LevelManagerState.GameOver) 
+        {
+            UpdateDifficulty();
+            stateBeforeGameOver = state;
+        }
+
         switch (state)
         {
             case LevelManagerState.SpawningEnemies:
             {
-                UpdateDifficulty();
-
                 enemySpawnTimer -= Time.deltaTime;
                 if (enemySpawnTimer <= 0)
                 {
@@ -295,7 +298,14 @@ public class NormalModeLevelManager : LevelManager
             break;
             case LevelManagerState.Boss:
             {
+                if (!currentBoss.alive)
+                {
+                    currentBoss = null;
 
+                    ResolveReward(true);
+
+                    state = LevelManagerState.SpawningEnemies;
+                }
             }
             break;
             case LevelManagerState.GameOver:

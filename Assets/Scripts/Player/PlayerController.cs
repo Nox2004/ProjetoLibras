@@ -382,7 +382,7 @@ public class PlayerController : MonoBehaviour, IPausable
     private float shootCooldown => 1f / shootRate; //Cooldown between shoots
     [SerializeField] private int bulletsPerShoot = 1;
     [SerializeField] private float bulletSpeed;
-    [SerializeField] private float bulletRange;
+    [SerializeField] public float bulletRange;
     [SerializeField] private float bulletDamage;
     [SerializeField] private float bulletKnockback;
     [SerializeField] private int bulletPiercing;
@@ -847,7 +847,7 @@ public class PlayerController : MonoBehaviour, IPausable
 
     public void Die(GameObject killer)
     {
-        if (iFrames > 0) return;
+        if (iFrames > 0 || currentState == deadState) return;
 
         particleManager.EmitExplosion(transform.position, 16, deathSmokeParticle);
 

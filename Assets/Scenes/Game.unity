@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.4374895, g: 0.4853106, b: 0.56558496, a: 1}
+  m_IndirectSpecularColor: {r: 0.43504605, g: 0.48216456, b: 0.5630978, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1621,7 +1621,6 @@ MonoBehaviour:
   currentEnemyPool:
     pool: []
   gameOverCountdown: 1
-  stateBeforeGameOver: 0
   reviveUses: 1
   reviveButton: {fileID: 217850227}
 --- !u!1001 &4205562013484297621

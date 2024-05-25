@@ -26,11 +26,20 @@ public class JareController : BossController
     [SerializeField] private float maxOpenMouthAngle = 50;
     private float mouthAngle;
     private float mouthInitialAngle;
+    private Vector3 mouthInitialPosition;
 
     [Header("Idle behaviour")]
     [SerializeField] private float horizontalMovementWaveySpeed = 2f;
     [SerializeField] private float horizontalMovementAngleIncrease= 10f;
 
+    [Header("Dead behaviour")]
+    [SerializeField] private float deadSpeed = 5f;
+    [SerializeField] private float deadMouthShaking = 0.3f;
+    [SerializeField] private GameObject deadParticlesPrefab;
+    [SerializeField] private Vector3 deadParticlesOffset;
+    [SerializeField] private float deadParticlesSpawnTime;
+
+    [Header("Attacking")]
     [SerializeField] private float attackTimerMax, attackTimerMin;
     private float attackTimer;
     private bool attacking;
@@ -40,6 +49,7 @@ public class JareController : BossController
     [SerializeField] private float randomChargingPrepareSpeed;
     [SerializeField] private float randomChargeSpeed;
     [SerializeField] private float returnFromChargeSpeed;
+    [SerializeField] private GameObject chargeTarget;
 
     [Header("Guided Charge")]
     [SerializeField] private float guidedChargePrepareTime;
@@ -47,6 +57,8 @@ public class JareController : BossController
 
     [Header("Shooting")]
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private GameObject projectileParticlesPrefab;
+    [SerializeField] private Vector3 projectileOffset;
 
     [Header("Shooting attack one")]
     [SerializeField] private float shooting1PrepareTime;
@@ -68,20 +80,18 @@ public class JareController : BossController
 
     override protected void Start()
     {
-        //Change later
-        zLimit = -100;
-        difficultyValue = 1;
-        spawnPosition = new Vector3(0,-1,32);
-        floorWidth = 6;
-
         attackTimer = Random.Range(attackTimerMin, attackTimerMax);
 
         base.Start();
 
-        player = FindObjectOfType<PlayerController>();
+        player = levelManager.PlayerController;
         initialRotation = transform.eulerAngles;
 
         mouthInitialAngle = mouth.localRotation.x;
+        mouthInitialPosition = mouth.localPosition;
+
+        targetZ = Mathf.Min(targetZ, player.transform.position.z + player.bulletRange + 2f);
+        chargeTarget.SetActive(false);
     }
     
     override protected void Update()
@@ -157,6 +167,12 @@ public class JareController : BossController
 
             WaveMouth();
 
+            if (state == EnemyState.Dead)
+            {
+                StartCoroutine(DeadBehaviour());
+                break;
+            }
+
             if (attackTimer > 0)
             {
                 attackTimer -= Time.deltaTime;
@@ -166,7 +182,7 @@ public class JareController : BossController
                 float lastX = transform.position.x;
                 transform.position = startPos + Vector3.right * ((Mathf.Sin(waveyTimer+timerOffset) * moveRange/2f) - xOffset);
 
-                targetRotation = Vector3.up * (lastX-transform.position.x) * horizontalMovementAngleIncrease;
+                targetRotation = Vector3.up * (lastX-transform.position.x)/Time.deltaTime * horizontalMovementAngleIncrease;
 
                 yield return null;
             }
@@ -208,6 +224,38 @@ public class JareController : BossController
         }
     } 
 
+    private IEnumerator DeadBehaviour()
+    {
+        targetRotation = Vector3.zero;
+
+        float particleTimer = 0f;
+
+        while (true)
+        {
+            while (paused) yield return null;
+            
+            particleTimer -= Time.deltaTime;
+            if (particleTimer < 0f)
+            {
+                particleManager.EmitExplosion(transform.position+deadParticlesOffset, 10, deadParticlesPrefab);
+                particleTimer = deadParticlesSpawnTime;
+            }
+
+            mouth.transform.localPosition = mouthInitialPosition + new Vector3(Random.Range(-deadMouthShaking, deadMouthShaking),
+            Random.Range(-deadMouthShaking, deadMouthShaking),
+            Random.Range(-deadMouthShaking, deadMouthShaking));
+
+            transform.Translate(Vector3.back * deadSpeed * Time.deltaTime);
+
+            if (transform.position.z > spawnPosition.z)
+            {
+                Destroy(gameObject);
+            }
+
+            yield return null;
+        }
+    }
+
     private IEnumerator RandomCharge()
     {
         targetRotation = Vector3.zero;
@@ -215,6 +263,9 @@ public class JareController : BossController
         Vector3 startPos = transform.position;
 
         float timer = 0;
+
+        chargeTarget.SetActive(true);
+
         while (timer < randomChargingPrepareTime)
         {
             while (paused) yield return null;
@@ -227,6 +278,8 @@ public class JareController : BossController
 
             yield return null;
         }
+
+        chargeTarget.SetActive(false);
 
         Vector3 targetPos = new Vector3(transform.position.x,transform.position.y,player.transform.position.z);
 
@@ -262,6 +315,9 @@ public class JareController : BossController
         Vector3 targetPos = player.transform.position;
         
         float timer = guidedChargePrepareTime/2;
+
+        chargeTarget.SetActive(true);
+
         while (timer > 0f)
         {
             while (paused) yield return null;
@@ -288,6 +344,8 @@ public class JareController : BossController
 
             yield return null;
         }
+
+        chargeTarget.SetActive(false);
 
         while (Vector3.Distance(transform.position, targetPos) > 0.1f)
         {
@@ -353,7 +411,7 @@ public class JareController : BossController
 
             if (timer < 0)
             {
-                GameObject projectile = Instantiate(projectilePrefab, transform.position, transform.rotation);
+                Shoot();
 
                 if (shoots % 2 == 0)
                 {
@@ -431,12 +489,11 @@ public class JareController : BossController
             {
                 if (shoots % 2 == 0)
                 {
-                    GameObject projectile = Instantiate(projectilePrefab, transform.position, transform.rotation);
+                    Shoot();
                 }
                 else
                 {
-                    GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.Euler(transform.eulerAngles + Vector3.up * shooting2Angle/2));
-                    projectile = Instantiate(projectilePrefab, transform.position, Quaternion.Euler(transform.eulerAngles - Vector3.up * shooting2Angle/2));
+                    Shoot(2,shooting2Angle);
                 }
 
                 timer = shooting2Delay;
@@ -465,6 +522,22 @@ public class JareController : BossController
         //Spawn some enemies
     }
 
+    private void Shoot(int quant = 1, float angle = 0f)
+    {
+        float a = -angle/2;
+        for (int i = 0; i < quant; i++)
+        {
+            JareBullet bullet = Instantiate(projectilePrefab, transform.position + transform.rotation * projectileOffset, Quaternion.Euler(transform.eulerAngles + Vector3.up * a)).GetComponent<JareBullet>();
+
+            a += angle / (quant-1);
+        }
+
+        particleManager.EmitRadiusBurst(transform.position + transform.rotation * projectileOffset, 
+                                        Random.Range(8, 12),
+                                        projectileParticlesPrefab, 
+                                        transform.eulerAngles,
+                                        Vector3.up * 90f);//Vector3.up * 10f);
+    }
 
     #endregion
 }
