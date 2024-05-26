@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AdPanel : MonoBehaviour
@@ -10,28 +8,36 @@ public class AdPanel : MonoBehaviour
     void Start()
     {
         panel = GetComponent<Panel>();
+
+        MonetizationManager.OnRewardedCompleted += OnRewardedCompleted;
+    }
+
+    private void OnDestroy()
+    {
+        MonetizationManager.OnRewardedCompleted -= OnRewardedCompleted;
+    }
+
+    public void OnRewardedCompleted()
+    {
+        lockButton.SawAdd();
     }
 
     public void SetPanelActive()
     {
         panel.SetActive(true);
     }
-    
+
     public void SeeAd()
     {
+        MonetizationManager.ShowRewarded();
+
         lockButton.ReturnFromAdScreen();
         panel.SetActive(false);
-
-        //TODO: Implement ad watching
-        if (true) //if watched to the end
-        {
-            lockButton.SawAdd();
-        }
     }
 
     public void NotSeeAd()
     {
         lockButton.ReturnFromAdScreen();
-        panel.SetActive(false);   
+        panel.SetActive(false);
     }
 }

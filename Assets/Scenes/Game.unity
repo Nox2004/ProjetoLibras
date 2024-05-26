@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.43504605, g: 0.48216456, b: 0.5630978, a: 1}
+  m_IndirectSpecularColor: {r: 0.4350459, g: 0.48216414, b: 0.5630973, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1409,6 +1409,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37272033a71a40b458b6fa77fab1fa53, type: 3}
+--- !u!114 &2991004636791034180 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7114366008222852926, guid: 37272033a71a40b458b6fa77fab1fa53, type: 3}
+  m_PrefabInstance: {fileID: 2991004636791034179}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4773ed11f7ac4eb46973bf2fd1cd8c02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3263057943790892984
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2386,6 +2397,10 @@ PrefabInstance:
       propertyPath: canvas
       value: 
       objectReference: {fileID: 1938901075}
+    - target: {fileID: 4558826864074327684, guid: fa9e69673d5e65f49ae7c97f4aa883c2, type: 3}
+      propertyPath: lockButton
+      value: 
+      objectReference: {fileID: 2991004636791034180}
     - target: {fileID: 6306961314984689293, guid: fa9e69673d5e65f49ae7c97f4aa883c2, type: 3}
       propertyPath: m_Name
       value: SeeAdPanel
