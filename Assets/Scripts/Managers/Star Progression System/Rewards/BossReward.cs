@@ -5,4 +5,6 @@ using UnityEngine;
 public class BossReward : StarReward
 {
     public GameObject bossPrefab;
+
+    public UpgradeReward upgradeReward;
 }

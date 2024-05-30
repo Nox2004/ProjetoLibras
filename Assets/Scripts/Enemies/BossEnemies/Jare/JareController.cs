@@ -84,6 +84,9 @@ public class JareController : BossController
 
         base.Start();
 
+        maxHealth += maxHealth * difficultyValue;
+        currentHealth = maxHealth;
+
         player = levelManager.PlayerController;
         initialRotation = transform.eulerAngles;
 

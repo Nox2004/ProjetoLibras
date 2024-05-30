@@ -883,6 +883,8 @@ MonoBehaviour:
   pauseManager: {fileID: 2120793152}
   particleManager: {fileID: 899165714}
   playerController: {fileID: 173439564}
+  progressionBar: {fileID: 1504916060}
+  currentBoss: {fileID: 0}
   gameModeID: 0
   _currentStar: {fileID: 11400000, guid: e06be22e6768fd74aad4e0fbe8bcc050, type: 2}
   currentSubStarIndex: 0
@@ -3298,6 +3300,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 507f375479138da4c99b0d92b73a8310, type: 3}
+--- !u!114 &1504916060 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6976659272691129852, guid: 507f375479138da4c99b0d92b73a8310, type: 3}
+  m_PrefabInstance: {fileID: 1504916059}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d9df7e99f9e2f409e2ed3fd1a1d7b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1656738398 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6450923625184546473, guid: 495b62e020d9db34c942176fb7a6846e, type: 3}

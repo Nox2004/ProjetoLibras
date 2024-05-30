@@ -31,7 +31,7 @@ public class RobobertoController : CardboardEnemyController
         ChangePaperTexture(patrolTexture);
 
         defense = Mathf.Lerp(startDefense, endDefense, difficultyValue);
-        defense = Mathf.Max(defense, defenseCap);
+        defense = Mathf.Min(defense, defenseCap);
     }
     
     override protected void Update()
@@ -60,7 +60,7 @@ public class RobobertoController : CardboardEnemyController
 
             audioManager.PlayRandomSound(defendSounds);
 
-            base.TakeDamage(damage*(1-defenseAgainstNonPierce), pierce);
+            base.TakeDamage(damage*(1-(defenseAgainstNonPierce+defense)), pierce);
 
             return;
         }

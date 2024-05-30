@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.4350459, g: 0.48216414, b: 0.5630973, a: 1}
+  m_IndirectSpecularColor: {r: 0.43504605, g: 0.48216456, b: 0.5630978, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1521,6 +1521,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 507f375479138da4c99b0d92b73a8310, type: 3}
+--- !u!114 &3263057943790892985 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6976659272691129852, guid: 507f375479138da4c99b0d92b73a8310, type: 3}
+  m_PrefabInstance: {fileID: 3263057943790892984}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d9df7e99f9e2f409e2ed3fd1a1d7b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &3410010924342432344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1537,6 +1548,7 @@ MonoBehaviour:
   pauseManager: {fileID: 2120793152}
   particleManager: {fileID: 899165714}
   playerController: {fileID: 173439564}
+  progressionBar: {fileID: 3263057943790892985}
   currentBoss: {fileID: 0}
   gameModeID: 1
   _currentStar: {fileID: 0}
@@ -1544,7 +1556,7 @@ MonoBehaviour:
   currentStarScore: 0
   floorWidth: 6
   zLimit: -5
-  spawnPosition: {x: 0, y: -1, z: 32}
+  spawnPosition: {x: 0, y: -1, z: 30}
   objectsSpeed: 0
   signQuizEventManager: {fileID: 5760772670405504350}
   upgradeSelection: {fileID: 1656738403}
@@ -1588,28 +1600,28 @@ MonoBehaviour:
       chanceWeight: 33
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 33
+      chanceWeight: 30
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
-      chanceWeight: 33
+      chanceWeight: 35
     - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
-      chanceWeight: 33
+      chanceWeight: 35
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 50
+      chanceWeight: 30
     - enemyPrefab: {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
-      chanceWeight: 50
+      chanceWeight: 70
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 33
+      chanceWeight: 20
     - enemyPrefab: {fileID: 2856323925033057277, guid: e7fa6429f0b3bde4a9ff87789bea6548, type: 3}
-      chanceWeight: 33
+      chanceWeight: 40
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
-      chanceWeight: 33
+      chanceWeight: 40
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 50
+      chanceWeight: 30
     - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
-      chanceWeight: 50
+      chanceWeight: 70
   - pool:
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
       chanceWeight: 50
@@ -1621,14 +1633,13 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
       chanceWeight: 50
   difficultyValue: 0
-  difficultyValueIncreasePerPostgameLevel: 0.1
-  startObjectsSpeed: 3.2
-  endObjectsSpeed: 4.2
-  postGameObjectsSpeedMultiplier: 1.1
-  enemySpawnCooldown: 0
-  startEnemySpawnCooldown: 3.8
-  endEnemySpawnCooldown: 2.5
-  postGameEnemySpawnCooldownMultiplier: 0.95
+  difficultyValueIncreasePerPostgameLevel: 0.15
+  startObjectsSpeed: 3.4
+  endObjectsSpeed: 6.8
+  objectsSpeedCap: 9
+  startEnemySpawnDistance: 12.5
+  endEnemySpawnDistance: 9
+  enemyDistanceCap: 9
   currentEnemyPool:
     pool: []
   gameOverCountdown: 1

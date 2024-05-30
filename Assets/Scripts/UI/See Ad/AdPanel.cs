@@ -30,6 +30,7 @@ public class AdPanel : MonoBehaviour
     public void SeeAd()
     {
         MonetizationManager.ShowRewarded();
+        //lockButton.SawAdd();
 
         lockButton.ReturnFromAdScreen();
         panel.SetActive(false);

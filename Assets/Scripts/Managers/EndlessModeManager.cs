@@ -20,7 +20,7 @@ public class EndlessModeLevelManager : LevelManager
     //[SerializeField] private Star starBase;
     public int score;
     public int initialStarPointsRequired;
-    public int starPointsRequiredIncreasePerStar;
+    public float starPointsRequiredMultiplier;
 
     public EnemyPool[] enemyPools;  
 
@@ -34,15 +34,13 @@ public class EndlessModeLevelManager : LevelManager
         
         //Goes to the next star
         score++;
-        foreach (SubStar substar in currentStar.subStars)
-        {
-            substar.enemyPool = enemyPools[Random.Range(0, enemyPools.Length)];
-        }
-
-        currentStar.pointsRequired += starPointsRequiredIncreasePerStar;
-        objectsSpeed += objectsSpeedIncreasePerStar;
-        enemySpawnCooldown -= enemySpawnCooldownDecreasePerStar;
         currentStarScore = 0;
+
+        //Updates difficulty
+        currentStar.pointsRequired = (int) (currentStar.pointsRequired * starPointsRequiredMultiplier);
+        difficultyValue += difficultyValueIncreasePerStar;
+
+        UpdateDifficulty();
 
         //Updates high score
         if (score > GameManager.GetGameMode(gameModeID).highScore)
@@ -50,17 +48,25 @@ public class EndlessModeLevelManager : LevelManager
             GameManager.SetHighScore(gameModeID, score);
         }
 
-        base.OnStar();
+        progressionBar.UpdateBar(currentStarScore);
+        progressionBar.UpdateSubstars(currentStar,thisStarHasABoss() ? "" : (score+1).ToString());
     }
 
     [Header("Difficulty")]
-    public float difficultyValue = 0f, difficultyValueIncreasePerStar;
-    [SerializeField] private float startObjectsSpeed, objectsSpeedIncreasePerStar;
+    [SerializeField] private StarReward normalReward;
+    [SerializeField] private StarReward bossReward;
+    [SerializeField] private int bossStarInterval;
 
-    [Header("Enemy Spawning")]
-    private float enemySpawnTimer;
-    [SerializeField] private float enemySpawnCooldown;
-    [SerializeField] private float startEnemySpawnCooldown, enemySpawnCooldownDecreasePerStar;
+    public float difficultyValue = 0f, difficultyValueIncreasePerStar;
+
+    [SerializeField] private float startObjectsSpeed, endObjectsSpeed;
+    [SerializeField] private float objectsSpeedCap;
+
+    //Enemy spawning
+    private float enemySpawnDistanceCount;
+    private float enemySpawnDistance;
+    [SerializeField] private float startEnemySpawnDistance, endEnemySpawnDistance;
+    [SerializeField] private float enemyDistanceCap;
 
     [SerializeField] private EnemyPool currentEnemyPool;
 
@@ -111,36 +117,64 @@ public class EndlessModeLevelManager : LevelManager
         //Initialize state
         state = LevelManagerState.SpawningEnemies;
 
+        currentStar.pointsRequired = initialStarPointsRequired;
+        UpdateDifficulty();
+
+        progressionBar.UpdateBar(currentStarScore);
+        progressionBar.UpdateSubstars(currentStar,(score+1).ToString());
+    }
+
+    protected bool thisStarHasABoss()
+    {
+        return (score+1) % bossStarInterval == 0 && (score+1) != 0;
+    }
+
+    protected void UpdateDifficulty()
+    {
+        //new enemy pool
         foreach (SubStar substar in currentStar.subStars)
         {
             substar.enemyPool = enemyPools[Random.Range(0, enemyPools.Length)];
         }
 
-        currentEnemyPool = currentSubstar.enemyPool;
+        //change reward if boss
+        if (thisStarHasABoss())
+        {
+            currentStar.subStars[currentStar.subStars.Length - 1].reward = bossReward;
+        }
+        else
+        {
+            currentStar.subStars[currentStar.subStars.Length - 1].reward = normalReward;
+        }
 
-        enemySpawnCooldown = startEnemySpawnCooldown;
-        objectsSpeed = startObjectsSpeed;
-        currentStar.pointsRequired = initialStarPointsRequired;
+        //update speed and spawning
+        objectsSpeed = Mathf.Lerp(startObjectsSpeed, endObjectsSpeed, difficultyValue);
+        objectsSpeed = Mathf.Min(objectsSpeed, objectsSpeedCap);
+        
+        enemySpawnDistance = Mathf.Lerp(startEnemySpawnDistance, endEnemySpawnDistance, difficultyValue);
+        enemySpawnDistance = Mathf.Max(enemySpawnDistance, enemyDistanceCap);
     }
 
     protected override void Update()
     {
         if (paused) return;
 
+        if (state != LevelManagerState.GameOver)
+        {
+            stateBeforeGameOver = state;
+        }
+
         switch (state)
         {
             case LevelManagerState.SpawningEnemies:
             {
-                //update difficulty
-                difficultyValue = score * difficultyValueIncreasePerStar;
-                enemySpawnCooldown = startEnemySpawnCooldown + score * enemySpawnCooldownDecreasePerStar;
-                objectsSpeed = startObjectsSpeed + score * objectsSpeedIncreasePerStar;
+                //update enemy pool
                 currentEnemyPool = currentSubstar.enemyPool;
 
-                enemySpawnTimer -= Time.deltaTime;
-                if (enemySpawnTimer <= 0)
+                enemySpawnDistanceCount -= objectsSpeed * Time.deltaTime;
+                if (enemySpawnDistanceCount <= 0)
                 {
-                    enemySpawnTimer = enemySpawnCooldown;
+                    enemySpawnDistanceCount = enemySpawnDistance;
                     SpawnEnemy(currentEnemyPool.GetRandomEnemyPrefab(), floorWidth);
                 }
 
@@ -162,6 +196,17 @@ public class EndlessModeLevelManager : LevelManager
                         if (debug) Debug.Log(debugTag + "Creating upgrade event manager");
 
                         state = LevelManagerState.SignQuizEvent;
+                    }
+                    else if (currentReward is BossReward)
+                    {
+                        if (debug) Debug.Log(debugTag + "Starting boss event");
+
+                        BossReward bossReward = currentReward as BossReward;
+                        currentBoss = SpawnBoss(bossReward.bossPrefab);
+                        currentBoss.difficultyValue = difficultyValue;
+                        
+                        //Start boss event
+                        state = LevelManagerState.Boss;
                     }
                 }
             }
@@ -189,10 +234,6 @@ public class EndlessModeLevelManager : LevelManager
                             state = LevelManagerState.SpawningEnemies;
                         }
                     }
-                    else if (reward is BossReward)
-                    {
-
-                    }
                     else 
                     {
                         //Goes back to spawning enemies
@@ -216,7 +257,18 @@ public class EndlessModeLevelManager : LevelManager
             break;
             case LevelManagerState.Boss:
             {
+                if (!currentBoss.alive)
+                {
+                    currentBoss = null;
 
+                    BossReward bossReward = currentReward as BossReward;
+                    StartUpgradeSelection(bossReward.upgradeReward);
+
+                    ResolveReward(true);
+                    
+                    //goes to upgrade selection state
+                    state = LevelManagerState.ChoosingUpgrade;
+                }
             }
             break;
             case LevelManagerState.GameOver:

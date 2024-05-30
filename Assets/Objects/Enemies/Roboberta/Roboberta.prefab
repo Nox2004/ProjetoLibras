@@ -71,7 +71,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   width: 2
-  pointsOnDefeated: 3
+  pointsOnDefeated: 6
   effectRenderers:
   - {fileID: 2560860990157109823}
   - {fileID: 4119050681536764368}

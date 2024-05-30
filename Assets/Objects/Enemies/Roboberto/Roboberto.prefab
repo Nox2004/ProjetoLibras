@@ -116,7 +116,7 @@ MonoBehaviour:
   takeDamageTextureDuration: 0.5
   defenseAgainstNonPierce: 0.2
   startDefense: 0
-  endDefense: 0.2
+  endDefense: 0.3
   defenseCap: 0.5
   defendSounds:
   - {fileID: 8300000, guid: 4abc38b9cf5e5ca49b4d76647f1d5f92, type: 3}

@@ -27,6 +27,7 @@ public class LevelManager : MonoBehaviour, IPausable
     [SerializeField] protected PauseManager pauseManager;
     [SerializeField] protected ParticleManager particleManager;
     [SerializeField] protected PlayerController playerController;
+    [SerializeField] protected StarProgressionBar progressionBar;
     public PlayerController PlayerController { get => playerController; }
     [HideInInspector] public BossController currentBoss;
 
@@ -75,6 +76,8 @@ public class LevelManager : MonoBehaviour, IPausable
             currentStarScore = _max;
             reward = true;
         }
+
+        progressionBar.UpdateBar(currentStarProgression);
     }
 
     protected virtual void ResolveReward(bool rightAnswer)
@@ -103,6 +106,9 @@ public class LevelManager : MonoBehaviour, IPausable
     protected virtual void OnStar()
     {
         playerController.OnStar();
+
+        progressionBar.UpdateSubstars(currentStar);
+        progressionBar.UpdateBar(currentStarProgression);
     }
 
     #endregion
@@ -229,6 +235,9 @@ public class LevelManager : MonoBehaviour, IPausable
 
         //Initialize Upgrade Event Manager
         signQuizEventManager.Initialize(this, signSelector, playerController, spawnPosition, zLimit, floorWidth);
+
+        progressionBar.UpdateBar(currentStarProgression);
+        progressionBar.UpdateSubstars(currentStar);
     }
 
     protected virtual void Update()

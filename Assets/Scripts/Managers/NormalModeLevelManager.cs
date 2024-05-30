@@ -121,20 +121,21 @@ public class NormalModeLevelManager : LevelManager
             }
         }
 
-        base.OnStar();
+        progressionBar.UpdateBar(currentStarScore);
+        progressionBar.UpdateSubstars(currentStar, (isInPostGame) ? postGameLevel.ToString() : "");
     }
 
     [Header("Difficulty")]
     public float difficultyValue = 0f;
     [SerializeField] private float difficultyValueIncreasePerPostgameLevel;
     [SerializeField] private float startObjectsSpeed, endObjectsSpeed;
-    [SerializeField] private float postGameObjectsSpeedMultiplier;
+    [SerializeField] private float objectsSpeedCap;
 
-    [Header("Enemy Spawning")]
-    private float enemySpawnTimer;
-    [SerializeField] private float enemySpawnCooldown;
-    [SerializeField] private float startEnemySpawnCooldown, endEnemySpawnCooldown;
-    [SerializeField] private float postGameEnemySpawnCooldownMultiplier;
+    //Enemy spawning
+    private float enemySpawnDistanceCount;
+    private float enemySpawnDistance;
+    [SerializeField] private float startEnemySpawnDistance, endEnemySpawnDistance;
+    [SerializeField] private float enemyDistanceCap;
     [SerializeField] private EnemyPool currentEnemyPool;
 
     [Header("GameOver")]
@@ -184,7 +185,9 @@ public class NormalModeLevelManager : LevelManager
         }
 
         objectsSpeed = Mathf.LerpUnclamped(startObjectsSpeed, endObjectsSpeed, difficultyValue);
-        enemySpawnCooldown = Mathf.LerpUnclamped(startEnemySpawnCooldown, endEnemySpawnCooldown, difficultyValue);
+        objectsSpeed = Mathf.Min(objectsSpeed, objectsSpeedCap);
+        enemySpawnDistance = Mathf.LerpUnclamped(startEnemySpawnDistance, endEnemySpawnDistance, difficultyValue);
+        enemySpawnDistance = Mathf.Max(enemySpawnDistance, enemyDistanceCap);
         
         currentEnemyPool = currentSubstar.enemyPool;
     }
@@ -213,10 +216,10 @@ public class NormalModeLevelManager : LevelManager
         {
             case LevelManagerState.SpawningEnemies:
             {
-                enemySpawnTimer -= Time.deltaTime;
-                if (enemySpawnTimer <= 0)
+                enemySpawnDistanceCount -= Time.deltaTime * objectsSpeed;
+                if (enemySpawnDistanceCount <= 0)
                 {
-                    enemySpawnTimer = enemySpawnCooldown;
+                    enemySpawnDistanceCount = enemySpawnDistance;
                     SpawnEnemy(currentEnemyPool.GetRandomEnemyPrefab(), floorWidth);
                 }
 
@@ -302,9 +305,13 @@ public class NormalModeLevelManager : LevelManager
                 {
                     currentBoss = null;
 
-                    ResolveReward(true);
+                    BossReward bossReward = currentReward as BossReward;
+                    StartUpgradeSelection(bossReward.upgradeReward);
 
-                    state = LevelManagerState.SpawningEnemies;
+                    ResolveReward(true);
+                    
+                    //goes to upgrade selection state
+                    state = LevelManagerState.ChoosingUpgrade;
                 }
             }
             break;

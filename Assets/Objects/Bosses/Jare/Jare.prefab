@@ -184,7 +184,7 @@ MonoBehaviour:
   - {fileID: 737494023772558198}
   levelManager: {fileID: 0}
   particleManager: {fileID: 0}
-  _maxHealth: 200
+  _maxHealth: 150
   zLimit: -100
   difficultyValue: 1
   spawnPosition: {x: 0, y: -1, z: 32}
@@ -195,7 +195,7 @@ MonoBehaviour:
   KnockbackResistance: 1
   KnockbackMultiplier: 0.85
   KnockbackForce: {x: 0, y: 0, z: 0}
-  whiteEffectDuration: 0.5
+  whiteEffectDuration: 0.15
   invincible: 0
   deathSounds:
   - {fileID: 0}
@@ -214,7 +214,7 @@ MonoBehaviour:
   deadParticlesOffset: {x: 0, y: 0, z: 1.5}
   deadParticlesSpawnTime: 0.25
   attackTimerMax: 2
-  attackTimerMin: 4
+  attackTimerMin: 3
   randomChargingPrepareTime: 1
   randomChargingPrepareSpeed: 2
   randomChargeSpeed: 30

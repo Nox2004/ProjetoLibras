@@ -1105,6 +1105,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4024119371960810379, guid: 507f375479138da4c99b0d92b73a8310, type: 3}
   m_PrefabInstance: {fileID: 3263057943790892984}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2123542874 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6976659272691129852, guid: 507f375479138da4c99b0d92b73a8310, type: 3}
+  m_PrefabInstance: {fileID: 3263057943790892984}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d9df7e99f9e2f409e2ed3fd1a1d7b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &372592594379264141
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1588,6 +1599,8 @@ MonoBehaviour:
   pauseManager: {fileID: 2120793152}
   particleManager: {fileID: 899165714}
   playerController: {fileID: 173439564}
+  progressionBar: {fileID: 2123542874}
+  currentBoss: {fileID: 0}
   gameModeID: 2
   _currentStar: {fileID: 11400000, guid: 861249fd408250d4f9ab0c964ac401df, type: 2}
   currentSubStarIndex: 0
@@ -1606,8 +1619,8 @@ MonoBehaviour:
     inicialSimiliarWeight: 2
     weightSimiliarIncrement: 1
   score: 0
-  initialStarPointsRequired: 100
-  starPointsRequiredIncreasePerStar: 15
+  initialStarPointsRequired: 20
+  starPointsRequiredMultiplier: 1.06
   enemyPools:
   - pool:
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
@@ -1635,28 +1648,30 @@ MonoBehaviour:
       chanceWeight: 33
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 33
+      chanceWeight: 30
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
-      chanceWeight: 33
+      chanceWeight: 35
     - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
-      chanceWeight: 33
+      chanceWeight: 35
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 50
+      chanceWeight: 20
     - enemyPrefab: {fileID: 702947067586095354, guid: 030637d21b9954844a5b06fc37b3b693, type: 3}
-      chanceWeight: 50
+      chanceWeight: 40
+    - enemyPrefab: {fileID: 702947067586095354, guid: 9e92eeb7b4d3a92438c2e31831320e51, type: 3}
+      chanceWeight: 40
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 33
+      chanceWeight: 20
     - enemyPrefab: {fileID: 2856323925033057277, guid: e7fa6429f0b3bde4a9ff87789bea6548, type: 3}
-      chanceWeight: 33
+      chanceWeight: 40
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
-      chanceWeight: 33
+      chanceWeight: 40
   - pool:
     - enemyPrefab: {fileID: 702947067586095354, guid: 775f329682475834caba3184dcf5c870, type: 3}
-      chanceWeight: 50
+      chanceWeight: 30
     - enemyPrefab: {fileID: 702947067586095354, guid: 39715637e3ccfbe46a9b49447db6ba0e, type: 3}
-      chanceWeight: 50
+      chanceWeight: 70
   - pool:
     - enemyPrefab: {fileID: 2856323925033057277, guid: f5042867d47203641abca8584ea4a174, type: 3}
       chanceWeight: 50
@@ -1667,13 +1682,17 @@ MonoBehaviour:
       chanceWeight: 50
     - enemyPrefab: {fileID: 2856323925033057277, guid: 73a2845f1f62dfd4aa231efcc9442eac, type: 3}
       chanceWeight: 50
+  normalReward: {fileID: 11400000, guid: 1ba0465bedabd6b4d81b23794d9ab589, type: 2}
+  bossReward: {fileID: 11400000, guid: 4fefd04f49204df498b81909154b902c, type: 2}
+  bossStarInterval: 5
   difficultyValue: 0
-  difficultyValueIncreasePerStar: 0.25
-  startObjectsSpeed: 3.2
-  objectsSpeedIncreasePerStar: 0.3
-  enemySpawnCooldown: 3.8
-  startEnemySpawnCooldown: 3.8
-  enemySpawnCooldownDecreasePerStar: 0.2
+  difficultyValueIncreasePerStar: 0.1
+  startObjectsSpeed: 3.4
+  endObjectsSpeed: 6
+  objectsSpeedCap: 14
+  startEnemySpawnDistance: 12
+  endEnemySpawnDistance: 10
+  enemyDistanceCap: 5
   currentEnemyPool:
     pool: []
   gameOverCountdown: 1
