@@ -1,7 +1,8 @@
 using UnityEngine;
 
-public class SeeAdToUnlockButton : Button2D
+public class RemoveAds : Button2D
 {
+    //RemoveAdsToUnlockButton
     private float currentScale;
     [SerializeField] private float normalScale = 1f, touchScale = 1f, scaleSmoothRatio;
 
@@ -10,7 +11,7 @@ public class SeeAdToUnlockButton : Button2D
 
     [SerializeField] private Button2D lockedButton;
     [SerializeField] private Panel activePanel;
-    [SerializeField] private AdPanel adPanel;
+    [SerializeField] private RemovePanel removeAdsPanel;
 
     [SerializeField] private float destroyScaleMultiply;
     [SerializeField] private float destroyScaleTreshold;
@@ -20,9 +21,7 @@ public class SeeAdToUnlockButton : Button2D
     override protected void Start()
     {
         base.Start();
-
         audioManager = Injector.GetAudioManager(gameObject);
-
         lockedButton.control = false;
     }
 
@@ -34,36 +33,25 @@ public class SeeAdToUnlockButton : Button2D
         {
             //Change Later
             normalScale *= Mathf.Pow(destroyScaleMultiply, Time.deltaTime);
-            if (normalScale < destroyScaleTreshold) 
+            if (normalScale < destroyScaleTreshold)
             {
                 activePanel.RemoveButton(this);
                 Destroy(gameObject);
             }
-            
+
             control = false;
         }
         else
         {
             lockedButton.control = false;
         }
-        
+
         float target_scale = beingTouched ? touchScale : normalScale;
-        currentScale += (target_scale-currentScale) / (scaleSmoothRatio / Time.deltaTime);
+        currentScale += (target_scale - currentScale) / (scaleSmoothRatio / Time.deltaTime);
 
         beingTouched = false;
 
         transform.localScale = new Vector3(currentScale, currentScale, currentScale);
-    }
-
-    public void SawAdd()
-    {
-        lockedButton.control = true;
-        destroy = true;
-    }
-
-    public void ReturnFromAdScreen()
-    {
-        activePanel.SetButtonsActive(true);
     }
 
     override protected void OnTouchEnd()
@@ -71,9 +59,21 @@ public class SeeAdToUnlockButton : Button2D
         base.OnTouchEnd();
 
         activePanel.SetButtonsActive(false);
-        adPanel.SetPanelActive();
-        adPanel.lockButton = this;
+        removeAdsPanel.SetPanelActive();
+        removeAdsPanel.lockButton = this;
 
         audioManager.PlaySound(touchSound);
     }
+
+    public void BoughtAdRemove()
+    {
+        lockedButton.control = true;
+        destroy = true;
+    }
+
+    public void ReturnFromShopScreen()
+    {
+        activePanel.SetButtonsActive(true);
+    }
+
 }

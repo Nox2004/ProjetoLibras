@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuEvents : MonoBehaviour
 {
@@ -27,7 +24,10 @@ public class MenuEvents : MonoBehaviour
     [SerializeField] private Toggle2D soundsOnButton;
     [SerializeField] private Toggle2D effectsOnButton;
     [SerializeField] private Toggle2D invertedSignalsButton;
-    
+
+    [Header("Remove ADS")]
+    [SerializeField] private GameObject AdButton;
+
     private void Start()
     {
         musicOnButton.SetValue(GameManager.GetMusicOn());
@@ -79,6 +79,22 @@ public class MenuEvents : MonoBehaviour
         foreach (var button in mainMenuButtons)
         {
             button.Show();
+        }
+    }
+
+    public void CheckAdButton()
+    {
+        if (MonetizationManager.Instance.monetization.HasPurchased("removeads"))
+        {
+#if UNITY_EDITOR
+            Debug.Log("Ads removidos");
+#endif
+        }
+        else
+        {
+#if UNITY_EDITOR
+            Debug.Log("Ads permanecem");
+#endif
         }
     }
 

@@ -17,6 +17,8 @@ public class PauseManager : MonoBehaviour
 
     //private List<IPausable> pausables = new List<IPausable>();
 
+    private bool hasInterstitial = false;
+
     void Start()
     {
         sceneManager = Injector.GetSceneManager();
@@ -110,6 +112,16 @@ public class PauseManager : MonoBehaviour
 
     public void GoBackToMenu()
     {
+        if(!MonetizationManager.Instance.monetization.HasPurchased("removeads"))
+        {
+            if (Random.Range(0, 2) % 2 == 1)
+            {
+#if ENABLE_LOG
+                Debug.Log("Ad");
+#endif
+                MonetizationManager.Instance.monetization.ShowInterstitialAd();
+            }
+        }
         GameObject transition_obj = Instantiate(transitionPrefab);
         transition_obj.GetComponent<Transition>().targetSceneName = menuSceneName;
     }

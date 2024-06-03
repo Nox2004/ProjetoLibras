@@ -4,17 +4,25 @@ public class AdPanel : MonoBehaviour
 {
     public SeeAdToUnlockButton lockButton;
     private Panel panel;
+    public static bool sawReward = false;
 
     void Start()
     {
         panel = GetComponent<Panel>();
+    }
 
-        MonetizationManager.OnRewardedCompleted += OnRewardedCompleted;
+    private void Update()
+    {
+        if (sawReward)
+        {
+            OnRewardedCompleted();
+            sawReward = false;
+        }
     }
 
     private void OnDestroy()
     {
-        MonetizationManager.OnRewardedCompleted -= OnRewardedCompleted;
+
     }
 
     public void OnRewardedCompleted()
@@ -29,8 +37,7 @@ public class AdPanel : MonoBehaviour
 
     public void SeeAd()
     {
-        MonetizationManager.ShowRewarded();
-        //lockButton.SawAdd();
+        MonetizationManager.Instance.monetization.ShowRewardedAd();
 
         lockButton.ReturnFromAdScreen();
         panel.SetActive(false);
