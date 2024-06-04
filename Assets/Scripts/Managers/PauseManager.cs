@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PauseManager : MonoBehaviour
@@ -16,8 +14,6 @@ public class PauseManager : MonoBehaviour
     private ChangeSceneManager sceneManager = Injector.GetSceneManager();
 
     //private List<IPausable> pausables = new List<IPausable>();
-
-    private bool hasInterstitial = false;
 
     void Start()
     {
@@ -112,16 +108,20 @@ public class PauseManager : MonoBehaviour
 
     public void GoBackToMenu()
     {
-        if(!MonetizationManager.Instance.monetization.HasPurchased("removeads"))
+        MonetizationManager manager = MonetizationManager.Instance;
+
+        if(!manager.monetization.HasPurchased("removeads"))
         {
             if (Random.Range(0, 2) % 2 == 1)
             {
 #if ENABLE_LOG
                 Debug.Log("Ad");
 #endif
-                MonetizationManager.Instance.monetization.ShowInterstitialAd();
+                manager.monetization.ShowInterstitialAd();
+
             }
         }
+        MenuEvents.firstTime = false;
         GameObject transition_obj = Instantiate(transitionPrefab);
         transition_obj.GetComponent<Transition>().targetSceneName = menuSceneName;
     }

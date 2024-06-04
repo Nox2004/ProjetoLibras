@@ -25,8 +25,7 @@ public class MenuEvents : MonoBehaviour
     [SerializeField] private Toggle2D effectsOnButton;
     [SerializeField] private Toggle2D invertedSignalsButton;
 
-    [Header("Remove ADS")]
-    [SerializeField] private GameObject AdButton;
+    public static bool firstTime = true;
 
     private void Start()
     {
@@ -35,7 +34,6 @@ public class MenuEvents : MonoBehaviour
         effectsOnButton.SetValue(GameManager.GetEffectsOn());
         invertedSignalsButton.SetValue(GameManager.GetInvertedSignals());
     }
-
     public void PlayButton()
     {
         modeSelectionPanel.SetActive(true);
@@ -84,15 +82,16 @@ public class MenuEvents : MonoBehaviour
 
     public void CheckAdButton()
     {
+
         if (MonetizationManager.Instance.monetization.HasPurchased("removeads"))
         {
-#if UNITY_EDITOR
+#if ENABLE_LOG
             Debug.Log("Ads removidos");
 #endif
         }
         else
         {
-#if UNITY_EDITOR
+#if ENABLE_LOG
             Debug.Log("Ads permanecem");
 #endif
         }

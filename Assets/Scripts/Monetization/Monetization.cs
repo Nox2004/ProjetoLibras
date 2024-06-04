@@ -1,14 +1,13 @@
 using System;
 using UnityEngine;
-using UnityEngine.Advertisements;
 using UnityEngine.Purchasing;
+using UnityEngine.Advertisements;
 
-public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener, IStoreListener
+public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener
 {
-    //Mudar os UNITY_EDITOR para ENABLE_LOG
-
     [Header("General")]
     [SerializeField] private bool isTesting;
+    [SerializeField] private bool ResetPurchase;
 
     [Header("----------- Android IDs -----------")]
     [SerializeField] private string _androidGameId;
@@ -22,18 +21,16 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     [SerializeField] private string _iOSInterstitialId;
     [SerializeField] private string _iOSRewardedId;
 
+    [Header("----------- Purchase -----------")]
+    public static Action<string> OnPurchaseCompleted;
+
     private string _gameId;
     private string _bannerId;
     private string _interstitialId;
     private string _rewardedId;
 
-    [Header("----------- Purchase -----------")]
-    public static Action<string> OnPurchaseCompleted;
-    public IStoreController storeController;
-    public SubscriptionItem sItem;
-
     //--------------------- INITIALIZATION ---------------------
-    void Awake()
+    private void Awake()
     {
 #if UNITY_IOS
         _gameId = _iOSGameId;
@@ -52,26 +49,26 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         //Initialize Ads
         if (!Advertisement.isInitialized && Advertisement.isSupported)
         {
-#if UNITY_IOS
             Advertisement.Initialize(_gameId, Debug.isDebugBuild, this);
-#else
-            Advertisement.Initialize(_gameId, isTesting, this);
-#endif
-            Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
+            //Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
         }
     }
 
     private void Start()
     {
-        //Initialize Purchase
-        SetupBuilder();
+#if UNITY_EDITOR
+        if (ResetPurchase)
+        {
+            PlayerPrefs.DeleteKey("PURCHASED_removeads");
+        }
+#endif
     }
 
-    //--------------------- INITIALIZATION LISTENER ---------------------
+    //--------------------- INITIALIZATION CALLBACKS ---------------------
     public void OnInitializationComplete()
     {
 #if ENABLE_LOG
-        Debug.Log("Unity Ads initialization complete.");
+        Debug.Log("------------------------------ UNITY ADS INITIALIZED ------------------------------");
 #endif
     }
 
@@ -82,11 +79,10 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
 #endif
     }
 
-
     //--------------------- INTERSTITIAL CALLBACKS ---------------------
     public void ShowInterstitialAd()
     {
-        if (HasPurchased("removeads")) return;
+        //if (HasPurchased("removeads")) return;
         Advertisement.Show(_interstitialId, this);
         LoadAd(_interstitialId);
     }
@@ -96,42 +92,6 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     {
         Advertisement.Show(_rewardedId, this);
         LoadAd(_rewardedId);
-    }
-
-    //--------------------- BANNER CALLBACKS ---------------------
-    // Implement a method to call when the Load Banner button is clicked:
-    public void LoadBanner()
-    {
-        if (HasPurchased("removeads")) return;
-        // Set up options to notify the SDK of load events:
-        BannerLoadOptions options = new BannerLoadOptions
-        {
-            loadCallback = OnBannerLoaded,
-            errorCallback = OnBannerError
-        };
-
-        // Load the Ad Unit with banner content:
-        Advertisement.Banner.Load(_bannerId, options);
-    }
-
-    // Implement code to execute when the loadCallback event triggers:
-    void OnBannerLoaded()
-    {
-        if (HasPurchased("removeads")) return;
-#if ENABLE_LOG
-        Debug.Log("Banner loaded");
-#endif
-        // Set up options to notify the SDK of show events:
-        Advertisement.Banner.Show(_bannerId, null);
-    }
-
-    // Implement code to execute when the load errorCallback event triggers:
-    void OnBannerError(string message)
-    {
-#if ENABLE_LOG
-        Debug.Log($"Banner Error: {message}");
-#endif
-        // Optionally execute additional code, such as attempting to load another ad.
     }
 
     //--------------------- GENERAL CALLBACKS ---------------------
@@ -164,10 +124,12 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
 
     public void OnUnityAdsShowFailure(string placementId, UnityAdsShowError error, string message)
     {
+#if ENABLE_LOG
         if (placementId == _rewardedId)
             Debug.Log($"Error showing Ad Unit {placementId}: {error.ToString()} - {message}");
         if (placementId == _interstitialId)
             Debug.Log($"Error showing Ad Unit {placementId}: {error.ToString()} - {message}");
+#endif
     }
 
     public void OnUnityAdsAdLoaded(string placementId)
@@ -192,92 +154,38 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     {
     }
 
-    //---------------------------------------------------------------
-
-    public string[] GetIDs() {
-        return new string[] {_interstitialId, _rewardedId };
-    }
-
-    //--------------------- PURCHASE INITIALIZATION ---------------------
-    void SetupBuilder()
-    {
-        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-        builder.AddProduct("removeads", ProductType.Subscription);
-
-#pragma warning disable CS0618 // O tipo ou membro é obsoleto
-        UnityPurchasing.Initialize(this, builder);
-#pragma warning restore CS0618 // O tipo ou membro é obsoleto
-    }
-    public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
-    {
-#if ENABLE_LOG
-        Debug.Log("Unity Purchase initialization complete.");
-#endif
-        storeController = controller;
-    }
 
     //--------------------- PURCHASE CALLBACKS ---------------------
-    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs purchaseEvent)
-    {
-        var product = purchaseEvent.purchasedProduct;
-#if ENABLE_LOG
-        Debug.Log("Purchase complete " + product.definition.id);
-#endif
-        if (product.definition.id == sItem.ID)
-        {
-            PurchaseCompleted(product);
-        }
-        return PurchaseProcessingResult.Complete;
-    }
-
     public void PurchaseCompleted(Product product)
     {
         PlayerPrefs.SetInt("PURCHASED_" + product.definition.id, 1);
         PlayerPrefs.Save();
         RemovePanel.purchased = true;
 
-#if UNITY_EDITOR
+#if ENABLE_LOG
         if (HasPurchased("removeads"))
         {
-            Debug.Log("Deu bom, o bgl é igual a 1");
+            Debug.Log("ADS Removidos");
         }
         else
         {
-            Debug.Log("deu nada, o bgl é igual a 0");
+            Debug.Log("ADS não removidos ;-;");
         }
 #endif
 
-        if (HasPurchased("removeads")) Advertisement.Banner.Hide();
+        //if (HasPurchased("removeads")) HideBanner();
 
         if (OnPurchaseCompleted != null) OnPurchaseCompleted(product.definition.id);
     }
 
     public bool HasPurchased(string productID)
     {
-        return PlayerPrefs.GetInt("PURCHASED_" + productID) == 1;
+        return (PlayerPrefs.GetInt("PURCHASED_" + productID) == 1);
     }
-
-    //---------------------------------------------------------------
-
-    public void OnInitializeFailed(InitializationFailureReason error)
+    
+    //--------------------- OTHER CALLBACKS ---------------------
+    public string[] GetIDs()
     {
+        return new string[] { _interstitialId, _rewardedId };
     }
-
-    public void OnInitializeFailed(InitializationFailureReason error, string message)
-    {
-    }
-
-    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
-    {
-    }
-
-}
-[Serializable]
-public class SubscriptionItem
-{
-    public string Name;
-    public string ID;
-    public string desc;
-    public string price;
-    public string timeDuration; //in Days
 }

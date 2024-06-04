@@ -531,7 +531,6 @@ MonoBehaviour:
   soundsOnButton: {fileID: 594090413}
   effectsOnButton: {fileID: 414023283}
   invertedSignalsButton: {fileID: 1837955529}
-  AdButton: {fileID: 0}
 --- !u!4 &225348168
 Transform:
   m_ObjectHideFlags: 0
@@ -2552,7 +2551,7 @@ RectTransform:
   m_GameObject: {fileID: 807326973}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 651020405}
@@ -2561,7 +2560,7 @@ RectTransform:
   m_AnchorMin: {x: 0.7951943, y: 0.9}
   m_AnchorMax: {x: 0.7951943, y: 0.9}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 80, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &807326975
 MonoBehaviour:
@@ -2614,7 +2613,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9fc312a993749ad4aaf6894c5279ab73, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e3d4aaf8c053009489177f2680cca75b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2790,7 +2789,8 @@ GameObject:
   - component: {fileID: 900191397}
   - component: {fileID: 900191400}
   - component: {fileID: 900191399}
-  - component: {fileID: 900191398}
+  - component: {fileID: 900191402}
+  - component: {fileID: 900191403}
   m_Layer: 5
   m_Name: SeeAd
   m_TagString: Untagged
@@ -2817,37 +2817,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 170, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &900191398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 900191396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cabbfd896c1b9543bdd6bab5aae5cec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  onTouchEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1587366133}
-        m_TargetAssemblyTypeName: RemovePanel, Assembly-CSharp
-        m_MethodName: BuyProduct
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 1
-  normalScale: 1
-  touchScale: 1.1
-  scaleSmoothRatio: 0.05
-  touchSound: {fileID: 8300000, guid: fccf406177b67ec499c0336cc08ed9ae, type: 3}
 --- !u!114 &900191399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2886,6 +2855,102 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 900191396}
   m_CullTransparentMesh: 1
+--- !u!114 &900191402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900191396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 900191399}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &900191403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900191396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b79b5624d944058bd39aad2b90fb275, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  productId: removeads
+  buttonType: 0
+  consumePurchase: 1
+  onTransactionsRestored:
+    m_PersistentCalls:
+      m_Calls: []
+  onPurchaseComplete:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1587366133}
+        m_TargetAssemblyTypeName: RemovePanel, Assembly-CSharp
+        m_MethodName: BuyProduct
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  onPurchaseFailed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1587366133}
+        m_TargetAssemblyTypeName: RemovePanel, Assembly-CSharp
+        m_MethodName: DidntBuyProduct
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onProductFetched:
+    m_PersistentCalls:
+      m_Calls: []
+  button: {fileID: 900191402}
 --- !u!1 &929025506
 GameObject:
   m_ObjectHideFlags: 0
@@ -3447,9 +3512,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1132913116}
-  - component: {fileID: 1132913119}
   - component: {fileID: 1132913118}
-  - component: {fileID: 1132913117}
+  - component: {fileID: 1132913119}
+  - component: {fileID: 1132913120}
   m_Layer: 0
   m_Name: MonetizationManager
   m_TagString: Untagged
@@ -3472,7 +3537,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1132913117
+--- !u!114 &1132913118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1132913115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79832f871bb44c54d849c6ae1e1b4625, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isTesting: 0
+  ResetPurchase: 1
+  _androidGameId: 5621273
+  _androidBannerId: Banner_Android
+  _androidInterstitialId: Interstitial_Android
+  _androidRewardedId: Rewarded_Android
+  _iOSGameId: 5621272
+  _iOSBannerId: Banner_iOS
+  _iOSInterstitialId: Interstitial_iOS
+  _iOSRewardedId: Rewarded_iOS
+--- !u!114 &1132913119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1132913115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16e2ae20d252d234b9ffa371ae770cfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  monetization: {fileID: 1132913118}
+--- !u!114 &1132913120
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3491,65 +3591,13 @@ MonoBehaviour:
       m_Calls: []
   onPurchaseComplete:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1132913118}
-        m_TargetAssemblyTypeName: Monetization, Assembly-CSharp
-        m_MethodName: PurchaseCompleted
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   onPurchaseFailed:
     m_PersistentCalls:
       m_Calls: []
   onPurchaseDetailedFailedEvent:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1132913118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1132913115}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79832f871bb44c54d849c6ae1e1b4625, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isTesting: 0
-  _androidGameId: 5621273
-  _androidBannerId: Banner_Android
-  _androidInterstitialId: Interstitial_Android
-  _androidRewardedId: Rewarded_Android
-  _iOSGameId: 5621272
-  _iOSBannerId: Banner_iOS
-  _iOSInterstitialId: Interstitial_iOS
-  _iOSRewardedId: Rewarded_iOS
-  sItem:
-    Name: No Ads
-    ID: removeads
-    desc: Remove All Ads from the game
-    price: 1,99
-    timeDuration: 30
---- !u!114 &1132913119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1132913115}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16e2ae20d252d234b9ffa371ae770cfd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  monetization: {fileID: 1132913118}
 --- !u!1 &1148270800
 GameObject:
   m_ObjectHideFlags: 0
@@ -4638,9 +4686,9 @@ MonoBehaviour:
   text:
     localizedTexts:
     - language: 0
-      text: "Veja um anuncio para seguir com esta a\xE7\xE3o."
+      text: "Deseja pagar uma assinatura para remover os an\xFAncios?"
     - language: 1
-      text: See an ad to procced with this action.
+      text: Do you want to pay a subscription to remove ads?
 --- !u!114 &1665124851
 MonoBehaviour:
   m_ObjectHideFlags: 0

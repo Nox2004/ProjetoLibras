@@ -1,8 +1,9 @@
 using UnityEngine;
+using UnityEngine.Purchasing;
 
 public class RemovePanel : MonoBehaviour
 {
-    public RemoveAds lockButton;
+    public RemoveAdsToUnlockButton lockButton;
     private Panel panel;
     public static bool purchased = false;
 
@@ -34,11 +35,10 @@ public class RemovePanel : MonoBehaviour
         lockButton.BoughtAdRemove();
     }
 
-    public void BuyProduct()
+    public void BuyProduct(Product product)
     {
-        MonetizationManager manager = MonetizationManager.Instance;
-        manager.monetization.storeController.InitiatePurchase(manager.monetization.sItem.ID);
-
+        MonetizationManager.Instance.monetization.PurchaseCompleted(product);
+        
         lockButton.ReturnFromShopScreen();
         panel.SetActive(false);
     }

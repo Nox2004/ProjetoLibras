@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RemoveAds : Button2D
+public class RemoveAdsToUnlockButton : Button2D
 {
     //RemoveAdsToUnlockButton
     private float currentScale;

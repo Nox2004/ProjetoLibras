@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class MonetizationManager : Singleton<MonetizationManager>
+﻿public class MonetizationManager : Singleton<MonetizationManager>
 {
     public Monetization monetization;
 
@@ -10,18 +8,12 @@ public class MonetizationManager : Singleton<MonetizationManager>
     private void Awake()
     {
         base.Awake();
-        //PlayerPrefs.DeleteKey("PURCHASED_removeads");
+        //monetization.SetupBuilder();
         _interstitialId = monetization.GetIDs()[0];
         _rewardedId = monetization.GetIDs()[1];
 
         //Load Ads
         monetization.LoadAd(_interstitialId);
         monetization.LoadAd(_rewardedId);
-
-        //ShowAds
-        //monetization.ShowInterstitialAd();
-
-        //Banner
-        monetization.LoadBanner();
     }
 }
