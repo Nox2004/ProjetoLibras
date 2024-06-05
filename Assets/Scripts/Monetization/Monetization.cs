@@ -8,6 +8,7 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     [Header("General")]
     [SerializeField] private bool isTesting;
     [SerializeField] private bool ResetPurchase;
+    [SerializeField] BannerPosition _bannerPosition = BannerPosition.BOTTOM_CENTER;
 
     [Header("----------- Android IDs -----------")]
     [SerializeField] private string _androidGameId;
@@ -28,6 +29,8 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     private string _bannerId;
     private string _interstitialId;
     private string _rewardedId;
+
+    private bool isBannerLoaded = false;
 
     //--------------------- INITIALIZATION ---------------------
     private void Awake()
@@ -50,7 +53,7 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         if (!Advertisement.isInitialized && Advertisement.isSupported)
         {
             Advertisement.Initialize(_gameId, Debug.isDebugBuild, this);
-            //Advertisement.Banner.SetPosition(BannerPosition.BOTTOM_CENTER);
+            Advertisement.Banner.SetPosition(_bannerPosition);
         }
     }
 
@@ -59,7 +62,7 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
 #if UNITY_EDITOR
         if (ResetPurchase)
         {
-            PlayerPrefs.DeleteKey("PURCHASED_removeads");
+            //PlayerPrefs.DeleteKey("PURCHASED_removeads");
         }
 #endif
     }
@@ -67,9 +70,9 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     //--------------------- INITIALIZATION CALLBACKS ---------------------
     public void OnInitializationComplete()
     {
-#if ENABLE_LOG
         Debug.Log("------------------------------ UNITY ADS INITIALIZED ------------------------------");
-#endif
+        MenuEvents.loadBanner = true;
+        //LoadBanner();
     }
 
     public void OnInitializationFailed(UnityAdsInitializationError error, string message)
@@ -78,6 +81,78 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         Debug.Log($"Unity Ads Initialization Failed: {error.ToString()} - {message}");
 #endif
     }
+
+    //--------------------- BANNER CALLBACKS ---------------------
+    // Implement a method to call when the Load Banner button is clicked:
+    public void LoadBanner()
+    {
+        if (HasPurchased("removeads")) return;
+        // Set up options to notify the SDK of load events:
+        BannerLoadOptions options = new BannerLoadOptions
+        {
+            loadCallback = OnBannerLoaded,
+            errorCallback = OnBannerError
+        };
+
+        // Load the Ad Unit with banner content:
+        if (!isBannerLoaded)
+        {
+            Advertisement.Banner.Load(_bannerId, options);
+        }
+    }
+    public void HideBanner()
+    {
+        isBannerLoaded = false;
+        Advertisement.Banner.Hide();
+    }
+
+    public void ShowBannerAd()
+    {
+        isBannerLoaded = true;
+        // Set up options to notify the SDK of show events:
+        BannerOptions options = new BannerOptions
+        {
+            clickCallback = OnBannerClicked,
+            hideCallback = OnBannerHidden,
+            showCallback = OnBannerShown
+        };
+        // Show the loaded Banner Ad Unit:
+        Advertisement.Banner.Show(_bannerId, options);
+    }
+
+    // Implement code to execute when the loadCallback event triggers:
+    void OnBannerLoaded()
+    {
+        if (HasPurchased("removeads")) return;
+#if ENABLE_LOG
+        Debug.Log("Banner loaded");
+#endif
+        Debug.Log("------------------- Banner loaded -------------------");
+        
+        // Set up options to notify the SDK of show events:
+        //ShowBannerAd();
+    }
+
+    // Implement code to execute when the load errorCallback event triggers:
+    void OnBannerError(string message)
+    {
+        Debug.Log($"Banner Error: {message}");
+        // Optionally execute additional code, such as attempting to load another ad.
+    }
+
+    #region Not Used
+    private void OnBannerShown()
+    {
+    }
+
+    private void OnBannerHidden()
+    {
+    }
+
+    private void OnBannerClicked()
+    {
+    }
+    #endregion
 
     //--------------------- INTERSTITIAL CALLBACKS ---------------------
     public void ShowInterstitialAd()
@@ -154,7 +229,6 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     {
     }
 
-
     //--------------------- PURCHASE CALLBACKS ---------------------
     public void PurchaseCompleted(Product product)
     {
@@ -173,7 +247,7 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         }
 #endif
 
-        //if (HasPurchased("removeads")) HideBanner();
+        if (HasPurchased("removeads")) HideBanner();
 
         if (OnPurchaseCompleted != null) OnPurchaseCompleted(product.definition.id);
     }

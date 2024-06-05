@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RemoveAdsToUnlockButton : Button2D
 {
@@ -13,6 +14,8 @@ public class RemoveAdsToUnlockButton : Button2D
     [SerializeField] private Panel activePanel;
     [SerializeField] private RemovePanel removeAdsPanel;
 
+    public Button lockAdButton;
+
     [SerializeField] private float destroyScaleMultiply;
     [SerializeField] private float destroyScaleTreshold;
 
@@ -23,6 +26,8 @@ public class RemoveAdsToUnlockButton : Button2D
         base.Start();
         audioManager = Injector.GetAudioManager(gameObject);
         lockedButton.control = false;
+        //lockAdButton = GameObject.Find("SeeAd").GetComponent<Button>();
+        lockAdButton.interactable = false;
     }
 
     override protected void LateUpdate()
@@ -61,6 +66,7 @@ public class RemoveAdsToUnlockButton : Button2D
         activePanel.SetButtonsActive(false);
         removeAdsPanel.SetPanelActive();
         removeAdsPanel.lockButton = this;
+        lockAdButton.interactable = true;
 
         audioManager.PlaySound(touchSound);
     }
@@ -68,6 +74,7 @@ public class RemoveAdsToUnlockButton : Button2D
     public void BoughtAdRemove()
     {
         lockedButton.control = true;
+        lockAdButton.interactable = false;
         destroy = true;
     }
 

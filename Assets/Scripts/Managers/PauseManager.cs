@@ -109,7 +109,6 @@ public class PauseManager : MonoBehaviour
     public void GoBackToMenu()
     {
         MonetizationManager manager = MonetizationManager.Instance;
-
         if(!manager.monetization.HasPurchased("removeads"))
         {
             if (Random.Range(0, 2) % 2 == 1)
@@ -121,7 +120,7 @@ public class PauseManager : MonoBehaviour
 
             }
         }
-        MenuEvents.firstTime = false;
+        //MenuEvents.firstTime = false;
         GameObject transition_obj = Instantiate(transitionPrefab);
         transition_obj.GetComponent<Transition>().targetSceneName = menuSceneName;
     }

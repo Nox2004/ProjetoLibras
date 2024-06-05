@@ -47,6 +47,7 @@ public class RemovePanel : MonoBehaviour
     {
         lockButton.ReturnFromShopScreen();
         panel.SetActive(false);
+        lockButton.lockAdButton.interactable = false;
     }
 
 }

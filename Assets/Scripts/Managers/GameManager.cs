@@ -14,7 +14,6 @@ public static class GameManager
     private static GameModeManager gameModeManager;
 
     private static string gameModeDataPath;
-
     
     #region //Getters and Setters
 
@@ -39,7 +38,7 @@ public static class GameManager
 
     public static LanguageSettings[] GetLanguages() => mainSettings.languageSettings;
 
-    public static bool GetMusicOn() => false;//mainSettings.musicOn;
+    public static bool GetMusicOn() => true;//mainSettings.musicOn;
     public static void SetMusicOn(bool musicOn)
     {
         mainSettings.musicOn = musicOn;
@@ -47,7 +46,7 @@ public static class GameManager
         SaveSettings();
     }
 
-    public static bool GetSoundsOn() => false;//mainSettings.soundsOn;
+    public static bool GetSoundsOn() => true;//mainSettings.soundsOn;
     public static void SetSoundsOn(bool soundsOn)
     {
         mainSettings.soundsOn = soundsOn;

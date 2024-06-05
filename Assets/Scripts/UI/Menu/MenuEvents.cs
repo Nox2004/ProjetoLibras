@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class MenuEvents : MonoBehaviour
@@ -25,7 +26,7 @@ public class MenuEvents : MonoBehaviour
     [SerializeField] private Toggle2D effectsOnButton;
     [SerializeField] private Toggle2D invertedSignalsButton;
 
-    public static bool firstTime = true;
+    public static bool loadBanner = false;
 
     private void Start()
     {
@@ -33,7 +34,20 @@ public class MenuEvents : MonoBehaviour
         soundsOnButton.SetValue(GameManager.GetSoundsOn());
         effectsOnButton.SetValue(GameManager.GetEffectsOn());
         invertedSignalsButton.SetValue(GameManager.GetInvertedSignals());
+
+        MonetizationManager.Instance.monetization.LoadBanner();
+        //Load Banner
+        StartCoroutine(BannerWait());
     }
+
+    IEnumerator BannerWait()
+    {
+        Debug.Log("------------------- Waiting for unity ads -------------------");
+        yield return new WaitUntil(() => loadBanner = true);
+        MonetizationManager.Instance.monetization.ShowBannerAd();
+        Debug.Log("------------------- Unity ads loaded, loading banner -------------------");
+    }
+
     public void PlayButton()
     {
         modeSelectionPanel.SetActive(true);
@@ -99,6 +113,8 @@ public class MenuEvents : MonoBehaviour
 
     public void SelectMode(string modeSceneName)
     {
+        Monetization manager = MonetizationManager.Instance.monetization;
+        if (!manager.HasPurchased("removeads")) manager.HideBanner();
         GameObject transition_obj = Instantiate(transitionPrefab);
         transition_obj.GetComponent<Transition>().targetSceneName = modeSceneName;
     }

@@ -1713,6 +1713,7 @@ MonoBehaviour:
   lockedButton: {fileID: 807326975}
   activePanel: {fileID: 803788835}
   removeAdsPanel: {fileID: 1587366133}
+  lockAdButton: {fileID: 900191402}
   destroyScaleMultiply: 0.0001
   destroyScaleTreshold: 0.01
 --- !u!1 &680614291
@@ -2931,7 +2932,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 1
+        m_CallState: 2
   onPurchaseFailed:
     m_PersistentCalls:
       m_Calls:
@@ -3512,8 +3513,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1132913116}
-  - component: {fileID: 1132913118}
   - component: {fileID: 1132913119}
+  - component: {fileID: 1132913118}
   - component: {fileID: 1132913120}
   m_Layer: 0
   m_Name: MonetizationManager
@@ -3551,6 +3552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isTesting: 0
   ResetPurchase: 1
+  _bannerPosition: 4
   _androidGameId: 5621273
   _androidBannerId: Banner_Android
   _androidInterstitialId: Interstitial_Android
@@ -4686,9 +4688,9 @@ MonoBehaviour:
   text:
     localizedTexts:
     - language: 0
-      text: "Deseja pagar uma assinatura para remover os an\xFAncios?"
+      text: "Deseja pagar para remover os an\xFAncios?"
     - language: 1
-      text: Do you want to pay a subscription to remove ads?
+      text: Do you want to pay to remove ads?
 --- !u!114 &1665124851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4709,7 +4711,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Deseja pagar uma assinatura para remover os an\xFAncios?"
+  m_text: "Deseja pagar para remover os an\xFAncios?"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 88812efbe95b8db4c8ca474a50d832c1, type: 2}
   m_sharedMaterial: {fileID: 2355098817055556676, guid: 88812efbe95b8db4c8ca474a50d832c1, type: 2}
