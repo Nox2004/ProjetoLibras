@@ -30,7 +30,7 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     private string _interstitialId;
     private string _rewardedId;
 
-    private bool isBannerLoaded = false;
+    //private bool isBannerLoaded = false;
 
     //--------------------- INITIALIZATION ---------------------
     private void Awake()
@@ -53,7 +53,6 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         if (!Advertisement.isInitialized && Advertisement.isSupported)
         {
             Advertisement.Initialize(_gameId, Debug.isDebugBuild, this);
-            Advertisement.Banner.SetPosition(_bannerPosition);
         }
     }
 
@@ -71,8 +70,8 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     public void OnInitializationComplete()
     {
         Debug.Log("------------------------------ UNITY ADS INITIALIZED ------------------------------");
-        MenuEvents.loadBanner = true;
-        //LoadBanner();
+        //MenuEvents.loadBanner = true;
+        LoadBanner();
     }
 
     public void OnInitializationFailed(UnityAdsInitializationError error, string message)
@@ -88,6 +87,7 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
     {
         if (HasPurchased("removeads")) return;
         // Set up options to notify the SDK of load events:
+        Advertisement.Banner.SetPosition(_bannerPosition);
         BannerLoadOptions options = new BannerLoadOptions
         {
             loadCallback = OnBannerLoaded,
@@ -95,20 +95,14 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         };
 
         // Load the Ad Unit with banner content:
-        if (!isBannerLoaded)
+        if (!Advertisement.Banner.isLoaded)
         {
             Advertisement.Banner.Load(_bannerId, options);
         }
     }
-    public void HideBanner()
+    void ShowBannerAd()
     {
-        isBannerLoaded = false;
-        Advertisement.Banner.Hide();
-    }
-
-    public void ShowBannerAd()
-    {
-        isBannerLoaded = true;
+        //isBannerLoaded = true;
         // Set up options to notify the SDK of show events:
         BannerOptions options = new BannerOptions
         {
@@ -117,7 +111,16 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
             showCallback = OnBannerShown
         };
         // Show the loaded Banner Ad Unit:
-        Advertisement.Banner.Show(_bannerId, options);
+        if (!Advertisement.Banner.isLoaded)
+        {
+            Advertisement.Banner.Show(_bannerId, options);
+        }
+    }
+
+    public void HideBanner()
+    {
+        //isBannerLoaded = false;
+        Advertisement.Banner.Hide();
     }
 
     // Implement code to execute when the loadCallback event triggers:
@@ -128,9 +131,8 @@ public class Monetization : MonoBehaviour, IUnityAdsInitializationListener, IUni
         Debug.Log("Banner loaded");
 #endif
         Debug.Log("------------------- Banner loaded -------------------");
-        
         // Set up options to notify the SDK of show events:
-        //ShowBannerAd();
+        ShowBannerAd();
     }
 
     // Implement code to execute when the load errorCallback event triggers:

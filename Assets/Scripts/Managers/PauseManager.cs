@@ -120,7 +120,7 @@ public class PauseManager : MonoBehaviour
 
             }
         }
-        //MenuEvents.firstTime = false;
+        MenuEvents.firstTime = false;
         GameObject transition_obj = Instantiate(transitionPrefab);
         transition_obj.GetComponent<Transition>().targetSceneName = menuSceneName;
     }

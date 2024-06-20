@@ -26,7 +26,8 @@ public class MenuEvents : MonoBehaviour
     [SerializeField] private Toggle2D effectsOnButton;
     [SerializeField] private Toggle2D invertedSignalsButton;
 
-    public static bool loadBanner = false;
+    //public static bool loadBanner = false;
+    public static bool firstTime = true;
 
     private void Start()
     {
@@ -35,17 +36,24 @@ public class MenuEvents : MonoBehaviour
         effectsOnButton.SetValue(GameManager.GetEffectsOn());
         invertedSignalsButton.SetValue(GameManager.GetInvertedSignals());
 
-        MonetizationManager.Instance.monetization.LoadBanner();
-        //Load Banner
-        StartCoroutine(BannerWait());
+        if(firstTime)
+        {
+            //Load Banner
+            StartCoroutine(BannerWait());
+        }
+        else
+        {
+            MonetizationManager.Instance.monetization.LoadBanner();
+        }
     }
 
     IEnumerator BannerWait()
     {
-        Debug.Log("------------------- Waiting for unity ads -------------------");
-        yield return new WaitUntil(() => loadBanner = true);
-        MonetizationManager.Instance.monetization.ShowBannerAd();
-        Debug.Log("------------------- Unity ads loaded, loading banner -------------------");
+        //Debug.Log("------------------- Waiting for unity ads -------------------");
+        //yield return new WaitUntil(() => loadBanner = true);
+        yield return new WaitForSeconds(5);
+        //MonetizationManager.Instance.monetization.LoadBanner();
+        //Debug.Log("------------------- Unity ads loaded, loading banner -------------------");
     }
 
     public void PlayButton()

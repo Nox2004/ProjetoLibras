@@ -25,6 +25,6 @@ MonoBehaviour:
   selectedLanguage: 0
   invertedSignals: 0
   musicOn: 1
-  soundsOn: 1
+  soundsOn: 0
   effectsOn: 1
   outlineWidth: 1
